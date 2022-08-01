@@ -3,8 +3,6 @@ title: "Julia macros for beginners"
 date: 2021-06-07
 ---
 
-# Julia macros for beginners
-
 Macros are a powerful and interesting feature of the Julia programming language, but they can also be confusing.
 Users coming from Python, Matlab or R have not come in contact with similar constructs before, and they require a different way of thinking about code.
 This article is supposed to be a simple introduction, after which you might judge better when use of macros is appropriate and how to get around some of the most common gotchas.
