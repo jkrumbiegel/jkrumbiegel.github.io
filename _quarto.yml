@@ -1,0 +1,18 @@
+project:
+  type: website
+author: "Julius Krumbiegel"
+website:
+  title: "Julius' blog"
+  navbar:
+    right:
+      - about.qmd
+      - icon: github
+        href: https://github.com/
+      - icon: twitter
+        href: https://twitter.com
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+execute:
+  freeze: auto
