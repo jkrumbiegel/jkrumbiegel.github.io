@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2021-06-07">
+
+<title>jkrumbiegel.com - Julia macros for beginners</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">jkrumbiegel.com</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">About</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jkrumbiegel"><i class="bi bi-github" role="img">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Julia macros for beginners</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">julia</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">June 7, 2021</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<p>Macros are a powerful and interesting feature of the Julia programming language, but they can also be confusing. Users coming from Python, Matlab or R have not come in contact with similar constructs before, and they require a different way of thinking about code. This article is supposed to be a simple introduction, after which you might judge better when use of macros is appropriate and how to get around some of the most common gotchas.</p>
+<section id="what-are-macros-for" class="level2">
+<h2 class="anchored" data-anchor-id="what-are-macros-for">What are macros for?</h2>
+<p>Macros change existing source code or generate entirely new code. They are not some kind of more powerful function that unlocks secret abilities of Julia, they are just a way to automatically write code that you could have written out by hand anyway. There’s just the question whether writing that code by hand is practical, not if it’s possible. Often, we can save users a lot of work, by hiding boilerplate code they would otherwise need to write inside our macro.</p>
+<p>Still, it’s good advice, especially for beginners, to think hard if macros are the right tool for the job, or if run-of-the-mill functions serve the same purpose. Often, functions are preferable because macro magic puts a cognitive burden on the user, it makes it harder to reason about what code does. Before understanding the code, they have to understand the transformation that the macro is doing, which often goes hand in hand with non-standard syntax. That is, unless they are ok with their code having unintended consequences.</p>
+</section>
+<section id="what-does-a-macro-do" class="level2">
+<h2 class="anchored" data-anchor-id="what-does-a-macro-do">What does a macro do?</h2>
+<p>Some of the magic of macros derives from the fact that they don’t just generate some predefined code, they rather take the code they are applied to and transform it in useful ways. Variable names are one of the fundamental mechanisms by which we make code understandable for humans. In principle, you could replace every identifier in a working piece of code with something random, and it would still work.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>profit <span class="op">=</span> revenue <span class="op">-</span> costs</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># does the same thing as</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>hey <span class="op">=</span> whats <span class="op">-</span> up</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The computer doesn’t care about the names, only humans do. But functions run after the code has been transformed into lower-level representations, and names are lost at that point.</p>
+<p>For example, in this code snippet, there is no way for the author of the function to know what the user named their variable. The function just receives a value, and as far as it is concerned, that value is named <code>x</code>.</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">show_value</span>(x)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(<span class="st">"The value you passed is "</span>, x)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>orange <span class="op">=</span> <span class="st">"sweet"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>apple <span class="op">=</span> <span class="st">"sour"</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">show_value</span>(orange)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">show_value</span>(apple)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The value you passed is sweet
+The value you passed is sour</code></pre>
+</div>
+</div>
+<p>Any information about what the user wrote is lost, as the function only knows “sweet” and “sour” were passed. If we want to incorporate the information contained in the variable names, we need a macro.</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">macro</span> <span class="fu">show_value</span>(variable)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">quote</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">println</span>(<span class="st">"The "</span>, <span class="op">$</span>(<span class="fu">string</span>(variable)), <span class="st">" you passed is "</span>, <span class="op">$</span>(<span class="fu">esc</span>(variable)))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="pp">@show_value</span>(orange)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="pp">@show_value</span>(apple)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The orange you passed is sweet
+The apple you passed is sour</code></pre>
+</div>
+</div>
+<p>You probably know a macro that works very similar to this one, which is <code>@show</code></p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> orange</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> apple</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Note that it doesn’t make a difference here if we use parentheses for the macros or not. That’s a feature of Julia’s syntax which makes some macros more tidy to write. This is especially true if the macro precedes a for block or some other multi-line expression.</p>
+</section>
+<section id="how-do-macros-work" class="level2">
+<h2 class="anchored" data-anchor-id="how-do-macros-work">How do macros work?</h2>
+<p>Let’s look at our macro in more detail. Even though it’s short, it has a few interesting aspects to it.</p>
+<p>First of all, a macro runs before any code is executed. Therefore, you never have access to any runtime values in a macro. That’s something that trips many beginners up, but is crucial to understand. All the logic in the macro has to happen only using the information you can get from the expressions that the macro is applied to.</p>
+<p>One good step to understand what’s going on with an expression, is to dump it. You can use <code>Meta.@dump</code> for that.</p>
+<p>In our case, it’s not very interesting:</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="bu">Meta</span>.<span class="pp">@dump</span> orange</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Symbol orange</code></pre>
+</div>
+</div>
+<p>As you can see, the expression <code>orange</code> contains only the <code>Symbol</code> orange. So that is what our macro gets as input, just <code>:orange</code>. But, again, no runtime information about it being <code>"sweet"</code>.</p>
+<p>Inside the macro, a <code>quote</code> expression is constructed. A <code>quote</code> with source code inside returns an expression object that describes this code. The expression we return from a macro is spliced into the place where the macro call happens, as if you really had written the macro result there. That’s the reason why a macro can’t technically do more than any old Julia code.</p>
+<p>We can see the code that the macro call results in by using another helper macro, <code>@macroexpand</code>.</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@macroexpand</span> <span class="pp">@show_value</span> orange</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="ansi-escaped-output">
+<pre>quote
+    <span class="ansi-bright-black-fg">#= In[3]:3 =#</span>
+    Main.println("The ", "orange", " you passed is ", orange)
+end</pre>
+</div>
+</div>
+</div>
+<p>You can see that, ignoring linenumber and module information, the macro created a function call as if we had written</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"The "</span>, <span class="st">"orange"</span>, <span class="st">" you passed is "</span>, orange)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Therefore, let’s look at where the two oranges come from.</p>
+<p>The first one is <code>"orange"</code>, which is a string literal. We achieved this with this expression inside the macro:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">$</span>(<span class="fu">string</span>(variable))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Remember that <code>variable</code> holds the <code>Symbol</code> <code>:orange</code> when the macro is called. We convert that to a string and then place that string into the quoted expression using the interpolation symbol <code>$</code>. This is how we can print out a sentence that references the user’s chosen variable name.</p>
+<p>The other <code>orange</code> is just a normal variable name. It was created with the interpolation expression <code>$(esc(variable))</code>. The <code>esc</code> stands for <code>escape</code> and is another part of macros that is hard to understand for beginners.</p>
+</section>
+<section id="whats-escaping" class="level2">
+<h2 class="anchored" data-anchor-id="whats-escaping">What’s escaping?</h2>
+<p>To explain why <code>esc</code> needed, let’s look at a macro that leaves it out. In this example we define the macro in a separate module (because any macro you’d put in a package would not be in the <code>Main</code> module either):</p>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> SomeModule</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">export</span> <span class="pp">@show_value_no_esc</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">macro</span> <span class="fu">show_value_no_esc</span>(variable)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        <span class="kw">quote</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>            <span class="fu">println</span>(<span class="st">"The "</span>, <span class="op">$</span>(<span class="fu">string</span>(variable)), <span class="st">" you passed is "</span>, <span class="op">$</span>variable)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">end</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">.SomeModule</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>try</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show_value_no_esc</span>(orange)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>catch <span class="cn">e</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sprint</span>(showerror, <span class="cn">e</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>"UndefVarError: orange not defined"</code></pre>
+</div>
+</div>
+<p>The code errors because there is no variable <code>orange</code>. But there should be, we interpolated it right there! Let’s look at the macro output with <code>@macroexpand</code> again:</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@macroexpand</span> <span class="pp">@show_value_no_esc</span>(orange)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div class="ansi-escaped-output">
+<pre>quote
+    <span class="ansi-bright-black-fg">#= In[7]:5 =#</span>
+    Main.SomeModule.println("The ", "orange", " you passed is ", Main.SomeModule.orange)
+end</pre>
+</div>
+</div>
+</div>
+<p>Ok, so the variable looked up is actually <code>SomeModule.orange</code>, and of course we didn’t define a variable with that name in <code>SomeModule</code>. The reason this happens is that macros do often need to reference values from whatever module they were defined in. For example, to add a helper function that also lives in that module to the user’s code. Any variable name used in the created expression is looked up in the macro’s parent module by default.</p>
+<p>The other reason is that it is potentially dangerous to just change or create variables in user space in a macro that knows nothing about what’s going on there.</p>
+<p>Imagine the writer of the macro and the user as two people who know nothing about each other. They only interface via the small snippet of code passed to the macro. So, obviously, the macro shouldn’t mess around with the user’s variables.</p>
+<p>In theory, a macro could insert things like <code>my_variable = nothing</code> or <code>empty!(some_array)</code> in the place where it’s used. But imagine the user already has a <code>my_variable</code> and it happens to hold the result of a computation that ran hours. As the macro writer doesn’t know anything about the variables the user has created, all macro-created variables are by default scoped to the macro’s module to avoid conflicts.</p>
+<p>Here’s a short example of bad escaping, with a macro that is not really supposed to do anything:</p>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">macro</span> <span class="fu">change_nothing</span>(exp)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="cn">e</span> <span class="op">=</span> <span class="kw">quote</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>        temp_variable <span class="op">=</span> <span class="cn">nothing</span> <span class="co"># this could be some intermediate computation</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>        <span class="op">$</span>exp <span class="co"># we actually just pass the input expression back unchanged</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">esc</span>(<span class="cn">e</span>) <span class="co"># but everything is escaped</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>@change_nothing (macro with 1 method)</code></pre>
+</div>
+</div>
+</section>
+<section id="a-user-who-happens-to-have-a-temp-variable-calls-this-macro" class="level2">
+<h2 class="anchored" data-anchor-id="a-user-who-happens-to-have-a-temp-variable-calls-this-macro">a user who happens to have a temp variable calls this macro…</h2>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>temp_variable <span class="op">=</span> <span class="st">"important information"</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="pp">@change_nothing</span> <span class="fl">1</span> <span class="op">+</span> <span class="fl">1</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> x</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> temp_variable</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Whoops, the <code>temp_variable</code> was overwritten by the macro, and this can happen with badly written macros.</p>
+<p>But still, in order to access the value of the user’s variable <code>orange</code>, we need to <code>escape</code> the use of that symbol in our generated expression. Escaping the variable could be summarized as saying “treat this variable like a variable the user has written themselves”.</p>
+<p>As a rule of thumb, macros should only ever escape variables that they know about because they were passed to the macro. These are the variables that the user potentially wants to have changed by the macro, or at least they are aware that they could be subject to change.</p>
+<p>Here you can see another example, where there is both a user and a module orange:</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> AnotherModule</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">export</span> <span class="pp">@show_value_user_and_module</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    orange <span class="op">=</span> <span class="st">"bitter"</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">macro</span> <span class="fu">show_value_user_and_module</span>(variable)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">quote</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>            <span class="fu">println</span>(<span class="st">"The "</span>, <span class="op">$</span>(<span class="fu">string</span>(variable)), <span class="st">" you passed is "</span>, <span class="op">$</span>(<span class="fu">esc</span>(variable)),</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>                <span class="st">" and the one from the module is "</span>, <span class="op">$</span>variable)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">end</span></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">.AnotherModule</span></span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a><span class="pp">@show_value_user_and_module</span> orange</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The orange you passed is sweet and the one from the module is bitter</code></pre>
+</div>
+</div>
+</section>
+<section id="modifying-expressions" class="level2">
+<h2 class="anchored" data-anchor-id="modifying-expressions">Modifying expressions</h2>
+<p>Even though we could already see some interesting macro properties, maybe you didn’t start reading this article to learn about printing users their own variable names back (even though that is a very user friendly behavior in general, and many R users like their non-standard evaluation a lot for this reason).</p>
+<p>Usually, you want to modify the expression you receive, or build a new one with it, to achieve some functional purpose. Sometimes, macros are used to define domain specific languages or DSLs, that allow users to specify complex things with simple, yet non-standard expressions.</p>
+<p>A good example for this are the formulas from <code>StatsModels.jl</code>, where <code>@formula(y ~ x)</code> is a nice shortcut to create a formula object that you could in principle build yourself without a macro, but with much more typing.</p>
+<p>Let’s try to write a small useful macro that transforms a real expression!</p>
+<p>An issue some Julia users face once in a while, is that the <code>fill</code> function’s argument is executed once, and then the whole vector is filled with that result. Let’s say we want a vector of 5 three-element random vectors.</p>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>rand_vec <span class="op">=</span> <span class="fu">fill</span>(<span class="fu">rand</span>(<span class="fl">3</span>), <span class="fl">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<pre><code>5-element Vector{Vector{Float64}}:
+ [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
+ [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
+ [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
+ [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
+ [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]</code></pre>
+</div>
+</div>
+<p>As you can see, every vector is the same, which we don’t want. A way to get our desired result is with a list comprehension:</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>rand_vec <span class="op">=</span> [<span class="fu">rand</span>(<span class="fl">3</span>) for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>5-element Vector{Vector{Float64}}:
+ [0.8725330212586709, 0.4795816230082033, 0.9172392083002981]
+ [0.9719559431191102, 0.19043032642674818, 0.08611899155355529]
+ [0.7161171606001293, 0.302776139613366, 0.7718944119034991]
+ [0.2002017063644278, 0.5746728692444949, 0.8964453459163226]
+ [0.7202575009260345, 0.09129552321489198, 0.2932641215021371]</code></pre>
+</div>
+</div>
+<p>This works, but the fill syntax is so nice and short in comparison. Also it gets even worse if you are iterating multiple dimensions in nested for loops, while you can always write <code>fill(rand(3), 3, 4, 5)</code>.</p>
+<p>So can we write a macro that makes a list comprehension expression out of a call like <code>@fill(rand(3), 5)</code>, so that the first argument is executed anew in each iteration? Let’s try it!</p>
+<p>The first step is always to understand what expression you’re even trying to build. We already use two iterators here to understand how multiple are handled in the resulting expression:</p>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="bu">Meta</span>.<span class="pp">@dump</span> [<span class="fu">rand</span>(<span class="fl">3</span>) for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Expr
+  head: Symbol comprehension
+  args: Array{Any}((1,))
+    1: Expr
+      head: Symbol generator
+      args: Array{Any}((3,))
+        1: Expr
+          head: Symbol call
+          args: Array{Any}((2,))
+            1: Symbol rand
+            2: Int64 3
+        2: Expr
+          head: Symbol =
+          args: Array{Any}((2,))
+            1: Symbol _
+            2: Expr
+              head: Symbol call
+              args: Array{Any}((3,))
+                1: Symbol :
+                2: Int64 1
+                3: Int64 5
+        3: Expr
+          head: Symbol =
+          args: Array{Any}((2,))
+            1: Symbol _
+            2: Expr
+              head: Symbol call
+              args: Array{Any}((3,))
+                1: Symbol :
+                2: Int64 1
+                3: Int64 3</code></pre>
+</div>
+</div>
+<p>Aha, now we actually see some real expressions. Every <code>Expr</code> object has a <code>head</code> that stores what kind of expression it is, and a vector called <code>args</code> which contains all arguments to that expression.</p>
+<p>We can see that a list comprehension is made by making an <code>Expr</code> where the head is <code>:comprehension</code>. There’s only one argument to that expression, which is a :generator expression. This one in turn is assembled of the expression being called in each iteration, and the iteration expressions <code>_ = 1:5</code> and <code>_ = 1:3</code>.</p>
+<p>We want to use the syntax <code>@fill(rand(3), sizes...)</code>, so we need to think how we can transform those two arguments into the expression we want.</p>
+<p>Here, we’ll build the <code>Expr</code> by hand, instead of writing one big <code>quote</code>. Sometimes that is easier, it also depends on what you find more readable. Expressions with a lot of quoting and interpolating can be hard to understand. I usually prefer <code>quote ... end</code> over the equivalent <code>:(...)</code> just because I can parse words a bit better than parentheses.</p>
+<p>Here we go:</p>
+<p>For each size argument, we make one of the iterator expressions that we saw in the dump above. We escape each size variable <code>s</code> because those are the arguments that the user will write themselves, and they need to resolve correctly in their scope later.</p>
+<p>The comprehension expression then receives the first argument escaped because that expression also needs to run as-is in the user’s scope.</p>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">macro</span> <span class="fu">fill</span>(exp, sizes<span class="op">...</span>)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>   </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    iterator_expressions <span class="op">=</span> <span class="fu">map</span>(sizes) <span class="cf">do</span> s</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">Expr</span>(</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span>(<span class="op">=</span>),</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span>_,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>            <span class="kw">quote</span> <span class="fl">1</span><span class="op">:$</span>(<span class="fu">esc</span>(s)) <span class="cf">end</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">end</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">Expr</span>(</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">:</span>comprehension,</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">esc</span>(exp),</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>        iterator_expressions<span class="op">...</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<pre><code>@fill (macro with 1 method)</code></pre>
+</div>
+</div>
+<p>Let’s try it out:</p>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@fill</span>(<span class="fu">rand</span>(<span class="fl">3</span>), <span class="fl">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<pre><code>5-element Vector{Vector{Float64}}:
+ [0.02627205349464823, 0.11533423884129146, 0.2973247165009204]
+ [0.297583789394681, 0.06903570913101054, 0.45629749169344835]
+ [0.0692246211970835, 0.9507456085284235, 0.7833397066448377]
+ [0.13731160049441005, 0.7236868931286216, 0.9473667580650219]
+ [0.5264428859698403, 0.3563184005633261, 0.11675011608509278]</code></pre>
+</div>
+</div>
+<p>A good check if you’ve escaped correctly is to pass expressions that reference some local variables. The call will error if you’ve forgotten to escape any of them:</p>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="fl">3</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> <span class="fl">5</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="pp">@fill</span>(<span class="fu">rand</span>(n), k)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<pre><code>5-element Vector{Vector{Float64}}:
+ [0.7039197395563538, 0.9816386989332266, 0.1694562488888508]
+ [0.17571625986592, 0.9636575517806829, 0.018570143498500502]
+ [0.20014539538594045, 0.11405234139579701, 0.8857689386671248]
+ [0.6176150545544709, 0.05380364032724694, 0.8572089253093892]
+ [0.4671904345271324, 0.05192318622037595, 0.5816153176748692]</code></pre>
+</div>
+</div>
+<p>This works fine! It should also work with more size arguments, we’ll generate only random scalars so the printout is manageable:</p>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@fill</span>(<span class="fu">rand</span>(), <span class="fl">5</span>, <span class="fl">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>5×3 Matrix{Float64}:
+ 0.148051  0.0548755  0.0984375
+ 0.953251  0.451733   0.414434
+ 0.69841   0.964177   0.999719
+ 0.174305  0.959451   0.459463
+ 0.606962  0.571768   0.97671</code></pre>
+</div>
+</div>
+<p>Even though this particular example is contrived for simplicity (we could just use <code>rand(5, 3</code> of course) compare it to the alternative list comprehension syntax:</p>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>[<span class="fu">rand</span>() for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>5×3 Matrix{Float64}:
+ 0.765228  0.772367   0.655585
+ 0.374126  0.0999815  0.979332
+ 0.2307    0.25978    0.304035
+ 0.015909  0.595303   0.925112
+ 0.502928  0.349744   0.536903</code></pre>
+</div>
+</div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>As you can see, macros can be a gain in syntax clarity, and they offer a powerful way to interact with the user’s source code.</p>
+<p>Just remember that a reader also needs to understand what’s happening. In our example, <code>rand()</code> is not just executed once but many times, which is non-standard behavior for something resembling a function call. This code-reasoning overhead must always be weighed against the convenience of shorter syntax.</p>
+<p>I hope you have learned a thing or two about macros and are encouraged to play around with them yourself. Usually, good ideas for macros only present themselves after interacting with Julia for a while, so if you are a beginner, give it time and become proficient with normal functions first.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

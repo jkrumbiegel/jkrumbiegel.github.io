@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2020-10-23">
+
+<title>jkrumbiegel.com - Julia Helps To Bridge The Gap Between User and Creator</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">jkrumbiegel.com</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">About</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jkrumbiegel"><i class="bi bi-github" role="img">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Julia Helps To Bridge The Gap Between User and Creator</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">julia</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 23, 2020</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<p>You might have heard about Julia, the language often praised for the C-like performance it can attain while keeping a clean syntax reminiscent of Python. In this blog post, I want to share a different opinion why I like using Julia, which is only tangentially related to its pure performance. It is about the community Julia enables and how that could have a beneficial influence on the way scientific software is written.</p>
+<p>First off, I am not a trained computer scientist. Almost nobody in my research fields, psychology and neuroscience, is a trained computer scientist. But everybody needs to code nowadays to do research. Experiments are setup with code, data is analysed with code, graphs are made with code. So how does that work out if nobody is really trained for coding?</p>
+<p>It leads to a situation where people waste time and often produce inferior results because they don’t really grasp the tools they are using. Code is often of low quality, neither version controlled, maintainable nor reproducible. Matlab, R and Python ecosystems offer tools that allow researchers to focus on their direct interest, the data, and spend less time fighting with the compilers and complicated syntax of C++ and Fortran. But this “convenience layer” contributes to a situation where people use tools without a deeper understanding what they are doing, without an idea of what to do when those tools are not enough. We have powerful packages with relatively user-friendly API’s at our disposal in each dynamic language of choice. But the important and performant parts are written in C, C++ and Fortran, hidden from view.</p>
+<p>It is not easy to find out how things work under the hood in Python, R or Matlab. I think that this creates a big gap between users and creators of scientific tools.</p>
+<p>Students in a university R or Python data analysis course will probably learn a bit about loops and conditionals first, because that’s just how everyone learning to code starts. But after that first phase, they will quickly move on to learning APIs of packages like dplyr, ggplot, pandas, because that’s what’s <em>actually used</em> by everybody. These API’s tend to be quite removed from the basic building blocks of each language (like the common but non-standard <code>%&gt;%</code> syntax in R). If those tools don’t offer something out of the ordinary as a pre-packaged functionality, the students are out of luck. They know that they shouldn’t attempt to <em>write</em> any serious low-level analysis methods in R or Python directly, because that will probably be slow, and their tools of choice are also not made like that. One of the first things Python, R and Matlab novices learn is <em>“Vectorize everything! Don’t write for-loops, they are slow!”</em>. How surprised would they be to find out that the inside of pandas, dplyr and co is full of for-loops, because they are indispensable building blocks in compiled languages?</p>
+<p>One such example of the boundaries of existing packages I’ve encountered in my previous work was when I analysed head movement data with Python’s pandas library. I really wanted a column in my dataframe that had one rotation matrix per row, describing head orientation over time. But that was not possible to do effectively because a rotation matrix is just not a data type that pandas expects you to store in a column. At every corner my “weird” datatype caused problems with underlying assumptions of pandas, or numpy or matplotlib. In Julia, it would have been really easy to make a <code>Vector</code> with 3x3 matrices from <code>StaticArrays.jl</code>. <code>DataFrames.jl</code> doesn’t care what your column vectors contain. To me, the point was not even to have the fastest solution, just to have a solution that cleanly expressed my intent.</p>
+<p>The two-language problem is often presented as an <em>inconvenience</em> to researchers because of its time cost. I think it is a bit more than that. True, it takes a lot of time to figure out a solution to a problem in a dynamic language and then transfer it faithfully to a compiled language, to write bug-free bindings and package everything up for reuse. Julia tries to solve that problem, and it does very well to bridge the gap between a glue language with simple syntax and a serious numerical powerhouse. Countless benchmarks can attest to its speed. But when we focus only at how much time it takes to use two languages, I think we overlook what kind of effect a language gap has on research communities in this age of code.</p>
+<p>The Julia community is filled with people from diverse scientific backgrounds. Many of them, like me, are not computer scientists. That doesn’t stop them from being involved in writing serious low level packages. And if they are not writing packages themselves, they are often helping by filing issues and creating PRs, adding their own perspectives on design questions. They do this even for the Julia language itself, if they find bugs or API inconsistencies. When I was using Matlab, Python and R, I didn’t see other researchers contribute to the fundamentals of their respective ecosystems in this way. In Julia, I see it all the time.</p>
+<p>This is possible, in my opinion, because there is a continuous path from surface-level glue code to close-to-the-metal high-performance code in Julia, which can be discovered almost playfully - usually driven by the desire to reduce the number of allocations or runtime of a small function. In Julia, novices can learn first principles in a beginner friendly way, without caring about types, writing code that looks basically like Python. These first principles don’t lose their importance when <em>serious</em> packages are discovered. They instead become ever more powerful, the more knowledge a new user absorbs, because they can be combined in more and more flexible and innovative ways. As another example, if you use Stan from R, you have to feed it a script in a different language, while your <code>Turing.jl</code> models can be written in normal Julia. There’s really no limit to what you can send through Bayesian inference this way. Additionally, advanced topics like metaprogramming and optimization are always only a few steps away, and interesting lessons about one’s own code or the inner workings of Julia can be learned just by applying a couple of macros such as <code>@code_warntype</code> here and there. A transformation from beginner to expert code sometimes goes only through a couple minor changes like adding <code>@inbounds</code> in strategical places, or minimizing the use of allocations.</p>
+<p>For example, with <code>Revise.jl</code> and the <code>@edit</code> macro, it’s quite simple to manipulate even Base functions on the fly, and play around with different implementations of Julia’s fundamental building blocks. The multiple dispatch paradigm makes it possible to inject functionality deep into third party code and to connect one’s homegrown implementations with the work of others in a way that I have never seen in Python, R or Matlab. This is not brittle tampering like, e.g., monkeypatching in Python, but allows you to meaningfully extend the available functionality if you want to. Packages are specifically written to be extensible by others, each dispatch presents an opportunity for third parties to hook into. One person might have a small idea, but through Julia’s ability for composition, it can easily become part of something bigger (like the often cited Differential Equations + Measurements + Plot Recipe combo).</p>
+<p>I think Julia’s gentle learning curve and raw processing power are an invitation to domain experts outside of computer science to help write the software their fields need. Personally, it makes me feel more powerful and self-sufficient to work in a dynamic language that can not only give access to other people’s well written packages (written in Julia, but also R, Python and Matlab through <code>RCall.jl</code>, <code>PyCall.jl</code> and <code>MATLAB.jl</code>, respectively). It also allows me to write my own, and not just for toy problems but theoretically scalable even to supercomputers.</p>
+<p>I hope that in the future Julia loses the perception of being a niche language for numerics, which might discourage people who don’t need just that from trying it. Instead, I would frame it as a powerful general programming language that offers something for everyone from beginners to experts and encourages collaboration and code reuse through its extensible multiple dispatch paradigm. If researchers write more algorithms in high-level Julia and not in low-level C++, this could make them more accessible for novices and easier to check for other researchers, because Julia shares the same “pseudo-code” qualities of Python (which doesn’t actually look so clean anymore if everything is prefixed by <code>np.</code>). The Julia community also highly values CI and good test coverage and I hope that such things become more mainstream in the future, because every scientist that works with code can benefit from adopting these best practices.</p>
+<p>I wrote this post because I felt these aspects tend to be under-represented when Julia is discussed. Sometimes, the focus on micro-benchmarks and the resulting exaggerated or one-sided claims of superior performance expectedly cause users of other languages to go into defense mode. That’s not necessary in my opinion. Yes, Python R and Matlab also have amazing fast packages that enable people to do great research. But these languages are also fundamentally limited in how low-level users can reach, and they don’t allow for the same freedom to create beautiful and generic implementations that still harness all available computing power. They don’t allow scientists to bridge the gap from user to creator quite as well. And bridging that gap holds a lot of potential, especially in today’s world where everything is about code.</p>
+
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

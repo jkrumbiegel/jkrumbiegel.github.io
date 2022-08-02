@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2020-10-31">
+
+<title>jkrumbiegel.com - Tuples and Vectors, Allocations and Performance for Beginners</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">jkrumbiegel.com</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">About</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jkrumbiegel"><i class="bi bi-github" role="img">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Tuples and Vectors, Allocations and Performance for Beginners</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">julia</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 31, 2020</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<p>If you’re new to Julia, here is a scenario that might have tripped you up already: Let’s define two points. Both are just a collection of two floating point numbers. But one is a <code>Vector</code>, written with the <code>[]</code> syntax, and one a <code>Tuple</code>, written with the <code>()</code> syntax. Then we make vectors of both types of points and run a short computation. Let’s see what the performance difference looks like.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rand_vector_point</span>() <span class="op">=</span> [<span class="fu">rand</span>(), <span class="fu">rand</span>()] <span class="co"># note the []</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">rand_tuple_point</span>()  <span class="op">=</span> (<span class="fu">rand</span>(), <span class="fu">rand</span>()) <span class="co"># note the ()</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># create vectors of 500 random points each</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>vector_points <span class="op">=</span> [<span class="fu">rand_vector_point</span>() for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span>]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>tuple_points  <span class="op">=</span> [<span class="fu">rand_tuple_point</span>()  for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span>]</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co"># define a simple function calculating pairwise differences</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">difference_matrix</span>(points)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    [p1 <span class="op">.-</span> p2 for p1 <span class="kw">in</span> points, p2 <span class="kw">in</span> points]</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="co"># run each version once, just to get compilation out of the way</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">difference_matrix</span>(vector_points)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">difference_matrix</span>(tuple_points)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"Vector version:"</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="pp">@time</span> <span class="fu">difference_matrix</span>(vector_points)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"Tuple version:"</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="pp">@time</span> <span class="fu">difference_matrix</span>(tuple_points)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>Vector version:
+  0.017412 seconds (250.00 k allocations: 24.796 MiB)
+Tuple version:
+  0.002698 seconds (2 allocations: 3.815 MiB)</code></pre>
+<p>The Vector version is much slower than the Tuple version. But why? Are Vectors bad and Tuples good?</p>
+<p>In the following post I’ll try to explain in simple terms why we see such a big difference and how you can use your new knowledge to write better code in Julia.</p>
+<section id="allocations" class="level2">
+<h2 class="anchored" data-anchor-id="allocations">Allocations</h2>
+<p>The <code>@time</code> outputs show that there were 250,000 allocations for the vector version and only 2 for the tuple version. What does that mean and why does it make the code slow?</p>
+<p>An allocation is a request for memory. Our program tells the operating system “I need space to store some values” and the operating system gives back the location of some empty space in our RAM we can use.</p>
+<p>Asking the operating system for memory takes time, therefore more allocations make our code slower. So far, so good.</p>
+<p>In the vector case, this happened 250,000 times, or once for each entry in the 500 x 500 distance matrix. In the tuple code it happened only twice.</p>
+<p>But isn’t that weird?</p>
+<p>In both cases, each point consists of two floating point numbers. Each computation generates the exact same number of points. So why do we need to ask for more memory in the vector version?</p>
+<p>This leads us to the next important piece of the puzzle: We need to look at what the stack and the heap are.</p>
+</section>
+<section id="stack-and-heap" class="level2">
+<h2 class="anchored" data-anchor-id="stack-and-heap">Stack And Heap</h2>
+<p>Many programming languages work with two concepts called the <em>stack</em> and the <em>heap</em>. These concepts are just two different ways of organizing memory, which influence the speed with which programs run.</p>
+<p>The heap is comparable to a big space where stored objects are scattered all over the place. Some objects are big, some are small, and there may be large or small gaps between them. The heap is a bit messy, but it is also spacious. If you want to store a new object there, the operating system finds a suitable location for you and gives you the address.</p>
+<p>The stack on the other hand has a very strict order. It’s like a tower of objects which are stacked neatly in memory, one on top of the other. There are no gaps between them, and you can’t just pull out objects from the middle. You can only take off the topmost object or stack new ones on top of that one. New objects are always stored on top, never anywhere else.</p>
+<p>Why do we have the two kinds?</p>
+<p>The heap is for all objects that can dynamically change in size and for objects that should live longer in memory. If you need more or less space for some object which is on the heap, you can maybe expand it into some empty space around it, or you have to find a new place and copy it there. The stack on the other hand can only be built out of objects that never change in size. Imagine how that neat tower would react if an object right in the middle suddenly shrank or expanded?</p>
+<p>That’s not allowed.</p>
+<p>This might seem restrictive, but on the other hand it makes the stack really fast. Our program always knows where each object in the stack is and what size it has. We also never need to ask the operating system for additional memory when storing things on the stack. That’s because we have preallocated memory for it that should be enough for almost all purposes (as long as we don’t just keep stacking on top without removing things in between, then you get one of the famed stack overflows).</p>
+<p>To sum up, using stack memory is much faster than allocating on the heap. The problem is that not every object can be stored on the stack, only those that never change in size can be.</p>
+<p>How does that relate to our Vectors and Tuples? It’s simple: Vectors are mutable and Tuples are not.</p>
+</section>
+<section id="mutable-and-immutable-objects" class="level2">
+<h2 class="anchored" data-anchor-id="mutable-and-immutable-objects">Mutable And Immutable Objects</h2>
+<p>At first glance, the two descriptions of a point <code>[rand(), rand()]</code> and <code>(rand(), rand())</code> might look really similar, and obviously we could run the same function with both versions. The difference is that the <code>Vector</code> created with <code>[]</code> is mutable, and the <code>Tuple</code> created with <code>()</code> is immutable.</p>
+<p>For example this works:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>vector_point <span class="op">=</span> [<span class="fl">1.0</span>, <span class="fl">2.0</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">push!</span>(vector_point, <span class="fl">3.0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>3-element Array{Float64,1}:
+ 1.0
+ 2.0
+ 3.0</code></pre>
+<p>And this doesn’t:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>tuple_point <span class="op">=</span> (<span class="fl">1.0</span>, <span class="fl">2.0</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">push!</span>(tuple_point, <span class="fl">3.0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>ERROR: MethodError: no method matching push!(::Tuple{Float64,Float64}, ::Float64)</code></pre>
+<p>Another important difference is the exact type of each object. The vector point is of type <code>Array{Float64,1}</code>, or a one-dimensional array of <code>Float64</code>s. The tuple point is of type <code>Tuple{Float64,Float64}</code>, or a tuple of exactly two <code>Float64</code>s.</p>
+<p>Notice the difference? The tuple type guarantees that there are always exactly two elements in our point. The <code>Array{Float64,1}</code> makes no such guarantee.</p>
+<p>In Julia, a generic function has a method compiled for each combination of specific types of input arguments that we give it. So the method of <code>difference_matrix(points)</code> where <code>points</code> is a Vector of points of type <code>Array{Float64,1}</code> doesn’t know how many elements such points have, or how much memory will be needed for the resulting points, or even the matrix storing these points. That all has to be determined dynamically. Dynamic is slow!</p>
+<p>When the compiler compiles the method of <code>difference_matrix(points)</code> that uses <code>points</code> of type <code>Tuple{Float64, Float64}</code>, it has so much more information. It knows that each point has a specific width in memory. It knows that for each subtraction operation, the exact same size will be needed on the stack. It also knows that the resulting Matrix of points can be stored contiguously in memory.</p>
+<p>Contiguous means packed tightly together. We can do that with the tuple points because again we know their size beforehand. With the vector points, we don’t know that. The matrix that stores our vector points actually only stores the addresses for each of the little mutable point vectors. These vectors are then scattered all over the heap, with no guaranteed order that the computer could make use of. This should strike you as a really messy way of dealing with a simple matrix of points, and you would be right. The array of tuples where all points are packed together like sardines is much better.</p>
+<p>Notice that the matrix of tuples itself is not stored on the stack, but is stored in contiguous fashion on the heap. As long as we only need one allocation for that big piece of memory, that cost disappears compared to the computations we do with that memory. The 250,000 allocations in the vector case come from each individual <code>Vector</code> that results from the subtraction of two existing <code>Vectors</code>. For the matrix that stores the addresses of those individual vectors we again need only one allocation, because the memory addresses of mutable objects are themselves immutable objects of fixed size…</p>
+</section>
+<section id="its-not-just-tuples" class="level2">
+<h2 class="anchored" data-anchor-id="its-not-just-tuples">It’s Not Just Tuples</h2>
+<p>The mechanism explained above is not specific to tuples. It works with basically every immutable data structure that has a fixed size in memory given its type. For example, we could define a point as an immutable struct containing exactly two <code>Float64</code>s and would enjoy similar benefits:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Point</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    x<span class="op">::</span><span class="dt">Float64</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    y<span class="op">::</span><span class="dt">Float64</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Actually, such a point would have the exact same memory footprint as a <code>Tuple{Float64,Float64}</code> and the compiler might even treat them exactly the same on a machine code level.</p>
+<p>The important thing is that the type of our point gives the compiler complete information about the size in memory. Often, the compiler depends on knowing the exact type of objects that are stored in a collection. And it’s not immediately better just because that type is a <code>Tuple</code>.</p>
+<p>For example, you can store points of type <code>Tuple{Float64, Float64}</code> in a vector with parametric type <code>Tuple{Any,Any}</code>. This basically hides the true identity of our points from the compiler and results in abysmal performance:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>anytuple_points  <span class="op">=</span> <span class="dt">Tuple</span>{<span class="dt">Any</span>,<span class="dt">Any</span>}[<span class="fu">rand_tuple_point</span>()  for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">500</span>]</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"We have hidden our points in an </span><span class="sc">$</span>(<span class="fu">typeof</span>(anytuple_points))<span class="st">"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">difference_matrix</span>(anytuple_points)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">println</span>(<span class="st">"AnyTuple version:"</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="pp">@time</span> <span class="fu">difference_matrix</span>(anytuple_points)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<pre><code>We have hidden our points in an Array{Tuple{Any,Any},1}
+AnyTuple version:
+  0.109928 seconds (1.75 M allocations: 68.680 MiB, 8.43% gc time)</code></pre>
+<p>The instructions the compiler created for <code>Tuple{Any,Any}</code> points are much more bloated, because who knows what those tuples contain? Could it be <code>Float64</code>s by chance? The issue above actually leads to a very important concept in Julia called <em>type stability</em> which is another huge factor influencing performance, but is too much for this post.</p>
+</section>
+<section id="stack-those-immutables" class="level2">
+<h2 class="anchored" data-anchor-id="stack-those-immutables">Stack Those Immutables</h2>
+<p>To conclude this introduction, always check that your types are as concrete as possible, that your data structures can be represented by pure bit patterns and stored on the stack if possible. The function <code>isbits</code> helps to figure out if your objects have those desired properties. For example, <code>isbits([1, 2]) == false</code> but <code>isbits((1, 2)) == true</code>.</p>
+<p>You might never really have encountered immutable data structures if you come from languages like R or Matlab, but they are a big reason why Julia code can be so much faster, so make use of them! If you deal with data structures of known size, preferably use tuples or immutable structs (or check out <code>StaticArrays.jl</code>, which has tuples dressed up as arrays for convenience).</p>
+<p>You’ll make your compiler’s and therefore your computer’s job much easier, and end up with more efficient and fast code in the process.</p>
+<p>This is also not nearly all there is to say about the difference between Tuples and Vectors, but it should hopefully get some of the biggest misconceptions out of the way!</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
