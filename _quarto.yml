@@ -1,15 +1,12 @@
 project:
   type: website
-author: "Julius Krumbiegel"
 website:
-  title: "Julius' blog"
+  title: "jkrumbiegel.com"
   navbar:
     right:
       - about.qmd
       - icon: github
-        href: https://github.com/
-      - icon: twitter
-        href: https://twitter.com
+        href: https://github.com/jkrumbiegel
 format:
   html:
     theme: flatly

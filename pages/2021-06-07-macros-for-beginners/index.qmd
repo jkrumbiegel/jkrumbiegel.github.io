@@ -1,6 +1,7 @@
 ---
 title: "Julia macros for beginners"
 date: 2021-06-07
+categories: ["julia"]
 ---
 
 Macros are a powerful and interesting feature of the Julia programming language, but they can also be confusing.

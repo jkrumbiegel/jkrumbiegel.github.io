@@ -1,6 +1,7 @@
 ---
 title: "Multi-columns, shortcut strings and subset transformations in DataFrameMacros.jl v0.2"
 date: 2021-12-28
+categories: ["julia"]
 ---
 
 [DataFrameMacros.jl](https://github.com/jkrumbiegel/DataFrameMacros.jl) is a Julia package that makes it easier to manipulate DataFrames, by rewriting code into source-function-sink expressions that conform to DataFrames.jl's more verbose mini-language.

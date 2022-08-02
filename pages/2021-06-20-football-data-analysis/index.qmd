@@ -1,6 +1,7 @@
 ---
 date: 2021-06-21
 title: "Analyzing international football results with Julia"
+categories: ["julia"]
 ---
 
 As the UEFA Euro 202(0/1) is going on, I was inspired to check out a dataset of all international men's football matches since the dawn of time.
