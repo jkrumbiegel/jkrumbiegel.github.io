@@ -1,0 +1,1001 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss  xmlns:atom="http://www.w3.org/2005/Atom" 
+      xmlns:media="http://search.yahoo.com/mrss/" 
+      xmlns:content="http://purl.org/rss/1.0/modules/content/" 
+      xmlns:dc="http://purl.org/dc/elements/1.1/" 
+      version="2.0">
+<channel>
+<title>jkrumbiegel.com</title>
+<link>https://jkrumbiegel.github.io/index.html</link>
+<atom:link href="https://jkrumbiegel.github.io/index.xml" rel="self" type="application/rss+xml"/>
+<description>Programming, data visualization and data science with Julia.</description>
+<generator>quarto-1.0.37</generator>
+<lastBuildDate>Mon, 27 Dec 2021 23:00:00 GMT</lastBuildDate>
+<item>
+  <title>Multi-columns, shortcut strings and subset transformations in DataFrameMacros.jl v0.2</title>
+  <link>https://jkrumbiegel.github.io/pages/2021-12-28-new-features-dataframemacros/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p><a href="https://github.com/jkrumbiegel/DataFrameMacros.jl">DataFrameMacros.jl</a> is a Julia package that makes it easier to manipulate DataFrames, by rewriting code into source-function-sink expressions that conform to DataFrames.jl’s more verbose mini-language. In version v0.2 (and v0.2.1) I have added a couple new features that are powerful, but not immediately obvious. This post takes a closer look at the new functionality.</p>
+<p>The new features are multi-column specifiers, shortcut strings for renaming and subset transformations.</p>
+<section id="multi-column-specifiers" class="level2">
+<h2 class="anchored" data-anchor-id="multi-column-specifiers">Multi-column specifiers</h2>
+<p>So far, DataFrameMacros.jl only supported statements with single-column specifiers. For example, <code>@select(df, :x + 1)</code> or <code>@combine(df, $column_variable * $2)</code>. The expressions <code>:x</code>, <code>$column_variable</code> and <code>$2</code> all refer to one column each. The underlying source-function-sink expression that DataFrameMacros.jl created was therefore always of the form <code>source =&gt; function =&gt; sink</code>. For many tasks this is perfectly sufficient, but other times one wants to execute the same function over a set of similar or related columns.</p>
+<p>DataFrames.jl has a neat way to run the same function on a set of columns. This is done by using the <code>.=&gt;</code> operator, to broadcast over a set or sets of columns and create an array of <code>source =&gt; function =&gt; sink</code> expressions. For example, you could compute the sum for each column in a DataFrame with <code>transform(df, names(df, All()) .=&gt; sum)</code>, or in the recent v1.3 release even with <code>transform(df, All() .=&gt; sum)</code>.</p>
+<p>Now, the trick that DataFrameMacros.jl v0.2.1 uses is to change the underlying representation from <code>source =&gt; function =&gt; sink</code> to <code>source(s) .=&gt; function(s) .=&gt; sink(s)</code>. This doesn’t break the existing functionality, because scalars in Julia broadcast just fine, so it’s no problem to say something like <code>combine(df, :x .=&gt; sum .=&gt; "y")</code> - even though broadcasting doesn’t add anything if only scalars participate.</p>
+<p>Where it gets interesting is when collections of columns are used. With the change to <code>source(s) .=&gt; function(s) .=&gt; sink(s)</code> you are now free to use column expressions that refer to multiple columns. The only restriction is that the shapes of <code>source(s)</code>, <code>function(s)</code> and <code>sink(s)</code> have to be compatible for broadcasting.</p>
+<p>There are multiple ways in which you can reference multiple columns at once, and they are closely related to what <code>x</code> can be in the function <code>names(df, x)</code>. For example, <code>All()</code>, <code>Between(x, y)</code> and <code>Not(args...)</code> are now recognized directly as multi-column specifiers by DataFrameMacros, without having to mark them with the usual <code>$</code> sign. Then you can use any <code>Type</code> <code>T</code> marked by <code>$</code>, which selects all columns whose elements are subtypes of <code>T</code>, for example <code>$Real</code> or <code>$String</code>. You can use a regex that selects all columns with matching names, for example <code>$(r"a")</code> for any column with the letter <code>a</code>. Of course it’s also possible to just pass an array of column names, for example <code>$["a", "b"]</code>.</p>
+<p>Here are a few practical examples:</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">DataFrameMacros</span></span>
+<span id="cb1-2"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">DataFrames</span></span>
+<span id="cb1-3"></span>
+<span id="cb1-4">df <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">DataFrame</span>(</span>
+<span id="cb1-5">    name <span class="op" style="color: #5E5E5E;">=</span> [<span class="st" style="color: #20794D;">"alice"</span>, <span class="st" style="color: #20794D;">"bob"</span>, <span class="st" style="color: #20794D;">"charlie"</span>],</span>
+<span id="cb1-6">    age <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">20</span>, <span class="fl" style="color: #AD0000;">31</span>, <span class="fl" style="color: #AD0000;">42</span>],</span>
+<span id="cb1-7">    country <span class="op" style="color: #5E5E5E;">=</span> [<span class="st" style="color: #20794D;">"andorra"</span>, <span class="st" style="color: #20794D;">"brazil"</span>, <span class="st" style="color: #20794D;">"croatia"</span>],</span>
+<span id="cb1-8">    salary <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">9999</span>, <span class="fl" style="color: #AD0000;">6666</span>, <span class="fl" style="color: #AD0000;">3333</span>],</span>
+<span id="cb1-9">)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+
+<div class="data-frame"><p>3 rows × 4 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>name</th><th>age</th><th>country</th><th>salary</th></tr><tr><th></th><th title="String">String</th><th title="Int64">Int64</th><th title="String">String</th><th title="Int64">Int64</th></tr></thead><tbody><tr><th>1</th><td>alice</td><td>20</td><td>andorra</td><td>9999</td></tr><tr><th>2</th><td>bob</td><td>31</td><td>brazil</td><td>6666</td></tr><tr><th>3</th><td>charlie</td><td>42</td><td>croatia</td><td>3333</td></tr></tbody></table></div>
+</div>
+</div>
+<p>We can transform both <code>String</code> columns at once and both <code>Int</code> columns at once, by using the <code>Type</code> multi-column specifier.</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><span class="pp" style="color: #AD0000;">@select</span> df <span class="cf" style="color: #003B4F;">begin</span></span>
+<span id="cb2-2">    <span class="fu" style="color: #4758AB;">uppercasefirst</span>(<span class="op" style="color: #5E5E5E;">$</span>String)</span>
+<span id="cb2-3">    <span class="fu" style="color: #4758AB;">Float64</span>(<span class="op" style="color: #5E5E5E;">$</span>Int)</span>
+<span id="cb2-4"><span class="cf" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+
+<div class="data-frame"><p>3 rows × 4 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>name_uppercasefirst</th><th>country_uppercasefirst</th><th>age_Float64</th><th>salary_Float64</th></tr><tr><th></th><th title="String">String</th><th title="String">String</th><th title="Float64">Float64</th><th title="Float64">Float64</th></tr></thead><tbody><tr><th>1</th><td>Alice</td><td>Andorra</td><td>20.0</td><td>9999.0</td></tr><tr><th>2</th><td>Bob</td><td>Brazil</td><td>31.0</td><td>6666.0</td></tr><tr><th>3</th><td>Charlie</td><td>Croatia</td><td>42.0</td><td>3333.0</td></tr></tbody></table></div>
+</div>
+</div>
+<p>We can try out the <code>All()</code> specifier by reversing the element order of each column. We need the <code>@c</code> flag so <code>reverse</code> acts on each column vector and not each column element. This works the same way with the <code>Between</code> and <code>Not</code> selectors.</p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><span class="pp" style="color: #AD0000;">@select</span> df <span class="pp" style="color: #AD0000;">@c</span> <span class="fu" style="color: #4758AB;">reverse</span>(<span class="fu" style="color: #4758AB;">All</span>())</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+
+<div class="data-frame"><p>3 rows × 4 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>name_reverse</th><th>age_reverse</th><th>country_reverse</th><th>salary_reverse</th></tr><tr><th></th><th title="String">String</th><th title="Int64">Int64</th><th title="String">String</th><th title="Int64">Int64</th></tr></thead><tbody><tr><th>1</th><td>charlie</td><td>42</td><td>croatia</td><td>3333</td></tr><tr><th>2</th><td>bob</td><td>31</td><td>brazil</td><td>6666</td></tr><tr><th>3</th><td>alice</td><td>20</td><td>andorra</td><td>9999</td></tr></tbody></table></div>
+</div>
+</div>
+<p>We can combine multi-column specifiers with single-column specifiers, they can always broadcast together because scalars work together with any shape. For example, let’s say we have a column with tax rates and four columns with quarterly gains and we want to compute the quarterly taxes.</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1">df <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">DataFrame</span>(</span>
+<span id="cb4-2">    year <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">2019</span>, <span class="fl" style="color: #AD0000;">2020</span>, <span class="fl" style="color: #AD0000;">2021</span>],</span>
+<span id="cb4-3">    tax_rate <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">0.19</span>, <span class="fl" style="color: #AD0000;">0.20</span>, <span class="fl" style="color: #AD0000;">0.21</span>],</span>
+<span id="cb4-4">    income_q1 <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">2000</span>, <span class="fl" style="color: #AD0000;">3000</span>, <span class="fl" style="color: #AD0000;">4000</span>],</span>
+<span id="cb4-5">    income_q2 <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">2100</span>, <span class="fl" style="color: #AD0000;">3100</span>, <span class="fl" style="color: #AD0000;">4100</span>],</span>
+<span id="cb4-6">    income_q3 <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">2200</span>, <span class="fl" style="color: #AD0000;">3200</span>, <span class="fl" style="color: #AD0000;">4200</span>],</span>
+<span id="cb4-7">    income_q4 <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">2300</span>, <span class="fl" style="color: #AD0000;">3300</span>, <span class="fl" style="color: #AD0000;">4300</span>],</span>
+<span id="cb4-8">)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+
+<div class="data-frame"><p>3 rows × 6 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>year</th><th>tax_rate</th><th>income_q1</th><th>income_q2</th><th>income_q3</th><th>income_q4</th></tr><tr><th></th><th title="Int64">Int64</th><th title="Float64">Float64</th><th title="Int64">Int64</th><th title="Int64">Int64</th><th title="Int64">Int64</th><th title="Int64">Int64</th></tr></thead><tbody><tr><th>1</th><td>2019</td><td>0.19</td><td>2000</td><td>2100</td><td>2200</td><td>2300</td></tr><tr><th>2</th><td>2020</td><td>0.2</td><td>3000</td><td>3100</td><td>3200</td><td>3300</td></tr><tr><th>3</th><td>2021</td><td>0.21</td><td>4000</td><td>4100</td><td>4200</td><td>4300</td></tr></tbody></table></div>
+</div>
+</div>
+<p>Then we can simply multiply the tax rate with the four income columns at once, which we select with the <code>Between</code> selector.</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><span class="pp" style="color: #AD0000;">@select</span>(df, <span class="op" style="color: #5E5E5E;">:</span>tax_rate <span class="op" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">Between</span>(<span class="fl" style="color: #AD0000;">3</span>, <span class="fl" style="color: #AD0000;">6</span>))</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+
+<div class="data-frame"><p>3 rows × 4 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>tax_rate_income_q1_*</th><th>tax_rate_income_q2_*</th><th>tax_rate_income_q3_*</th><th>tax_rate_income_q4_*</th></tr><tr><th></th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th></tr></thead><tbody><tr><th>1</th><td>380.0</td><td>399.0</td><td>418.0</td><td>437.0</td></tr><tr><th>2</th><td>600.0</td><td>620.0</td><td>640.0</td><td>660.0</td></tr><tr><th>3</th><td>840.0</td><td>861.0</td><td>882.0</td><td>903.0</td></tr></tbody></table></div>
+</div>
+</div>
+<p>Another option to select the columns would be to use a regex. We have to mark it with <code>$</code> so that DataFrameMacros knows to treat it as a column specifier.</p>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><span class="pp" style="color: #AD0000;">@select</span>(df, <span class="op" style="color: #5E5E5E;">:</span>tax_rate <span class="op" style="color: #5E5E5E;">*</span> <span class="op" style="color: #5E5E5E;">$</span>(<span class="st" style="color: #20794D;">r"income"</span>))</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+
+<div class="data-frame"><p>3 rows × 4 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>tax_rate_income_q1_*</th><th>tax_rate_income_q2_*</th><th>tax_rate_income_q3_*</th><th>tax_rate_income_q4_*</th></tr><tr><th></th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th></tr></thead><tbody><tr><th>1</th><td>380.0</td><td>399.0</td><td>418.0</td><td>437.0</td></tr><tr><th>2</th><td>600.0</td><td>620.0</td><td>640.0</td><td>660.0</td></tr><tr><th>3</th><td>840.0</td><td>861.0</td><td>882.0</td><td>903.0</td></tr></tbody></table></div>
+</div>
+</div>
+<p>Now one issue is that the resulting column names are very ugly. We could specify the new names directly as a vector. Remember that the expression is <code>source(s) .=&gt; function(s) .=&gt; sink(s)</code> so we can also broadcast a vector of sinks. The string <code>"taxes_q1"</code> will be the sink associated with the first element from the regex selector, and so on.</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><span class="pp" style="color: #AD0000;">@select</span>(df,</span>
+<span id="cb7-2">    [<span class="st" style="color: #20794D;">"taxes_q1"</span>, <span class="st" style="color: #20794D;">"taxes_q2"</span>, <span class="st" style="color: #20794D;">"taxes_q3"</span>, <span class="st" style="color: #20794D;">"taxes_q4"</span>] <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>tax_rate <span class="op" style="color: #5E5E5E;">*</span> <span class="op" style="color: #5E5E5E;">$</span>(<span class="st" style="color: #20794D;">r"income"</span>))</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+
+<div class="data-frame"><p>3 rows × 4 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>taxes_q1</th><th>taxes_q2</th><th>taxes_q3</th><th>taxes_q4</th></tr><tr><th></th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th></tr></thead><tbody><tr><th>1</th><td>380.0</td><td>399.0</td><td>418.0</td><td>437.0</td></tr><tr><th>2</th><td>600.0</td><td>620.0</td><td>640.0</td><td>660.0</td></tr><tr><th>3</th><td>840.0</td><td>861.0</td><td>882.0</td><td>903.0</td></tr></tbody></table></div>
+</div>
+</div>
+<p>But writing out strings like that is error prone, especially if the order of columns can change. So it would be better to transform the original column names. DataFrames allows to use anonymous functions for this, the input for the function is a vector with all column names used in the expression. We can split off the <code>"q1"</code> part from the second column in each expression (the income column) and prefix with <code>"taxes_"</code>:</p>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><span class="pp" style="color: #AD0000;">@select</span>(df, (names <span class="op" style="color: #5E5E5E;">-&gt;</span> <span class="st" style="color: #20794D;">"taxes_"</span> <span class="op" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">split</span>(names[<span class="fl" style="color: #AD0000;">2</span>], <span class="st" style="color: #20794D;">"_"</span>)[<span class="fl" style="color: #AD0000;">2</span>]) <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>tax_rate <span class="op" style="color: #5E5E5E;">*</span> <span class="op" style="color: #5E5E5E;">$</span>(<span class="st" style="color: #20794D;">r"income"</span>))</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+
+<div class="data-frame"><p>3 rows × 4 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>taxes_q1</th><th>taxes_q2</th><th>taxes_q3</th><th>taxes_q4</th></tr><tr><th></th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th></tr></thead><tbody><tr><th>1</th><td>380.0</td><td>399.0</td><td>418.0</td><td>437.0</td></tr><tr><th>2</th><td>600.0</td><td>620.0</td><td>640.0</td><td>660.0</td></tr><tr><th>3</th><td>840.0</td><td>861.0</td><td>882.0</td><td>903.0</td></tr></tbody></table></div>
+</div>
+</div>
+<section id="broadcasting-with-more-than-one-dimension" class="level3">
+<h3 class="anchored" data-anchor-id="broadcasting-with-more-than-one-dimension">Broadcasting with more than one dimension</h3>
+<p>You are not technically limited to broadcasting one vector of columns with scalar columns, you can even evaluate two- or higher-dimensional grids of column combinations if you like. For example, if you had two different tax rates and three income categories, you could compute all six tax columns with one expression. Here we extract the income columns first so we can make them into a row-vector with <code>permutedims</code>, which will form a 2D grid when broadcasted together with the column vector with the two tax columns.</p>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1">df <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">DataFrame</span>(</span>
+<span id="cb9-2">    year <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">2019</span>, <span class="fl" style="color: #AD0000;">2020</span>, <span class="fl" style="color: #AD0000;">2021</span>],</span>
+<span id="cb9-3">    tax_a <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">0.19</span>, <span class="fl" style="color: #AD0000;">0.20</span>, <span class="fl" style="color: #AD0000;">0.21</span>],</span>
+<span id="cb9-4">    tax_b <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">0.22</span>, <span class="fl" style="color: #AD0000;">0.23</span>, <span class="fl" style="color: #AD0000;">0.24</span>],</span>
+<span id="cb9-5">    income_a <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">2000</span>, <span class="fl" style="color: #AD0000;">3000</span>, <span class="fl" style="color: #AD0000;">4000</span>],</span>
+<span id="cb9-6">    income_b <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">2100</span>, <span class="fl" style="color: #AD0000;">3100</span>, <span class="fl" style="color: #AD0000;">4100</span>],</span>
+<span id="cb9-7">    income_c <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">2200</span>, <span class="fl" style="color: #AD0000;">3200</span>, <span class="fl" style="color: #AD0000;">4200</span>],</span>
+<span id="cb9-8">)</span>
+<span id="cb9-9"></span>
+<span id="cb9-10">income_cols <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">permutedims</span>(<span class="fu" style="color: #4758AB;">names</span>(df, <span class="st" style="color: #20794D;">r"income"</span>))</span>
+<span id="cb9-11"></span>
+<span id="cb9-12"><span class="pp" style="color: #AD0000;">@select</span>(df, <span class="op" style="color: #5E5E5E;">$</span>(<span class="st" style="color: #20794D;">r"tax"</span>) <span class="op" style="color: #5E5E5E;">*</span> <span class="op" style="color: #5E5E5E;">$</span>income_cols)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+
+<div class="data-frame"><p>3 rows × 6 columns (omitted printing of 1 columns)</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>tax_a_income_a_*</th><th>tax_b_income_a_*</th><th>tax_a_income_b_*</th><th>tax_b_income_b_*</th><th>tax_a_income_c_*</th></tr><tr><th></th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th></tr></thead><tbody><tr><th>1</th><td>380.0</td><td>440.0</td><td>399.0</td><td>462.0</td><td>418.0</td></tr><tr><th>2</th><td>600.0</td><td>690.0</td><td>620.0</td><td>713.0</td><td>640.0</td></tr><tr><th>3</th><td>840.0</td><td>960.0</td><td>861.0</td><td>984.0</td><td>882.0</td></tr></tbody></table></div>
+</div>
+</div>
+<p>The column names are again not ideal, which brings us to another new feature.</p>
+</section>
+</section>
+<section id="shortcut-strings-for-renaming" class="level2">
+<h2 class="anchored" data-anchor-id="shortcut-strings-for-renaming">Shortcut strings for renaming</h2>
+<p>Often, we want to give new columns names that are just simple combinations of column names used to compute them. In the last example, a better name than <code>tax_a_income_a_*</code> could be <code>tax_a_on_income_b</code>.</p>
+<p>If DataFrameMacros encounters a string literal as the sink which contains <code>"{}"</code>, <code>"{1}"</code> or <code>"{2}"</code> and up, it translates this into a renaming function that pastes the input column names at the respective locations. Here’s the last example again with such a shortcut string:</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><span class="pp" style="color: #AD0000;">@select</span>(df, <span class="st" style="color: #20794D;">"{1}_on_{2}"</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">$</span>(<span class="st" style="color: #20794D;">r"tax"</span>) <span class="op" style="color: #5E5E5E;">*</span> <span class="op" style="color: #5E5E5E;">$</span>income_cols)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+
+<div class="data-frame"><p>3 rows × 6 columns (omitted printing of 1 columns)</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>tax_a_on_income_a</th><th>tax_b_on_income_a</th><th>tax_a_on_income_b</th><th>tax_b_on_income_b</th><th>tax_a_on_income_c</th></tr><tr><th></th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th><th title="Float64">Float64</th></tr></thead><tbody><tr><th>1</th><td>380.0</td><td>440.0</td><td>399.0</td><td>462.0</td><td>418.0</td></tr><tr><th>2</th><td>600.0</td><td>690.0</td><td>620.0</td><td>713.0</td><td>640.0</td></tr><tr><th>3</th><td>840.0</td><td>960.0</td><td>861.0</td><td>984.0</td><td>882.0</td></tr></tbody></table></div>
+</div>
+</div>
+</section>
+<section id="subset-transformations" class="level2">
+<h2 class="anchored" data-anchor-id="subset-transformations">Subset transformations</h2>
+<p>The third new feature goes hand in hand with a new addition in DataFrames v1.3. Now you can call <code>transform!</code> or <code>select!</code> on the view returned by <code>subset(df, some_subset_expression, view = true)</code>, and this will mutate the underlying DataFrame only in the selected rows. If new columns are added, all rows outside the subset are filled with <code>missing</code> values.</p>
+<p>In base DataFrames, you need to first create a subset view, then mutate it, then continue on with the original DataFrame. Here’s the DataFrame we start with</p>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1">df <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">DataFrame</span>(x <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">4</span>, y <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">8</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+
+<div class="data-frame"><p>4 rows × 2 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>x</th><th>y</th></tr><tr><th></th><th title="Int64">Int64</th><th title="Int64">Int64</th></tr></thead><tbody><tr><th>1</th><td>1</td><td>5</td></tr><tr><th>2</th><td>2</td><td>6</td></tr><tr><th>3</th><td>3</td><td>7</td></tr><tr><th>4</th><td>4</td><td>8</td></tr></tbody></table></div>
+</div>
+</div>
+<p>Now we subset some rows and increment the y values by 10 there. We also create new z values:</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1">subset_view <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">subset</span>(df, <span class="op" style="color: #5E5E5E;">:</span>x <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="fu" style="color: #4758AB;">ByRow</span>(<span class="op" style="color: #5E5E5E;">&gt;=</span>(<span class="fl" style="color: #AD0000;">3</span>)), view <span class="op" style="color: #5E5E5E;">=</span> <span class="cn" style="color: #8f5902;">true</span>)</span>
+<span id="cb12-2"><span class="fu" style="color: #4758AB;">transform!</span>(</span>
+<span id="cb12-3">    subset_view,</span>
+<span id="cb12-4">    <span class="op" style="color: #5E5E5E;">:</span>y <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="fu" style="color: #4758AB;">ByRow</span>(x <span class="op" style="color: #5E5E5E;">-&gt;</span> x <span class="op" style="color: #5E5E5E;">+</span> <span class="fl" style="color: #AD0000;">10</span>) <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="op" style="color: #5E5E5E;">:</span>y,</span>
+<span id="cb12-5">    <span class="op" style="color: #5E5E5E;">:</span>x <span class="op" style="color: #5E5E5E;">=&gt;</span> (x <span class="op" style="color: #5E5E5E;">-&gt;</span> x <span class="op" style="color: #5E5E5E;">*</span> <span class="fl" style="color: #AD0000;">3</span>) <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="op" style="color: #5E5E5E;">:</span>z</span>
+<span id="cb12-6">)</span>
+<span id="cb12-7">df</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+
+<div class="data-frame"><p>4 rows × 3 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>x</th><th>y</th><th>z</th></tr><tr><th></th><th title="Int64">Int64</th><th title="Int64">Int64</th><th title="Union{Missing, Int64}">Int64?</th></tr></thead><tbody><tr><th>1</th><td>1</td><td>5</td><td><em>missing</em></td></tr><tr><th>2</th><td>2</td><td>6</td><td><em>missing</em></td></tr><tr><th>3</th><td>3</td><td>17</td><td>9</td></tr><tr><th>4</th><td>4</td><td>18</td><td>12</td></tr></tbody></table></div>
+</div>
+</div>
+<p>In DataFrameMacros v0.2, you can now use a more convenient syntax that plays well with Chain.jl or other piping mechanisms, where you only want to use functions that return the DataFrame you work with, not a subset view. You can simply pass a <code>@subset</code> expression to <code>@transform!</code> or <code>@select!</code> after the DataFrame argument. This <code>@subset</code> expression doesn’t take its own DataFrame argument as usual, that’s implied to be the DataFrame that is being transformed. The returned object after mutating the selected rows is the original DataFrame. You can see how much more concise the same operation becomes:</p>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb13" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1">df <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">DataFrame</span>(x <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">4</span>, y <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">5</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">8</span>)</span>
+<span id="cb13-2"><span class="pp" style="color: #AD0000;">@transform</span>!(df, <span class="pp" style="color: #AD0000;">@subset</span>(<span class="op" style="color: #5E5E5E;">:</span>x <span class="op" style="color: #5E5E5E;">&gt;=</span> <span class="fl" style="color: #AD0000;">3</span>), <span class="op" style="color: #5E5E5E;">:</span>y <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>y <span class="op" style="color: #5E5E5E;">+</span> <span class="fl" style="color: #AD0000;">10</span>, <span class="op" style="color: #5E5E5E;">:</span>z <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">3</span> <span class="op" style="color: #5E5E5E;">*</span> <span class="op" style="color: #5E5E5E;">:</span>x)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+
+<div class="data-frame"><p>4 rows × 3 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>x</th><th>y</th><th>z</th></tr><tr><th></th><th title="Int64">Int64</th><th title="Int64">Int64</th><th title="Union{Missing, Int64}">Int64?</th></tr></thead><tbody><tr><th>1</th><td>1</td><td>5</td><td><em>missing</em></td></tr><tr><th>2</th><td>2</td><td>6</td><td><em>missing</em></td></tr><tr><th>3</th><td>3</td><td>17</td><td>9</td></tr><tr><th>4</th><td>4</td><td>18</td><td>12</td></tr></tbody></table></div>
+</div>
+</div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>That concludes the overview of the three new features, multi-column specifiers, shortcut strings for renaming and subset transformations. Especially multi-column specifiers with their implicit broadcasting might need a moment to wrap your head around, but I think you’ll find them very convenient. I hope you enjoy using the new release!</p>
+
+
+</section>
+
+ ]]></description>
+  <category>julia</category>
+  <guid>https://jkrumbiegel.github.io/pages/2021-12-28-new-features-dataframemacros/index.html</guid>
+  <pubDate>Mon, 27 Dec 2021 23:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Analyzing international football results with Julia</title>
+  <link>https://jkrumbiegel.github.io/pages/2021-06-20-football-data-analysis/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>As the UEFA Euro 202(0/1) is going on, I was inspired to check out a dataset of all international men’s football matches since the dawn of time. This post goes over some questions I had for the dataset, and how I approached the analysis with my recent macro package DataFrameMacros.jl. Plotting is done with AlgebraOfGraphics.jl, which is a super useful grammar-of-graphics style package building on Makie.jl, which I’m a co-author of and which is therefore my preferred plotting package.</p>
+<p>Let’s set up some basics and import the necessary packages:</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">CairoMakie</span></span>
+<span id="cb1-2"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">AlgebraOfGraphics</span></span>
+<span id="cb1-3"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">Chain</span></span>
+<span id="cb1-4"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">CSV</span></span>
+<span id="cb1-5"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">Downloads</span></span>
+<span id="cb1-6"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">DataFrames</span></span>
+<span id="cb1-7"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">DataFrameMacros</span></span>
+<span id="cb1-8"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">StatsBase</span></span>
+<span id="cb1-9"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">Dates</span></span>
+<span id="cb1-10"></span>
+<span id="cb1-11">CairoMakie.<span class="fu" style="color: #4758AB;">activate!</span>(<span class="kw" style="color: #003B4F;">type</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"svg"</span>)</span>
+<span id="cb1-12"><span class="fu" style="color: #4758AB;">set_theme!</span>(<span class="fu" style="color: #4758AB;">theme_minimal</span>())</span></code></pre></div>
+</div>
+<p>First, we need to download the dataset, which is available on <a href="https://raw.githubusercontent.com/martj42/international_results/master/results.csv">github</a>.</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1">url <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"https://raw.githubusercontent.com/martj42/international_results/master/results.csv"</span></span>
+<span id="cb2-2"></span>
+<span id="cb2-3">df <span class="op" style="color: #5E5E5E;">=</span> <span class="pp" style="color: #AD0000;">@chain</span> url <span class="cf" style="color: #003B4F;">begin</span></span>
+<span id="cb2-4">    <span class="bu" style="color: null;">Downloads</span>.download</span>
+<span id="cb2-5">    CSV.<span class="fu" style="color: #4758AB;">File</span>(missingstring <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"NA"</span>)</span>
+<span id="cb2-6">    DataFrame</span>
+<span id="cb2-7"><span class="cf" style="color: #003B4F;">end</span></span>
+<span id="cb2-8"></span>
+<span id="cb2-9"><span class="fu" style="color: #4758AB;">first</span>(df, <span class="fl" style="color: #AD0000;">10</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+
+<div class="data-frame"><p>10 rows × 9 columns (omitted printing of 2 columns)</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>date</th><th>home_team</th><th>away_team</th><th>home_score</th><th>away_score</th><th>tournament</th><th>city</th></tr><tr><th></th><th title="Date">Date</th><th title="String">String</th><th title="String">String</th><th title="Int64">Int64</th><th title="Int64">Int64</th><th title="String">String</th><th title="String31">String31</th></tr></thead><tbody><tr><th>1</th><td>1872-11-30</td><td>Scotland</td><td>England</td><td>0</td><td>0</td><td>Friendly</td><td>Glasgow</td></tr><tr><th>2</th><td>1873-03-08</td><td>England</td><td>Scotland</td><td>4</td><td>2</td><td>Friendly</td><td>London</td></tr><tr><th>3</th><td>1874-03-07</td><td>Scotland</td><td>England</td><td>2</td><td>1</td><td>Friendly</td><td>Glasgow</td></tr><tr><th>4</th><td>1875-03-06</td><td>England</td><td>Scotland</td><td>2</td><td>2</td><td>Friendly</td><td>London</td></tr><tr><th>5</th><td>1876-03-04</td><td>Scotland</td><td>England</td><td>3</td><td>0</td><td>Friendly</td><td>Glasgow</td></tr><tr><th>6</th><td>1876-03-25</td><td>Scotland</td><td>Wales</td><td>4</td><td>0</td><td>Friendly</td><td>Glasgow</td></tr><tr><th>7</th><td>1877-03-03</td><td>England</td><td>Scotland</td><td>1</td><td>3</td><td>Friendly</td><td>London</td></tr><tr><th>8</th><td>1877-03-05</td><td>Wales</td><td>Scotland</td><td>0</td><td>2</td><td>Friendly</td><td>Wrexham</td></tr><tr><th>9</th><td>1878-03-02</td><td>Scotland</td><td>England</td><td>7</td><td>2</td><td>Friendly</td><td>Glasgow</td></tr><tr><th>10</th><td>1878-03-23</td><td>Scotland</td><td>Wales</td><td>9</td><td>0</td><td>Friendly</td><td>Glasgow</td></tr></tbody></table></div>
+</div>
+</div>
+<p>Let’s start with a simple question: How did the number of games played per year develop over time? In DataFrameMacros.jl, you can group by columns that you create directly in the groupby call.</p>
+<p>We can directly visualize the result by chaining the analysis into AlgebraOfGraphics.</p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><span class="pp" style="color: #AD0000;">@chain</span> df <span class="cf" style="color: #003B4F;">begin</span></span>
+<span id="cb3-2">    <span class="pp" style="color: #AD0000;">@groupby</span>(<span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">year</span>(<span class="op" style="color: #5E5E5E;">:</span>date))</span>
+<span id="cb3-3">    <span class="fu" style="color: #4758AB;">combine</span>(nrow <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="op" style="color: #5E5E5E;">:</span>n_games)</span>
+<span id="cb3-4">    <span class="fu" style="color: #4758AB;">data</span>(_) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb3-5">        <span class="fu" style="color: #4758AB;">mapping</span>(<span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Year"</span>, <span class="op" style="color: #5E5E5E;">:</span>n_games <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Number of games"</span>) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb3-6">        <span class="fu" style="color: #4758AB;">visual</span>(Scatter)</span>
+<span id="cb3-7">    draw</span>
+<span id="cb3-8"><span class="cf" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<p><img src="https://jkrumbiegel.github.io/pages/2021-06-20-football-data-analysis/index_files/figure-html/cell-4-output-1.svg" class="img-fluid"></p>
+</div>
+</div>
+<p>There has been a huge growth in the number of games per year. What could have been the driving factors there? We could look at the development of friendly vs.&nbsp;non-friendly games.</p>
+<p>As soon as there are some groups to plot separately, I like using AlgebraOfGraphics.jl, which does all the work of grouping and legend building for me. I can build one long chain that culminates in a plot, so I don’t have to come up with names for intermediary steps.</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><span class="pp" style="color: #AD0000;">@chain</span> df <span class="cf" style="color: #003B4F;">begin</span></span>
+<span id="cb4-2">    <span class="pp" style="color: #AD0000;">@groupby</span>(<span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">year</span>(<span class="op" style="color: #5E5E5E;">:</span>date), <span class="op" style="color: #5E5E5E;">:</span>friendly <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>tournament <span class="op" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"Friendly"</span>)</span>
+<span id="cb4-3">    <span class="fu" style="color: #4758AB;">combine</span>(nrow <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="op" style="color: #5E5E5E;">:</span>n_games)</span>
+<span id="cb4-4">    <span class="fu" style="color: #4758AB;">data</span>(_) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb4-5">        <span class="fu" style="color: #4758AB;">mapping</span>(<span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Year"</span>, <span class="op" style="color: #5E5E5E;">:</span>n_games <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Number of games"</span>,</span>
+<span id="cb4-6">            color <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>friendly <span class="op" style="color: #5E5E5E;">=&gt;</span> nonnumeric) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb4-7">        <span class="fu" style="color: #4758AB;">visual</span>(Scatter)</span>
+<span id="cb4-8">    draw</span>
+<span id="cb4-9"><span class="cf" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<p><img src="https://jkrumbiegel.github.io/pages/2021-06-20-football-data-analysis/index_files/figure-html/cell-5-output-1.svg" class="img-fluid"></p>
+</div>
+</div>
+<p>So we can see that both friendlies and competitions have become much more numerous, although the competitions are responsible for the larger share.</p>
+<p>Another way we could look at this information is to count the number of different competitions per year:</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><span class="pp" style="color: #AD0000;">@chain</span> df <span class="cf" style="color: #003B4F;">begin</span></span>
+<span id="cb5-2">    <span class="pp" style="color: #AD0000;">@subset</span>(<span class="op" style="color: #5E5E5E;">:</span>tournament <span class="op" style="color: #5E5E5E;">!=</span> <span class="st" style="color: #20794D;">"Friendly"</span>)</span>
+<span id="cb5-3">    <span class="pp" style="color: #AD0000;">@groupby</span>(<span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">year</span>(<span class="op" style="color: #5E5E5E;">:</span>date))</span>
+<span id="cb5-4">    <span class="pp" style="color: #AD0000;">@combine</span>(<span class="op" style="color: #5E5E5E;">:</span>n_competitions <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">length</span>(<span class="fu" style="color: #4758AB;">unique</span>(<span class="op" style="color: #5E5E5E;">:</span>tournament)))</span>
+<span id="cb5-5">    <span class="fu" style="color: #4758AB;">data</span>(_) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb5-6">        <span class="fu" style="color: #4758AB;">mapping</span>(<span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Year"</span>, <span class="op" style="color: #5E5E5E;">:</span>n_competitions <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Number of competitions"</span>) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb5-7">        (<span class="fu" style="color: #4758AB;">visual</span>(Scatter, markersize <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">5</span>) <span class="op" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">smooth</span>())</span>
+<span id="cb5-8">    draw</span>
+<span id="cb5-9"><span class="cf" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<p><img src="https://jkrumbiegel.github.io/pages/2021-06-20-football-data-analysis/index_files/figure-html/cell-6-output-1.svg" class="img-fluid"></p>
+</div>
+</div>
+<p>And of course the average number of teams per competition:</p>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><span class="pp" style="color: #AD0000;">@chain</span> df <span class="cf" style="color: #003B4F;">begin</span></span>
+<span id="cb6-2">    <span class="pp" style="color: #AD0000;">@subset</span>(<span class="op" style="color: #5E5E5E;">:</span>tournament <span class="op" style="color: #5E5E5E;">!=</span> <span class="st" style="color: #20794D;">"Friendly"</span>)</span>
+<span id="cb6-3">    <span class="pp" style="color: #AD0000;">@groupby</span>(<span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">year</span>(<span class="op" style="color: #5E5E5E;">:</span>date), <span class="op" style="color: #5E5E5E;">:</span>tournament)</span>
+<span id="cb6-4">    <span class="pp" style="color: #AD0000;">@combine</span>(<span class="op" style="color: #5E5E5E;">:</span>n_teams <span class="op" style="color: #5E5E5E;">=</span> <span class="pp" style="color: #AD0000;">@c</span> <span class="fu" style="color: #4758AB;">length</span>(<span class="fu" style="color: #4758AB;">unique</span>(<span class="fu" style="color: #4758AB;">vcat</span>(<span class="op" style="color: #5E5E5E;">:</span>home_team, <span class="op" style="color: #5E5E5E;">:</span>away_team))))</span>
+<span id="cb6-5">    <span class="fu" style="color: #4758AB;">data</span>(_) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb6-6">        <span class="fu" style="color: #4758AB;">mapping</span>(<span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Year"</span>, <span class="op" style="color: #5E5E5E;">:</span>n_teams <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Number of teams per competition"</span>) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb6-7">        (<span class="fu" style="color: #4758AB;">visual</span>(Scatter, markersize <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">4</span>, color <span class="op" style="color: #5E5E5E;">=</span> (<span class="op" style="color: #5E5E5E;">:</span>black, <span class="fl" style="color: #AD0000;">0.3</span>)) <span class="op" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">smooth</span>() <span class="op" style="color: #5E5E5E;">*</span> <span class="fu" style="color: #4758AB;">visual</span>(linewidth <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">3</span>))</span>
+<span id="cb6-8">    draw</span>
+<span id="cb6-9"><span class="cf" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<p><img src="https://jkrumbiegel.github.io/pages/2021-06-20-football-data-analysis/index_files/figure-html/cell-7-output-1.svg" class="img-fluid"></p>
+</div>
+</div>
+<p>So both the number of competitions, as well as the number of teams taking part in each competition has increased over the years.</p>
+<p>Let’s check out how the number of goals per game during world cups has developed over time. As football has become more and more professionalized, do the highly trained players of today score more or fewer goals? (The defense is also better trained, of course.)</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><span class="pp" style="color: #AD0000;">@chain</span> df <span class="cf" style="color: #003B4F;">begin</span></span>
+<span id="cb7-2">    <span class="pp" style="color: #AD0000;">@subset</span>(<span class="op" style="color: #5E5E5E;">:</span>tournament <span class="op" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"FIFA World Cup"</span>)</span>
+<span id="cb7-3">    <span class="pp" style="color: #AD0000;">@transform</span>(<span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">year</span>(<span class="op" style="color: #5E5E5E;">:</span>date))</span>
+<span id="cb7-4">    <span class="pp" style="color: #AD0000;">@transform</span>(<span class="op" style="color: #5E5E5E;">:</span>n_goals <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>home_score <span class="op" style="color: #5E5E5E;">+</span> <span class="op" style="color: #5E5E5E;">:</span>away_score)</span>
+<span id="cb7-5">    <span class="pp" style="color: #AD0000;">@groupby</span>(<span class="op" style="color: #5E5E5E;">:</span>year)</span>
+<span id="cb7-6">    <span class="pp" style="color: #AD0000;">@combine</span>(<span class="op" style="color: #5E5E5E;">:</span>average_goals <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">mean</span>(<span class="op" style="color: #5E5E5E;">:</span>n_goals))</span>
+<span id="cb7-7">    <span class="fu" style="color: #4758AB;">data</span>(_) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb7-8">        <span class="fu" style="color: #4758AB;">mapping</span>(<span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Year"</span>, <span class="op" style="color: #5E5E5E;">:</span>average_goals <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Average goals per game"</span>) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb7-9">        (<span class="fu" style="color: #4758AB;">visual</span>(Scatter) <span class="op" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">smooth</span>())</span>
+<span id="cb7-10">    <span class="fu" style="color: #4758AB;">draw</span>(axis <span class="op" style="color: #5E5E5E;">=</span> (limits <span class="op" style="color: #5E5E5E;">=</span> (<span class="cn" style="color: #8f5902;">nothing</span>, (<span class="fl" style="color: #AD0000;">0</span>, <span class="cn" style="color: #8f5902;">nothing</span>)),))</span>
+<span id="cb7-11"><span class="cf" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<p><img src="https://jkrumbiegel.github.io/pages/2021-06-20-football-data-analysis/index_files/figure-html/cell-8-output-1.svg" class="img-fluid"></p>
+</div>
+</div>
+<p>It seems the number of goals has gone down over time, from around 4 to 2.5 or so, where it has plateaued. This dataset can give no indication, though, what the reasons for this development might be.</p>
+<p>One thing we can look at, though, is the distribution of goal differences over time. Maybe the teams were just much more different in ability before?</p>
+<p>We could make histograms for 1954 and 1990, which had high and low averages, respectively.</p>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><span class="pp" style="color: #AD0000;">@chain</span> df <span class="cf" style="color: #003B4F;">begin</span></span>
+<span id="cb8-2">    <span class="pp" style="color: #AD0000;">@transform</span>(<span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">year</span>(<span class="op" style="color: #5E5E5E;">:</span>date))</span>
+<span id="cb8-3">    <span class="pp" style="color: #AD0000;">@subset</span>(<span class="op" style="color: #5E5E5E;">:</span>tournament <span class="op" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"FIFA World Cup"</span>, <span class="op" style="color: #5E5E5E;">:</span>year <span class="kw" style="color: #003B4F;">in</span> (<span class="fl" style="color: #AD0000;">1954</span>, <span class="fl" style="color: #AD0000;">1990</span>))</span>
+<span id="cb8-4">    <span class="pp" style="color: #AD0000;">@transform</span>(<span class="op" style="color: #5E5E5E;">:</span>goal_difference <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">abs</span>(<span class="op" style="color: #5E5E5E;">:</span>home_score <span class="op" style="color: #5E5E5E;">-</span> <span class="op" style="color: #5E5E5E;">:</span>away_score))</span>
+<span id="cb8-5">    <span class="fu" style="color: #4758AB;">data</span>(_) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb8-6">        <span class="fu" style="color: #4758AB;">mapping</span>(<span class="op" style="color: #5E5E5E;">:</span>goal_difference  <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Goal difference"</span>,</span>
+<span id="cb8-7">            col <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>year <span class="op" style="color: #5E5E5E;">=&gt;</span> nonnumeric) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb8-8">        <span class="fu" style="color: #4758AB;">frequency</span>()</span>
+<span id="cb8-9">    draw</span>
+<span id="cb8-10"><span class="cf" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<p><img src="https://jkrumbiegel.github.io/pages/2021-06-20-football-data-analysis/index_files/figure-html/cell-9-output-1.svg" class="img-fluid"></p>
+</div>
+</div>
+<p>So there were even games with 7 or 9 goals difference in 1954, suggesting that at least some of the matches might have been quite unbalanced at the time, driving a higher goal average.</p>
+<p>In 1990, most games were decided by one goal difference, in comparison.</p>
+<p>Let’s turn to another question, that of the home team advantage. For a quick glance, we can compute the probability of winning as the home team.</p>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><span class="pp" style="color: #AD0000;">@chain</span> df <span class="cf" style="color: #003B4F;">begin</span></span>
+<span id="cb9-2">    <span class="pp" style="color: #AD0000;">@subset</span>(_, !<span class="op" style="color: #5E5E5E;">:</span>neutral; skipmissing <span class="op" style="color: #5E5E5E;">=</span> <span class="cn" style="color: #8f5902;">true</span>)</span>
+<span id="cb9-3">    <span class="pp" style="color: #AD0000;">@transform</span>(<span class="op" style="color: #5E5E5E;">:</span>home_result <span class="op" style="color: #5E5E5E;">=</span> <span class="pp" style="color: #AD0000;">@m</span> <span class="op" style="color: #5E5E5E;">:</span>home_score <span class="op" style="color: #5E5E5E;">&gt;</span> <span class="op" style="color: #5E5E5E;">:</span>away_score ?</span>
+<span id="cb9-4">        <span class="st" style="color: #20794D;">"win"</span> <span class="op" style="color: #5E5E5E;">:</span> <span class="op" style="color: #5E5E5E;">:</span>away_score <span class="op" style="color: #5E5E5E;">&gt;</span> <span class="op" style="color: #5E5E5E;">:</span>home_score ? <span class="st" style="color: #20794D;">"lose"</span> <span class="op" style="color: #5E5E5E;">:</span> <span class="st" style="color: #20794D;">"tie"</span>)</span>
+<span id="cb9-5">    <span class="fu" style="color: #4758AB;">dropmissing</span>(<span class="op" style="color: #5E5E5E;">:</span>home_result)</span>
+<span id="cb9-6">    <span class="pp" style="color: #AD0000;">@aside</span> n <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">nrow</span>(_)</span>
+<span id="cb9-7">    <span class="pp" style="color: #AD0000;">@groupby</span>(<span class="op" style="color: #5E5E5E;">:</span>home_result)</span>
+<span id="cb9-8">    <span class="pp" style="color: #AD0000;">@combine</span>(<span class="op" style="color: #5E5E5E;">:</span>p <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">length</span>(<span class="op" style="color: #5E5E5E;">:</span>home_result) <span class="op" style="color: #5E5E5E;">/</span> n)</span>
+<span id="cb9-9"><span class="cf" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="10">
+
+<div class="data-frame"><p>3 rows × 2 columns</p><table class="data-frame table table-sm table-striped"><thead><tr><th></th><th>home_result</th><th>p</th></tr><tr><th></th><th title="String">String</th><th title="Float64">Float64</th></tr></thead><tbody><tr><th>1</th><td>tie</td><td>0.231335</td></tr><tr><th>2</th><td>win</td><td>0.505947</td></tr><tr><th>3</th><td>lose</td><td>0.262718</td></tr></tbody></table></div>
+</div>
+</div>
+<p>It looks like the probability to win as the home team is about 50%, so twice as likely as losing. This could be a bit misleading, potentially, if the better teams are also somehow the teams that host more games.</p>
+<p>So we could check how it looks if we compute the win lose ratio for each team separately. One problem is that each “team” (country) changes all the time, and Germany from 1950 has nothing in common with Germany from 2020. As an approximation, we can split the timeline into 5 year bins, and calculate the ratio within those.</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><span class="pp" style="color: #AD0000;">@chain</span> df <span class="cf" style="color: #003B4F;">begin</span></span>
+<span id="cb10-2">    <span class="pp" style="color: #AD0000;">@subset</span>(_, !<span class="op" style="color: #5E5E5E;">:</span>neutral; skipmissing <span class="op" style="color: #5E5E5E;">=</span> <span class="cn" style="color: #8f5902;">true</span>)</span>
+<span id="cb10-3">    <span class="pp" style="color: #AD0000;">@transform</span>(<span class="op" style="color: #5E5E5E;">:</span>home_result <span class="op" style="color: #5E5E5E;">=</span> <span class="pp" style="color: #AD0000;">@m</span> <span class="op" style="color: #5E5E5E;">:</span>home_score <span class="op" style="color: #5E5E5E;">&gt;</span> <span class="op" style="color: #5E5E5E;">:</span>away_score ?</span>
+<span id="cb10-4">        <span class="st" style="color: #20794D;">"win"</span> <span class="op" style="color: #5E5E5E;">:</span> <span class="op" style="color: #5E5E5E;">:</span>away_score <span class="op" style="color: #5E5E5E;">&gt;</span> <span class="op" style="color: #5E5E5E;">:</span>home_score ? <span class="st" style="color: #20794D;">"lose"</span> <span class="op" style="color: #5E5E5E;">:</span> <span class="st" style="color: #20794D;">"tie"</span>)</span>
+<span id="cb10-5">    <span class="fu" style="color: #4758AB;">dropmissing</span>(<span class="op" style="color: #5E5E5E;">:</span>home_result)</span>
+<span id="cb10-6">    <span class="pp" style="color: #AD0000;">@transform</span>(<span class="op" style="color: #5E5E5E;">:</span>fiveyears <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">year</span>(<span class="op" style="color: #5E5E5E;">:</span>date) <span class="op" style="color: #5E5E5E;">-</span> <span class="fu" style="color: #4758AB;">year</span>(<span class="op" style="color: #5E5E5E;">:</span>date) <span class="op" style="color: #5E5E5E;">%</span> <span class="fl" style="color: #AD0000;">5</span>)</span>
+<span id="cb10-7">    <span class="fu" style="color: #4758AB;">stack</span>([<span class="op" style="color: #5E5E5E;">:</span>home_team, <span class="op" style="color: #5E5E5E;">:</span>away_team], variable_name <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">type</span>,</span>
+<span id="cb10-8">        value_name <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>team)</span>
+<span id="cb10-9">    <span class="pp" style="color: #AD0000;">@transform</span>(<span class="op" style="color: #5E5E5E;">:</span>result <span class="op" style="color: #5E5E5E;">=</span> <span class="cf" style="color: #003B4F;">if</span> <span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">type</span> <span class="op" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"home_team"</span></span>
+<span id="cb10-10">        <span class="op" style="color: #5E5E5E;">:</span>home_result</span>
+<span id="cb10-11">    <span class="cf" style="color: #003B4F;">else</span></span>
+<span id="cb10-12">        <span class="op" style="color: #5E5E5E;">:</span>home_result <span class="op" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"win"</span> ? <span class="st" style="color: #20794D;">"lose"</span> <span class="op" style="color: #5E5E5E;">:</span></span>
+<span id="cb10-13">            <span class="op" style="color: #5E5E5E;">:</span>home_result <span class="op" style="color: #5E5E5E;">==</span> <span class="st" style="color: #20794D;">"lose"</span> ? <span class="st" style="color: #20794D;">"win"</span> <span class="op" style="color: #5E5E5E;">:</span> <span class="st" style="color: #20794D;">"tie"</span></span>
+<span id="cb10-14">    <span class="cf" style="color: #003B4F;">end</span>)</span>
+<span id="cb10-15">    <span class="pp" style="color: #AD0000;">@subset</span>(<span class="op" style="color: #5E5E5E;">:</span>result <span class="op" style="color: #5E5E5E;">!=</span> <span class="st" style="color: #20794D;">"tie"</span>)</span>
+<span id="cb10-16">    <span class="pp" style="color: #AD0000;">@groupby</span>(<span class="op" style="color: #5E5E5E;">:</span>fiveyears, <span class="op" style="color: #5E5E5E;">:</span>team, <span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">type</span>, <span class="op" style="color: #5E5E5E;">:</span>result)</span>
+<span id="cb10-17">    <span class="fu" style="color: #4758AB;">combine</span>(nrow  <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="op" style="color: #5E5E5E;">:</span>count)</span>
+<span id="cb10-18">    <span class="fu" style="color: #4758AB;">unstack</span>(<span class="op" style="color: #5E5E5E;">:</span>result, <span class="op" style="color: #5E5E5E;">:</span>count)</span>
+<span id="cb10-19">    <span class="pp" style="color: #AD0000;">@transform</span>(<span class="op" style="color: #5E5E5E;">:</span>win <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">coalesce</span>(<span class="op" style="color: #5E5E5E;">:</span>win, <span class="fl" style="color: #AD0000;">0</span>), <span class="op" style="color: #5E5E5E;">:</span>lose <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">coalesce</span>(<span class="op" style="color: #5E5E5E;">:</span>lose, <span class="fl" style="color: #AD0000;">0</span>))</span>
+<span id="cb10-20">    <span class="pp" style="color: #AD0000;">@transform</span>(<span class="op" style="color: #5E5E5E;">:</span>p_win <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>win <span class="op" style="color: #5E5E5E;">/</span> (<span class="op" style="color: #5E5E5E;">:</span>win <span class="op" style="color: #5E5E5E;">+</span> <span class="op" style="color: #5E5E5E;">:</span>lose))</span>
+<span id="cb10-21">    <span class="fu" style="color: #4758AB;">unstack</span>([<span class="op" style="color: #5E5E5E;">:</span>fiveyears, <span class="op" style="color: #5E5E5E;">:</span>team], <span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">type</span>, <span class="op" style="color: #5E5E5E;">:</span>p_win)</span>
+<span id="cb10-22">    <span class="pp" style="color: #AD0000;">@transform</span>(<span class="op" style="color: #5E5E5E;">:</span>home_p_win_delta <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">:</span>home_team <span class="op" style="color: #5E5E5E;">-</span> <span class="op" style="color: #5E5E5E;">:</span>away_team)</span>
+<span id="cb10-23">    <span class="fu" style="color: #4758AB;">dropmissing</span>(<span class="op" style="color: #5E5E5E;">:</span>home_p_win_delta)</span>
+<span id="cb10-24">    <span class="fu" style="color: #4758AB;">data</span>(_) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb10-25">        <span class="fu" style="color: #4758AB;">mapping</span>(<span class="op" style="color: #5E5E5E;">:</span>fiveyears <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"Five year period"</span>, <span class="op" style="color: #5E5E5E;">:</span>home_p_win_delta <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"p(win) - p(lose)"</span>) <span class="op" style="color: #5E5E5E;">*</span></span>
+<span id="cb10-26">        (<span class="fu" style="color: #4758AB;">visual</span>(Scatter, markersize <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">5</span>, color <span class="op" style="color: #5E5E5E;">=</span> (<span class="op" style="color: #5E5E5E;">:</span>black, <span class="fl" style="color: #AD0000;">0.2</span>)) <span class="op" style="color: #5E5E5E;">+</span> <span class="fu" style="color: #4758AB;">smooth</span>())</span>
+<span id="cb10-27">    draw</span>
+<span id="cb10-28"><span class="cf" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="11">
+<p><img src="https://jkrumbiegel.github.io/pages/2021-06-20-football-data-analysis/index_files/figure-html/cell-11-output-1.svg" class="img-fluid"></p>
+</div>
+</div>
+<p>Even though this is only a pretty rough analysis, the home advantage appears to hold up when looking at it within each team, separately over time.</p>
+<p>This was an example of data analysis and plotting with DataFrameMacros.jl and AlgebraOfGraphics.jl. I hope you learned something new, either about Julia, or about international football.</p>
+
+
+
+ ]]></description>
+  <category>julia</category>
+  <guid>https://jkrumbiegel.github.io/pages/2021-06-20-football-data-analysis/index.html</guid>
+  <pubDate>Sun, 20 Jun 2021 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Julia macros for beginners</title>
+  <link>https://jkrumbiegel.github.io/pages/2021-06-07-macros-for-beginners/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Macros are a powerful and interesting feature of the Julia programming language, but they can also be confusing. Users coming from Python, Matlab or R have not come in contact with similar constructs before, and they require a different way of thinking about code. This article is supposed to be a simple introduction, after which you might judge better when use of macros is appropriate and how to get around some of the most common gotchas.</p>
+<section id="what-are-macros-for" class="level2">
+<h2 class="anchored" data-anchor-id="what-are-macros-for">What are macros for?</h2>
+<p>Macros change existing source code or generate entirely new code. They are not some kind of more powerful function that unlocks secret abilities of Julia, they are just a way to automatically write code that you could have written out by hand anyway. There’s just the question whether writing that code by hand is practical, not if it’s possible. Often, we can save users a lot of work, by hiding boilerplate code they would otherwise need to write inside our macro.</p>
+<p>Still, it’s good advice, especially for beginners, to think hard if macros are the right tool for the job, or if run-of-the-mill functions serve the same purpose. Often, functions are preferable because macro magic puts a cognitive burden on the user, it makes it harder to reason about what code does. Before understanding the code, they have to understand the transformation that the macro is doing, which often goes hand in hand with non-standard syntax. That is, unless they are ok with their code having unintended consequences.</p>
+</section>
+<section id="what-does-a-macro-do" class="level2">
+<h2 class="anchored" data-anchor-id="what-does-a-macro-do">What does a macro do?</h2>
+<p>Some of the magic of macros derives from the fact that they don’t just generate some predefined code, they rather take the code they are applied to and transform it in useful ways. Variable names are one of the fundamental mechanisms by which we make code understandable for humans. In principle, you could replace every identifier in a working piece of code with something random, and it would still work.</p>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1">profit <span class="op" style="color: #5E5E5E;">=</span> revenue <span class="op" style="color: #5E5E5E;">-</span> costs</span>
+<span id="cb1-2"><span class="co" style="color: #5E5E5E;"># does the same thing as</span></span>
+<span id="cb1-3">hey <span class="op" style="color: #5E5E5E;">=</span> whats <span class="op" style="color: #5E5E5E;">-</span> up</span></code></pre></div>
+<p>The computer doesn’t care about the names, only humans do. But functions run after the code has been transformed into lower-level representations, and names are lost at that point.</p>
+<p>For example, in this code snippet, there is no way for the author of the function to know what the user named their variable. The function just receives a value, and as far as it is concerned, that value is named <code>x</code>.</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">show_value</span>(x)</span>
+<span id="cb2-2">    <span class="fu" style="color: #4758AB;">println</span>(<span class="st" style="color: #20794D;">"The value you passed is "</span>, x)</span>
+<span id="cb2-3"><span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb2-4"></span>
+<span id="cb2-5">orange <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"sweet"</span></span>
+<span id="cb2-6">apple <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"sour"</span></span>
+<span id="cb2-7"></span>
+<span id="cb2-8"><span class="fu" style="color: #4758AB;">show_value</span>(orange)</span>
+<span id="cb2-9"><span class="fu" style="color: #4758AB;">show_value</span>(apple)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The value you passed is sweet
+The value you passed is sour</code></pre>
+</div>
+</div>
+<p>Any information about what the user wrote is lost, as the function only knows “sweet” and “sour” were passed. If we want to incorporate the information contained in the variable names, we need a macro.</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><span class="kw" style="color: #003B4F;">macro</span> <span class="fu" style="color: #4758AB;">show_value</span>(variable)</span>
+<span id="cb4-2">    <span class="kw" style="color: #003B4F;">quote</span></span>
+<span id="cb4-3">        <span class="fu" style="color: #4758AB;">println</span>(<span class="st" style="color: #20794D;">"The "</span>, <span class="op" style="color: #5E5E5E;">$</span>(<span class="fu" style="color: #4758AB;">string</span>(variable)), <span class="st" style="color: #20794D;">" you passed is "</span>, <span class="op" style="color: #5E5E5E;">$</span>(<span class="fu" style="color: #4758AB;">esc</span>(variable)))</span>
+<span id="cb4-4">    <span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb4-5"><span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb4-6"></span>
+<span id="cb4-7"><span class="pp" style="color: #AD0000;">@show_value</span>(orange)</span>
+<span id="cb4-8"><span class="pp" style="color: #AD0000;">@show_value</span>(apple)</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The orange you passed is sweet
+The apple you passed is sour</code></pre>
+</div>
+</div>
+<p>You probably know a macro that works very similar to this one, which is <code>@show</code></p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><span class="pp" style="color: #AD0000;">@show</span> orange</span>
+<span id="cb6-2"><span class="pp" style="color: #AD0000;">@show</span> apple</span></code></pre></div>
+</div>
+<p>Note that it doesn’t make a difference here if we use parentheses for the macros or not. That’s a feature of Julia’s syntax which makes some macros more tidy to write. This is especially true if the macro precedes a for block or some other multi-line expression.</p>
+</section>
+<section id="how-do-macros-work" class="level2">
+<h2 class="anchored" data-anchor-id="how-do-macros-work">How do macros work?</h2>
+<p>Let’s look at our macro in more detail. Even though it’s short, it has a few interesting aspects to it.</p>
+<p>First of all, a macro runs before any code is executed. Therefore, you never have access to any runtime values in a macro. That’s something that trips many beginners up, but is crucial to understand. All the logic in the macro has to happen only using the information you can get from the expressions that the macro is applied to.</p>
+<p>One good step to understand what’s going on with an expression, is to dump it. You can use <code>Meta.@dump</code> for that.</p>
+<p>In our case, it’s not very interesting:</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><span class="bu" style="color: null;">Meta</span>.<span class="pp" style="color: #AD0000;">@dump</span> orange</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Symbol orange</code></pre>
+</div>
+</div>
+<p>As you can see, the expression <code>orange</code> contains only the <code>Symbol</code> orange. So that is what our macro gets as input, just <code>:orange</code>. But, again, no runtime information about it being <code>"sweet"</code>.</p>
+<p>Inside the macro, a <code>quote</code> expression is constructed. A <code>quote</code> with source code inside returns an expression object that describes this code. The expression we return from a macro is spliced into the place where the macro call happens, as if you really had written the macro result there. That’s the reason why a macro can’t technically do more than any old Julia code.</p>
+<p>We can see the code that the macro call results in by using another helper macro, <code>@macroexpand</code>.</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><span class="pp" style="color: #AD0000;">@macroexpand</span> <span class="pp" style="color: #AD0000;">@show_value</span> orange</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="ansi-escaped-output">
+<pre>quote
+    <span class="ansi-bright-black-fg">#= In[3]:3 =#</span>
+    Main.println("The ", "orange", " you passed is ", orange)
+end</pre>
+</div>
+</div>
+</div>
+<p>You can see that, ignoring linenumber and module information, the macro created a function call as if we had written</p>
+<div class="sourceCode" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><span class="fu" style="color: #4758AB;">println</span>(<span class="st" style="color: #20794D;">"The "</span>, <span class="st" style="color: #20794D;">"orange"</span>, <span class="st" style="color: #20794D;">" you passed is "</span>, orange)</span></code></pre></div>
+<p>Therefore, let’s look at where the two oranges come from.</p>
+<p>The first one is <code>"orange"</code>, which is a string literal. We achieved this with this expression inside the macro:</p>
+<div class="sourceCode" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><span class="op" style="color: #5E5E5E;">$</span>(<span class="fu" style="color: #4758AB;">string</span>(variable))</span></code></pre></div>
+<p>Remember that <code>variable</code> holds the <code>Symbol</code> <code>:orange</code> when the macro is called. We convert that to a string and then place that string into the quoted expression using the interpolation symbol <code>$</code>. This is how we can print out a sentence that references the user’s chosen variable name.</p>
+<p>The other <code>orange</code> is just a normal variable name. It was created with the interpolation expression <code>$(esc(variable))</code>. The <code>esc</code> stands for <code>escape</code> and is another part of macros that is hard to understand for beginners.</p>
+</section>
+<section id="whats-escaping" class="level2">
+<h2 class="anchored" data-anchor-id="whats-escaping">What’s escaping?</h2>
+<p>To explain why <code>esc</code> needed, let’s look at a macro that leaves it out. In this example we define the macro in a separate module (because any macro you’d put in a package would not be in the <code>Main</code> module either):</p>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb12" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><span class="kw" style="color: #003B4F;">module</span> SomeModule</span>
+<span id="cb12-2">    <span class="kw" style="color: #003B4F;">export</span> <span class="pp" style="color: #AD0000;">@show_value_no_esc</span></span>
+<span id="cb12-3">    <span class="kw" style="color: #003B4F;">macro</span> <span class="fu" style="color: #4758AB;">show_value_no_esc</span>(variable)</span>
+<span id="cb12-4">        <span class="kw" style="color: #003B4F;">quote</span></span>
+<span id="cb12-5">            <span class="fu" style="color: #4758AB;">println</span>(<span class="st" style="color: #20794D;">"The "</span>, <span class="op" style="color: #5E5E5E;">$</span>(<span class="fu" style="color: #4758AB;">string</span>(variable)), <span class="st" style="color: #20794D;">" you passed is "</span>, <span class="op" style="color: #5E5E5E;">$</span>variable)</span>
+<span id="cb12-6">        <span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb12-7">    <span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb12-8"><span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb12-9"></span>
+<span id="cb12-10"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">.SomeModule</span></span>
+<span id="cb12-11"></span>
+<span id="cb12-12">try</span>
+<span id="cb12-13">    <span class="pp" style="color: #AD0000;">@show_value_no_esc</span>(orange)</span>
+<span id="cb12-14">catch <span class="cn" style="color: #8f5902;">e</span></span>
+<span id="cb12-15">    <span class="fu" style="color: #4758AB;">sprint</span>(showerror, <span class="cn" style="color: #8f5902;">e</span>)</span>
+<span id="cb12-16"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>"UndefVarError: orange not defined"</code></pre>
+</div>
+</div>
+<p>The code errors because there is no variable <code>orange</code>. But there should be, we interpolated it right there! Let’s look at the macro output with <code>@macroexpand</code> again:</p>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><span class="pp" style="color: #AD0000;">@macroexpand</span> <span class="pp" style="color: #AD0000;">@show_value_no_esc</span>(orange)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="8">
+<div class="ansi-escaped-output">
+<pre>quote
+    <span class="ansi-bright-black-fg">#= In[7]:5 =#</span>
+    Main.SomeModule.println("The ", "orange", " you passed is ", Main.SomeModule.orange)
+end</pre>
+</div>
+</div>
+</div>
+<p>Ok, so the variable looked up is actually <code>SomeModule.orange</code>, and of course we didn’t define a variable with that name in <code>SomeModule</code>. The reason this happens is that macros do often need to reference values from whatever module they were defined in. For example, to add a helper function that also lives in that module to the user’s code. Any variable name used in the created expression is looked up in the macro’s parent module by default.</p>
+<p>The other reason is that it is potentially dangerous to just change or create variables in user space in a macro that knows nothing about what’s going on there.</p>
+<p>Imagine the writer of the macro and the user as two people who know nothing about each other. They only interface via the small snippet of code passed to the macro. So, obviously, the macro shouldn’t mess around with the user’s variables.</p>
+<p>In theory, a macro could insert things like <code>my_variable = nothing</code> or <code>empty!(some_array)</code> in the place where it’s used. But imagine the user already has a <code>my_variable</code> and it happens to hold the result of a computation that ran hours. As the macro writer doesn’t know anything about the variables the user has created, all macro-created variables are by default scoped to the macro’s module to avoid conflicts.</p>
+<p>Here’s a short example of bad escaping, with a macro that is not really supposed to do anything:</p>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb15" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><span class="kw" style="color: #003B4F;">macro</span> <span class="fu" style="color: #4758AB;">change_nothing</span>(exp)</span>
+<span id="cb15-2">    <span class="cn" style="color: #8f5902;">e</span> <span class="op" style="color: #5E5E5E;">=</span> <span class="kw" style="color: #003B4F;">quote</span></span>
+<span id="cb15-3">        temp_variable <span class="op" style="color: #5E5E5E;">=</span> <span class="cn" style="color: #8f5902;">nothing</span> <span class="co" style="color: #5E5E5E;"># this could be some intermediate computation</span></span>
+<span id="cb15-4">        <span class="op" style="color: #5E5E5E;">$</span>exp <span class="co" style="color: #5E5E5E;"># we actually just pass the input expression back unchanged</span></span>
+<span id="cb15-5">    <span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb15-6">    <span class="fu" style="color: #4758AB;">esc</span>(<span class="cn" style="color: #8f5902;">e</span>) <span class="co" style="color: #5E5E5E;"># but everything is escaped</span></span>
+<span id="cb15-7"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>@change_nothing (macro with 1 method)</code></pre>
+</div>
+</div>
+</section>
+<section id="a-user-who-happens-to-have-a-temp-variable-calls-this-macro" class="level2">
+<h2 class="anchored" data-anchor-id="a-user-who-happens-to-have-a-temp-variable-calls-this-macro">a user who happens to have a temp variable calls this macro…</h2>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb17-1">temp_variable <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"important information"</span></span>
+<span id="cb17-2">x <span class="op" style="color: #5E5E5E;">=</span> <span class="pp" style="color: #AD0000;">@change_nothing</span> <span class="fl" style="color: #AD0000;">1</span> <span class="op" style="color: #5E5E5E;">+</span> <span class="fl" style="color: #AD0000;">1</span></span>
+<span id="cb17-3"></span>
+<span id="cb17-4"><span class="pp" style="color: #AD0000;">@show</span> x</span>
+<span id="cb17-5"><span class="pp" style="color: #AD0000;">@show</span> temp_variable</span></code></pre></div>
+</div>
+<p>Whoops, the <code>temp_variable</code> was overwritten by the macro, and this can happen with badly written macros.</p>
+<p>But still, in order to access the value of the user’s variable <code>orange</code>, we need to <code>escape</code> the use of that symbol in our generated expression. Escaping the variable could be summarized as saying “treat this variable like a variable the user has written themselves”.</p>
+<p>As a rule of thumb, macros should only ever escape variables that they know about because they were passed to the macro. These are the variables that the user potentially wants to have changed by the macro, or at least they are aware that they could be subject to change.</p>
+<p>Here you can see another example, where there is both a user and a module orange:</p>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb18" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1"><span class="kw" style="color: #003B4F;">module</span> AnotherModule</span>
+<span id="cb18-2">    <span class="kw" style="color: #003B4F;">export</span> <span class="pp" style="color: #AD0000;">@show_value_user_and_module</span></span>
+<span id="cb18-3"></span>
+<span id="cb18-4">    orange <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"bitter"</span></span>
+<span id="cb18-5"></span>
+<span id="cb18-6">    <span class="kw" style="color: #003B4F;">macro</span> <span class="fu" style="color: #4758AB;">show_value_user_and_module</span>(variable)</span>
+<span id="cb18-7">        <span class="kw" style="color: #003B4F;">quote</span></span>
+<span id="cb18-8">            <span class="fu" style="color: #4758AB;">println</span>(<span class="st" style="color: #20794D;">"The "</span>, <span class="op" style="color: #5E5E5E;">$</span>(<span class="fu" style="color: #4758AB;">string</span>(variable)), <span class="st" style="color: #20794D;">" you passed is "</span>, <span class="op" style="color: #5E5E5E;">$</span>(<span class="fu" style="color: #4758AB;">esc</span>(variable)),</span>
+<span id="cb18-9">                <span class="st" style="color: #20794D;">" and the one from the module is "</span>, <span class="op" style="color: #5E5E5E;">$</span>variable)</span>
+<span id="cb18-10">        <span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb18-11">    <span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb18-12"><span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb18-13"></span>
+<span id="cb18-14"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">.AnotherModule</span></span>
+<span id="cb18-15"></span>
+<span id="cb18-16"><span class="pp" style="color: #AD0000;">@show_value_user_and_module</span> orange</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>The orange you passed is sweet and the one from the module is bitter</code></pre>
+</div>
+</div>
+</section>
+<section id="modifying-expressions" class="level2">
+<h2 class="anchored" data-anchor-id="modifying-expressions">Modifying expressions</h2>
+<p>Even though we could already see some interesting macro properties, maybe you didn’t start reading this article to learn about printing users their own variable names back (even though that is a very user friendly behavior in general, and many R users like their non-standard evaluation a lot for this reason).</p>
+<p>Usually, you want to modify the expression you receive, or build a new one with it, to achieve some functional purpose. Sometimes, macros are used to define domain specific languages or DSLs, that allow users to specify complex things with simple, yet non-standard expressions.</p>
+<p>A good example for this are the formulas from <code>StatsModels.jl</code>, where <code>@formula(y ~ x)</code> is a nice shortcut to create a formula object that you could in principle build yourself without a macro, but with much more typing.</p>
+<p>Let’s try to write a small useful macro that transforms a real expression!</p>
+<p>An issue some Julia users face once in a while, is that the <code>fill</code> function’s argument is executed once, and then the whole vector is filled with that result. Let’s say we want a vector of 5 three-element random vectors.</p>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb20" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1">rand_vec <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">fill</span>(<span class="fu" style="color: #4758AB;">rand</span>(<span class="fl" style="color: #AD0000;">3</span>), <span class="fl" style="color: #AD0000;">5</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<pre><code>5-element Vector{Vector{Float64}}:
+ [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
+ [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
+ [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
+ [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
+ [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]</code></pre>
+</div>
+</div>
+<p>As you can see, every vector is the same, which we don’t want. A way to get our desired result is with a list comprehension:</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb22" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb22-1">rand_vec <span class="op" style="color: #5E5E5E;">=</span> [<span class="fu" style="color: #4758AB;">rand</span>(<span class="fl" style="color: #AD0000;">3</span>) for _ <span class="kw" style="color: #003B4F;">in</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>]</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="13">
+<pre><code>5-element Vector{Vector{Float64}}:
+ [0.8725330212586709, 0.4795816230082033, 0.9172392083002981]
+ [0.9719559431191102, 0.19043032642674818, 0.08611899155355529]
+ [0.7161171606001293, 0.302776139613366, 0.7718944119034991]
+ [0.2002017063644278, 0.5746728692444949, 0.8964453459163226]
+ [0.7202575009260345, 0.09129552321489198, 0.2932641215021371]</code></pre>
+</div>
+</div>
+<p>This works, but the fill syntax is so nice and short in comparison. Also it gets even worse if you are iterating multiple dimensions in nested for loops, while you can always write <code>fill(rand(3), 3, 4, 5)</code>.</p>
+<p>So can we write a macro that makes a list comprehension expression out of a call like <code>@fill(rand(3), 5)</code>, so that the first argument is executed anew in each iteration? Let’s try it!</p>
+<p>The first step is always to understand what expression you’re even trying to build. We already use two iterators here to understand how multiple are handled in the resulting expression:</p>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb24" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb24-1"><span class="bu" style="color: null;">Meta</span>.<span class="pp" style="color: #AD0000;">@dump</span> [<span class="fu" style="color: #4758AB;">rand</span>(<span class="fl" style="color: #AD0000;">3</span>) for _ <span class="kw" style="color: #003B4F;">in</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>, _ <span class="kw" style="color: #003B4F;">in</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>]</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Expr
+  head: Symbol comprehension
+  args: Array{Any}((1,))
+    1: Expr
+      head: Symbol generator
+      args: Array{Any}((3,))
+        1: Expr
+          head: Symbol call
+          args: Array{Any}((2,))
+            1: Symbol rand
+            2: Int64 3
+        2: Expr
+          head: Symbol =
+          args: Array{Any}((2,))
+            1: Symbol _
+            2: Expr
+              head: Symbol call
+              args: Array{Any}((3,))
+                1: Symbol :
+                2: Int64 1
+                3: Int64 5
+        3: Expr
+          head: Symbol =
+          args: Array{Any}((2,))
+            1: Symbol _
+            2: Expr
+              head: Symbol call
+              args: Array{Any}((3,))
+                1: Symbol :
+                2: Int64 1
+                3: Int64 3</code></pre>
+</div>
+</div>
+<p>Aha, now we actually see some real expressions. Every <code>Expr</code> object has a <code>head</code> that stores what kind of expression it is, and a vector called <code>args</code> which contains all arguments to that expression.</p>
+<p>We can see that a list comprehension is made by making an <code>Expr</code> where the head is <code>:comprehension</code>. There’s only one argument to that expression, which is a :generator expression. This one in turn is assembled of the expression being called in each iteration, and the iteration expressions <code>_ = 1:5</code> and <code>_ = 1:3</code>.</p>
+<p>We want to use the syntax <code>@fill(rand(3), sizes...)</code>, so we need to think how we can transform those two arguments into the expression we want.</p>
+<p>Here, we’ll build the <code>Expr</code> by hand, instead of writing one big <code>quote</code>. Sometimes that is easier, it also depends on what you find more readable. Expressions with a lot of quoting and interpolating can be hard to understand. I usually prefer <code>quote ... end</code> over the equivalent <code>:(...)</code> just because I can parse words a bit better than parentheses.</p>
+<p>Here we go:</p>
+<p>For each size argument, we make one of the iterator expressions that we saw in the dump above. We escape each size variable <code>s</code> because those are the arguments that the user will write themselves, and they need to resolve correctly in their scope later.</p>
+<p>The comprehension expression then receives the first argument escaped because that expression also needs to run as-is in the user’s scope.</p>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb26" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb26-1"><span class="kw" style="color: #003B4F;">macro</span> <span class="fu" style="color: #4758AB;">fill</span>(exp, sizes<span class="op" style="color: #5E5E5E;">...</span>)</span>
+<span id="cb26-2">   </span>
+<span id="cb26-3">    iterator_expressions <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">map</span>(sizes) <span class="cf" style="color: #003B4F;">do</span> s</span>
+<span id="cb26-4">        <span class="fu" style="color: #4758AB;">Expr</span>(</span>
+<span id="cb26-5">            <span class="op" style="color: #5E5E5E;">:</span>(<span class="op" style="color: #5E5E5E;">=</span>),</span>
+<span id="cb26-6">            <span class="op" style="color: #5E5E5E;">:</span>_,</span>
+<span id="cb26-7">            <span class="kw" style="color: #003B4F;">quote</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:$</span>(<span class="fu" style="color: #4758AB;">esc</span>(s)) <span class="cf" style="color: #003B4F;">end</span></span>
+<span id="cb26-8">        )</span>
+<span id="cb26-9">    <span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb26-10">    </span>
+<span id="cb26-11">    <span class="fu" style="color: #4758AB;">Expr</span>(</span>
+<span id="cb26-12">        <span class="op" style="color: #5E5E5E;">:</span>comprehension,</span>
+<span id="cb26-13">        <span class="fu" style="color: #4758AB;">esc</span>(exp),</span>
+<span id="cb26-14">        iterator_expressions<span class="op" style="color: #5E5E5E;">...</span></span>
+<span id="cb26-15">    )</span>
+<span id="cb26-16"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<pre><code>@fill (macro with 1 method)</code></pre>
+</div>
+</div>
+<p>Let’s try it out:</p>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb28" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb28-1"><span class="pp" style="color: #AD0000;">@fill</span>(<span class="fu" style="color: #4758AB;">rand</span>(<span class="fl" style="color: #AD0000;">3</span>), <span class="fl" style="color: #AD0000;">5</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<pre><code>5-element Vector{Vector{Float64}}:
+ [0.02627205349464823, 0.11533423884129146, 0.2973247165009204]
+ [0.297583789394681, 0.06903570913101054, 0.45629749169344835]
+ [0.0692246211970835, 0.9507456085284235, 0.7833397066448377]
+ [0.13731160049441005, 0.7236868931286216, 0.9473667580650219]
+ [0.5264428859698403, 0.3563184005633261, 0.11675011608509278]</code></pre>
+</div>
+</div>
+<p>A good check if you’ve escaped correctly is to pass expressions that reference some local variables. The call will error if you’ve forgotten to escape any of them:</p>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb30" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb30-1">n <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">3</span></span>
+<span id="cb30-2">k <span class="op" style="color: #5E5E5E;">=</span> <span class="fl" style="color: #AD0000;">5</span></span>
+<span id="cb30-3"></span>
+<span id="cb30-4"><span class="pp" style="color: #AD0000;">@fill</span>(<span class="fu" style="color: #4758AB;">rand</span>(n), k)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<pre><code>5-element Vector{Vector{Float64}}:
+ [0.7039197395563538, 0.9816386989332266, 0.1694562488888508]
+ [0.17571625986592, 0.9636575517806829, 0.018570143498500502]
+ [0.20014539538594045, 0.11405234139579701, 0.8857689386671248]
+ [0.6176150545544709, 0.05380364032724694, 0.8572089253093892]
+ [0.4671904345271324, 0.05192318622037595, 0.5816153176748692]</code></pre>
+</div>
+</div>
+<p>This works fine! It should also work with more size arguments, we’ll generate only random scalars so the printout is manageable:</p>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb32" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb32-1"><span class="pp" style="color: #AD0000;">@fill</span>(<span class="fu" style="color: #4758AB;">rand</span>(), <span class="fl" style="color: #AD0000;">5</span>, <span class="fl" style="color: #AD0000;">3</span>)</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>5×3 Matrix{Float64}:
+ 0.148051  0.0548755  0.0984375
+ 0.953251  0.451733   0.414434
+ 0.69841   0.964177   0.999719
+ 0.174305  0.959451   0.459463
+ 0.606962  0.571768   0.97671</code></pre>
+</div>
+</div>
+<p>Even though this particular example is contrived for simplicity (we could just use <code>rand(5, 3</code> of course) compare it to the alternative list comprehension syntax:</p>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb34" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb34-1">[<span class="fu" style="color: #4758AB;">rand</span>() for _ <span class="kw" style="color: #003B4F;">in</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>, _ <span class="kw" style="color: #003B4F;">in</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>]</span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>5×3 Matrix{Float64}:
+ 0.765228  0.772367   0.655585
+ 0.374126  0.0999815  0.979332
+ 0.2307    0.25978    0.304035
+ 0.015909  0.595303   0.925112
+ 0.502928  0.349744   0.536903</code></pre>
+</div>
+</div>
+</section>
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>As you can see, macros can be a gain in syntax clarity, and they offer a powerful way to interact with the user’s source code.</p>
+<p>Just remember that a reader also needs to understand what’s happening. In our example, <code>rand()</code> is not just executed once but many times, which is non-standard behavior for something resembling a function call. This code-reasoning overhead must always be weighed against the convenience of shorter syntax.</p>
+<p>I hope you have learned a thing or two about macros and are encouraged to play around with them yourself. Usually, good ideas for macros only present themselves after interacting with Julia for a while, so if you are a beginner, give it time and become proficient with normal functions first.</p>
+
+
+</section>
+
+ ]]></description>
+  <category>julia</category>
+  <guid>https://jkrumbiegel.github.io/pages/2021-06-07-macros-for-beginners/index.html</guid>
+  <pubDate>Sun, 06 Jun 2021 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Reading data from the web with CSV.jl, DataFrames.jl and Chain.jl</title>
+  <link>https://jkrumbiegel.github.io/pages/2021-05-20-reading-data-from-web/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>Recently, I had to read in a dataset from Hillenbrand (1995), published as an annotated csv-like file on a website. The dataset describes formant frequencies of several vowel utterances from different speakers. I thought I ended up with a pretty slick implementation showing off some of the tools available in the Julia data science ecosystem.</p>
+<p><a href="http://homepages.wmich.edu/~hillenbr/voweldata/bigdata.dat">Here’s the dataset</a> if you want to look at it. The challenge is simply that it’s a non-standard file format that needs to be massaged into a form ready for CSV reading first. That means there are also no predefined column names and we don’t want to do a lot of work to write all of these out manually, but use the repetitive structure. My goal is always to write as little unnecessary boilerplate code as possible, without using too much unreadable magic.</p>
+<p>Here’s the final code, afterwards I’ll go through the different statements one by one.</p>
+<p>The versions used were CSV v0.8.4, Chain v0.4.5 and DataFrames v1.1.1 with Julia 1.6.</p>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="im" style="color: #00769E;">using</span> <span class="bu" style="color: null;">Chain</span>, <span class="bu" style="color: null;">DataFrames</span>, <span class="bu" style="color: null;">CSV</span>, <span class="bu" style="color: null;">Downloads</span></span>
+<span id="cb1-2"></span>
+<span id="cb1-3"><span class="pp" style="color: #AD0000;">@chain</span> <span class="st" style="color: #20794D;">"http://homepages.wmich.edu/~hillenbr/voweldata/bigdata.dat"</span> <span class="cf" style="color: #003B4F;">begin</span></span>
+<span id="cb1-4">    <span class="bu" style="color: null;">Downloads</span>.<span class="fu" style="color: #4758AB;">download</span>(<span class="fu" style="color: #4758AB;">IOBuffer</span>())</span>
+<span id="cb1-5">    <span class="fu" style="color: #4758AB;">String</span>(<span class="fu" style="color: #4758AB;">take!</span>(_))</span>
+<span id="cb1-6">    _[<span class="fu" style="color: #4758AB;">findfirst</span>(<span class="st" style="color: #20794D;">"b01ae"</span>, _)[<span class="fl" style="color: #AD0000;">1</span>]<span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">end</span>]</span>
+<span id="cb1-7">    <span class="fu" style="color: #4758AB;">replace</span>(<span class="st" style="color: #20794D;">r" </span><span class="sc" style="color: #5E5E5E;">+</span><span class="st" style="color: #20794D;">"</span> <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">" "</span>)</span>
+<span id="cb1-8">    <span class="fu" style="color: #4758AB;">replace</span>(<span class="st" style="color: #20794D;">r"</span><span class="sc" style="color: #5E5E5E;">\s+$</span><span class="st" style="color: #20794D;">"</span>m<span class="st" style="color: #20794D;"> =&gt; "</span><span class="op" style="color: #5E5E5E;">\</span>n<span class="st" style="color: #20794D;">")</span></span>
+<span id="cb1-9">    CSV.<span class="fu" style="color: #4758AB;">read</span>(<span class="fu" style="color: #4758AB;">IOBuffer</span>(_), DataFrame, header <span class="op" style="color: #5E5E5E;">=</span> <span class="cn" style="color: #8f5902;">false</span>,</span>
+<span id="cb1-10">        missingstring <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"0"</span>)</span>
+<span id="cb1-11">    <span class="fu" style="color: #4758AB;">rename</span>(<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">30</span> <span class="op" style="color: #5E5E5E;">.=&gt;</span> [</span>
+<span id="cb1-12">        <span class="op" style="color: #5E5E5E;">:</span>filename;</span>
+<span id="cb1-13">        <span class="op" style="color: #5E5E5E;">:</span>duration_msec;</span>
+<span id="cb1-14">        <span class="fu" style="color: #4758AB;">Symbol</span>.([<span class="st" style="color: #20794D;">"f0"</span>, <span class="st" style="color: #20794D;">"f1"</span>, <span class="st" style="color: #20794D;">"f2"</span>, <span class="st" style="color: #20794D;">"f3"</span>], <span class="st" style="color: #20794D;">"_steady"</span>);</span>
+<span id="cb1-15">        [<span class="fu" style="color: #4758AB;">Symbol</span>(f, <span class="st" style="color: #20794D;">"_"</span>, p)</span>
+<span id="cb1-16">            for p <span class="kw" style="color: #003B4F;">in</span> <span class="fl" style="color: #AD0000;">10</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">10</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">80</span></span>
+<span id="cb1-17">            for f <span class="kw" style="color: #003B4F;">in</span> [<span class="st" style="color: #20794D;">"f1"</span>, <span class="st" style="color: #20794D;">"f2"</span>, <span class="st" style="color: #20794D;">"f3"</span>]]</span>
+<span id="cb1-18">    ])</span>
+<span id="cb1-19">    <span class="fu" style="color: #4758AB;">transform</span>(<span class="op" style="color: #5E5E5E;">:</span>filename <span class="op" style="color: #5E5E5E;">=&gt;</span></span>
+<span id="cb1-20">        <span class="fu" style="color: #4758AB;">ByRow</span>(f <span class="op" style="color: #5E5E5E;">-&gt;</span> (</span>
+<span id="cb1-21">            <span class="kw" style="color: #003B4F;">type</span> <span class="op" style="color: #5E5E5E;">=</span> f[<span class="fl" style="color: #AD0000;">1</span>],</span>
+<span id="cb1-22">            number <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">parse</span>(<span class="dt" style="color: #AD0000;">Int</span>, f[<span class="fl" style="color: #AD0000;">2</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>]),</span>
+<span id="cb1-23">            vowel <span class="op" style="color: #5E5E5E;">=</span> f[<span class="fl" style="color: #AD0000;">4</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>]</span>
+<span id="cb1-24">        )) <span class="op" style="color: #5E5E5E;">=&gt;</span> AsTable)</span>
+<span id="cb1-25">    <span class="fu" style="color: #4758AB;">transform</span>(<span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">type</span> <span class="op" style="color: #5E5E5E;">=&gt;</span></span>
+<span id="cb1-26">        <span class="fu" style="color: #4758AB;">ByRow</span>(t <span class="op" style="color: #5E5E5E;">-&gt;</span> <span class="fu" style="color: #4758AB;">Dict</span>(</span>
+<span id="cb1-27">            <span class="ch" style="color: #20794D;">'m'</span> <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"man"</span>,</span>
+<span id="cb1-28">            <span class="ch" style="color: #20794D;">'w'</span> <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"woman"</span>,</span>
+<span id="cb1-29">            <span class="ch" style="color: #20794D;">'b'</span> <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"boy"</span>,</span>
+<span id="cb1-30">            <span class="ch" style="color: #20794D;">'g'</span> <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"girl"</span>)[t]) <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">type</span>)</span>
+<span id="cb1-31">    <span class="fu" style="color: #4758AB;">select</span>(<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">2</span>, <span class="fl" style="color: #AD0000;">31</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">33</span>, <span class="fl" style="color: #AD0000;">3</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">30</span>)</span>
+<span id="cb1-32">    CSV.<span class="fu" style="color: #4758AB;">write</span>(<span class="st" style="color: #20794D;">"hillenbrand.csv"</span>, _)</span>
+<span id="cb1-33"><span class="cf" style="color: #003B4F;">end</span></span></code></pre></div>
+<p>Ok, let’s look at the parts:</p>
+<div class="sourceCode" id="cb2" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><span class="pp" style="color: #AD0000;">@chain</span> <span class="st" style="color: #20794D;">"http://homepages.wmich.edu/~hillenbr/voweldata/bigdata.dat"</span> <span class="cf" style="color: #003B4F;">begin</span></span></code></pre></div>
+<p>First, we start a <code>@chain</code> from <code>Chain.jl</code> with the url we want to download. In a chain, we can feed the result from one expression into the first argument of the next, unless we specify a different position with the <code>_</code> placeholder.</p>
+<div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><span class="bu" style="color: null;">Downloads</span>.<span class="fu" style="color: #4758AB;">download</span>(<span class="fu" style="color: #4758AB;">IOBuffer</span>())</span>
+<span id="cb3-2"><span class="fu" style="color: #4758AB;">String</span>(<span class="fu" style="color: #4758AB;">take!</span>(_))</span></code></pre></div>
+<p>We download the content at the url right into an <code>IOBuffer</code> object, which avoids creating a separate file. The IOBuffer is then converted into a string because we have to clean it up a bit.</p>
+<div class="sourceCode" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1">_[<span class="fu" style="color: #4758AB;">findfirst</span>(<span class="st" style="color: #20794D;">"b01ae"</span>, _)[<span class="fl" style="color: #AD0000;">1</span>]<span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">end</span>]</span>
+<span id="cb4-2"><span class="fu" style="color: #4758AB;">replace</span>(<span class="st" style="color: #20794D;">r" </span><span class="sc" style="color: #5E5E5E;">+</span><span class="st" style="color: #20794D;">"</span> <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">" "</span>)</span>
+<span id="cb4-3"><span class="fu" style="color: #4758AB;">replace</span>(<span class="st" style="color: #20794D;">r"</span><span class="sc" style="color: #5E5E5E;">\s+$</span><span class="st" style="color: #20794D;">"</span>m<span class="st" style="color: #20794D;"> =&gt; "</span><span class="op" style="color: #5E5E5E;">\</span>n<span class="st" style="color: #20794D;">")</span></span></code></pre></div>
+<p>The first line finds the occurence of the first part of the actual data entries, then selects only the part of the string from there on out. The second line finds all multiple spaces and replaces them with one space, while the third line removes all trailing whitespace before the end of a line. Both of these things can otherwise throw off CSV.jl when it determines how many columns there are.</p>
+<div class="sourceCode" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1">CSV.<span class="fu" style="color: #4758AB;">read</span>(<span class="fu" style="color: #4758AB;">IOBuffer</span>(_), DataFrame, header <span class="op" style="color: #5E5E5E;">=</span> <span class="cn" style="color: #8f5902;">false</span>,</span>
+<span id="cb5-2">    missingstring <span class="op" style="color: #5E5E5E;">=</span> <span class="st" style="color: #20794D;">"0"</span>)</span></code></pre></div>
+<p>Now we convert the string back to an IOBuffer, so that we can use it directly with <code>CSV.read</code>. Using the string itself doesn’t work, because CSV.jl would assume it’s a file path. We read into a <code>DataFrame</code> and specify that there’s no header, because the file has no column names. We also specify that the string “0” is a missing value, which is the convention of this dataset but which could easily throw off our analyses if we aren’t careful. Using <code>missing</code> values forces us to acknowledge them explicitly in our analysis.</p>
+<div class="sourceCode" id="cb6" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><span class="fu" style="color: #4758AB;">rename</span>(<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">30</span> <span class="op" style="color: #5E5E5E;">.=&gt;</span> [</span>
+<span id="cb6-2">    <span class="op" style="color: #5E5E5E;">:</span>filename;</span>
+<span id="cb6-3">    <span class="op" style="color: #5E5E5E;">:</span>duration_msec;</span>
+<span id="cb6-4">    <span class="fu" style="color: #4758AB;">Symbol</span>.([<span class="st" style="color: #20794D;">"f0"</span>, <span class="st" style="color: #20794D;">"f1"</span>, <span class="st" style="color: #20794D;">"f2"</span>, <span class="st" style="color: #20794D;">"f3"</span>], <span class="st" style="color: #20794D;">"_steady"</span>);</span>
+<span id="cb6-5">    [<span class="fu" style="color: #4758AB;">Symbol</span>(f, <span class="st" style="color: #20794D;">"_"</span>, p)</span>
+<span id="cb6-6">        for p <span class="kw" style="color: #003B4F;">in</span> <span class="fl" style="color: #AD0000;">10</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">10</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">80</span></span>
+<span id="cb6-7">        for f <span class="kw" style="color: #003B4F;">in</span> [<span class="st" style="color: #20794D;">"f1"</span>, <span class="st" style="color: #20794D;">"f2"</span>, <span class="st" style="color: #20794D;">"f3"</span>]]</span>
+<span id="cb6-8">])</span></code></pre></div>
+<p>Here we rename the columns in a succinct way, the structure is described in the data file. We broadcast an integer range from 1 to 30, which is the number of columns, with a list of 30 Symbols. The first two we specify manually, then there’s <code>f0_steady</code>, <code>f1_steady</code>, etc. Finally, we need to make 24 column names which go like <code>f1_10</code>, <code>f2_10</code>, <code>f3_10</code>, <code>f1_20</code>, and so on. We can easily do this with a nested list comprehension, where we loop over the percentages in the outer loop, and over the formants in the inner loop.</p>
+<div class="sourceCode" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><span class="fu" style="color: #4758AB;">transform</span>(<span class="op" style="color: #5E5E5E;">:</span>filename <span class="op" style="color: #5E5E5E;">=&gt;</span></span>
+<span id="cb7-2">    <span class="fu" style="color: #4758AB;">ByRow</span>(f <span class="op" style="color: #5E5E5E;">-&gt;</span> (</span>
+<span id="cb7-3">        <span class="kw" style="color: #003B4F;">type</span> <span class="op" style="color: #5E5E5E;">=</span> f[<span class="fl" style="color: #AD0000;">1</span>],</span>
+<span id="cb7-4">        number <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">parse</span>(<span class="dt" style="color: #AD0000;">Int</span>, f[<span class="fl" style="color: #AD0000;">2</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">3</span>]),</span>
+<span id="cb7-5">        vowel <span class="op" style="color: #5E5E5E;">=</span> f[<span class="fl" style="color: #AD0000;">4</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">5</span>]</span>
+<span id="cb7-6">    )) <span class="op" style="color: #5E5E5E;">=&gt;</span> AsTable)</span></code></pre></div>
+<p>The data file specifies that some information is encoded in the filename. We extract this with a function that operates by row, and extracts the three components into fields of a named tuple. By passing <code>AsTable</code> as the sink, these named tuples are automatically expanded into correctly named columns.</p>
+<div class="sourceCode" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><span class="fu" style="color: #4758AB;">transform</span>(<span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">type</span> <span class="op" style="color: #5E5E5E;">=&gt;</span></span>
+<span id="cb8-2">    <span class="fu" style="color: #4758AB;">ByRow</span>(t <span class="op" style="color: #5E5E5E;">-&gt;</span> <span class="fu" style="color: #4758AB;">Dict</span>(</span>
+<span id="cb8-3">        <span class="ch" style="color: #20794D;">'m'</span> <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"man"</span>,</span>
+<span id="cb8-4">        <span class="ch" style="color: #20794D;">'w'</span> <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"woman"</span>,</span>
+<span id="cb8-5">        <span class="ch" style="color: #20794D;">'b'</span> <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"boy"</span>,</span>
+<span id="cb8-6">        <span class="ch" style="color: #20794D;">'g'</span> <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="st" style="color: #20794D;">"girl"</span>)[t]) <span class="op" style="color: #5E5E5E;">=&gt;</span> <span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">type</span>)</span></code></pre></div>
+<p>The type of speaker is currently encoded as a <code>Char</code>, but we can transform this column to a more readable form by looking up the long version of each character in a small dictionary.</p>
+<div class="sourceCode" id="cb9" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><span class="fu" style="color: #4758AB;">select</span>(<span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">2</span>, <span class="fl" style="color: #AD0000;">31</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">33</span>, <span class="fl" style="color: #AD0000;">3</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">30</span>)</span></code></pre></div>
+<p>Our three new columns have been appended at the end, but it would be nicer if the speaker descriptions were more at the front. So we just use a select statement, where the first two columns come first, then the last three, and then the rest.</p>
+<div class="sourceCode" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1">CSV.<span class="fu" style="color: #4758AB;">write</span>(<span class="st" style="color: #20794D;">"hillenbrand.csv"</span>, _)</span></code></pre></div>
+<p>As the last step, we write out the cleaned table into a csv file, and we’ve already reached the end of this short tutorial. This is what the end result looks like:</p>
+<div class="sourceCode" id="cb11" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><span class="fl" style="color: #AD0000;">1668</span><span class="op" style="color: #5E5E5E;">×</span><span class="fl" style="color: #AD0000;">33</span> DataFrame</span>
+<span id="cb11-2">  Row │ filename  duration_msec  <span class="kw" style="color: #003B4F;">type</span>    number  vowel   f0_steady  f1_steady  f2_steady  f3_steady  f1_10  f2_10   f3_10    f1_20  f2_20   f3_20    f1_30  f2_3 <span class="op" style="color: #5E5E5E;">⋯</span></span>
+<span id="cb11-3">      │ <span class="dt" style="color: #AD0000;">String</span>    <span class="dt" style="color: #AD0000;">Int64</span>          <span class="dt" style="color: #AD0000;">String</span>  <span class="dt" style="color: #AD0000;">Int64</span>   <span class="dt" style="color: #AD0000;">String</span>  <span class="dt" style="color: #AD0000;">Int64</span>      <span class="dt" style="color: #AD0000;">Int64</span>      <span class="dt" style="color: #AD0000;">Int64</span>?     <span class="dt" style="color: #AD0000;">Int64</span>?     <span class="dt" style="color: #AD0000;">Int64</span>  <span class="dt" style="color: #AD0000;">Int64</span>?  <span class="dt" style="color: #AD0000;">Int64</span>?   <span class="dt" style="color: #AD0000;">Int64</span>  <span class="dt" style="color: #AD0000;">Int64</span>?  <span class="dt" style="color: #AD0000;">Int64</span>?   <span class="dt" style="color: #AD0000;">Int64</span>  Int6 <span class="op" style="color: #5E5E5E;">⋯</span></span>
+<span id="cb11-4">──────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────</span>
+<span id="cb11-5">    <span class="fl" style="color: #AD0000;">1</span> │ b01ae               <span class="fl" style="color: #AD0000;">257</span>  boy          <span class="fl" style="color: #AD0000;">1</span>  ae            <span class="fl" style="color: #AD0000;">238</span>        <span class="fl" style="color: #AD0000;">630</span>       <span class="fl" style="color: #AD0000;">2423</span>       <span class="fl" style="color: #AD0000;">3166</span>    <span class="fl" style="color: #AD0000;">625</span>    <span class="fl" style="color: #AD0000;">2388</span>     <span class="fl" style="color: #AD0000;">3174</span>    <span class="fl" style="color: #AD0000;">651</span>    <span class="fl" style="color: #AD0000;">2413</span>     <span class="fl" style="color: #AD0000;">3115</span>    <span class="fl" style="color: #AD0000;">675</span>    <span class="fl" style="color: #AD0000;">24</span> <span class="op" style="color: #5E5E5E;">⋯</span></span>
+<span id="cb11-6">    <span class="fl" style="color: #AD0000;">2</span> │ b02ae               <span class="fl" style="color: #AD0000;">359</span>  boy          <span class="fl" style="color: #AD0000;">2</span>  ae            <span class="fl" style="color: #AD0000;">286</span>        <span class="fl" style="color: #AD0000;">829</span>       <span class="fl" style="color: #AD0000;">2495</span>       <span class="fl" style="color: #AD0000;">3218</span>    <span class="fl" style="color: #AD0000;">802</span>    <span class="fl" style="color: #AD0000;">2392</span>     <span class="fl" style="color: #AD0000;">3625</span>    <span class="fl" style="color: #AD0000;">778</span>    <span class="fl" style="color: #AD0000;">2461</span>     <span class="fl" style="color: #AD0000;">3424</span>    <span class="fl" style="color: #AD0000;">793</span>    <span class="fl" style="color: #AD0000;">24</span></span>
+<span id="cb11-7">    <span class="fl" style="color: #AD0000;">3</span> │ b03ae               <span class="fl" style="color: #AD0000;">335</span>  boy          <span class="fl" style="color: #AD0000;">3</span>  ae            <span class="fl" style="color: #AD0000;">214</span>        <span class="fl" style="color: #AD0000;">631</span>       <span class="fl" style="color: #AD0000;">2801</span>       <span class="fl" style="color: #AD0000;">3508</span>    <span class="fl" style="color: #AD0000;">631</span>    <span class="fl" style="color: #AD0000;">2801</span>     <span class="fl" style="color: #AD0000;">3508</span>    <span class="fl" style="color: #AD0000;">602</span>    <span class="fl" style="color: #AD0000;">2760</span>     <span class="fl" style="color: #AD0000;">3453</span>    <span class="fl" style="color: #AD0000;">573</span>    <span class="fl" style="color: #AD0000;">28</span></span>
+<span id="cb11-8">    <span class="fl" style="color: #AD0000;">4</span> │ b04ae               <span class="fl" style="color: #AD0000;">398</span>  boy          <span class="fl" style="color: #AD0000;">4</span>  ae            <span class="fl" style="color: #AD0000;">239</span>        <span class="fl" style="color: #AD0000;">712</span>       <span class="fl" style="color: #AD0000;">2608</span>       <span class="fl" style="color: #AD0000;">3247</span>    <span class="fl" style="color: #AD0000;">729</span>    <span class="fl" style="color: #AD0000;">2604</span>     <span class="fl" style="color: #AD0000;">3239</span>    <span class="fl" style="color: #AD0000;">712</span>    <span class="fl" style="color: #AD0000;">2608</span>     <span class="fl" style="color: #AD0000;">3247</span>    <span class="fl" style="color: #AD0000;">695</span>    <span class="fl" style="color: #AD0000;">25</span></span>
+<span id="cb11-9">    <span class="fl" style="color: #AD0000;">5</span> │ b05ae               <span class="fl" style="color: #AD0000;">267</span>  boy          <span class="fl" style="color: #AD0000;">5</span>  ae            <span class="fl" style="color: #AD0000;">200</span>        <span class="fl" style="color: #AD0000;">748</span>       <span class="fl" style="color: #AD0000;">2589</span>       <span class="fl" style="color: #AD0000;">3042</span>    <span class="fl" style="color: #AD0000;">728</span>    <span class="fl" style="color: #AD0000;">2601</span>     <span class="fl" style="color: #AD0000;">3047</span>    <span class="fl" style="color: #AD0000;">752</span>    <span class="fl" style="color: #AD0000;">2562</span>     <span class="fl" style="color: #AD0000;">3033</span>    <span class="fl" style="color: #AD0000;">767</span>    <span class="fl" style="color: #AD0000;">25</span> <span class="op" style="color: #5E5E5E;">⋯</span></span>
+<span id="cb11-10">    <span class="fl" style="color: #AD0000;">6</span> │ b07ae               <span class="fl" style="color: #AD0000;">323</span>  boy          <span class="fl" style="color: #AD0000;">7</span>  ae            <span class="fl" style="color: #AD0000;">262</span>        <span class="fl" style="color: #AD0000;">769</span>       <span class="fl" style="color: #AD0000;">2203</span>       <span class="fl" style="color: #AD0000;">3126</span>    <span class="fl" style="color: #AD0000;">769</span>    <span class="fl" style="color: #AD0000;">2203</span>     <span class="fl" style="color: #AD0000;">3126</span>    <span class="fl" style="color: #AD0000;">760</span>    <span class="fl" style="color: #AD0000;">2169</span>     <span class="fl" style="color: #AD0000;">3144</span>    <span class="fl" style="color: #AD0000;">813</span>    <span class="fl" style="color: #AD0000;">22</span></span>
+<span id="cb11-11">    <span class="fl" style="color: #AD0000;">7</span> │ b08ae               <span class="fl" style="color: #AD0000;">316</span>  boy          <span class="fl" style="color: #AD0000;">8</span>  ae            <span class="fl" style="color: #AD0000;">216</span>        <span class="fl" style="color: #AD0000;">870</span>       <span class="fl" style="color: #AD0000;">2281</span>       <span class="fl" style="color: #AD0000;">3077</span>    <span class="fl" style="color: #AD0000;">765</span>    <span class="fl" style="color: #AD0000;">2252</span>     <span class="fl" style="color: #AD0000;">3214</span>    <span class="fl" style="color: #AD0000;">820</span>    <span class="fl" style="color: #AD0000;">2239</span>     <span class="fl" style="color: #AD0000;">3181</span>    <span class="fl" style="color: #AD0000;">864</span>    <span class="fl" style="color: #AD0000;">23</span></span>
+<span id="cb11-12">    <span class="fl" style="color: #AD0000;">8</span> │ b09ae               <span class="fl" style="color: #AD0000;">245</span>  boy          <span class="fl" style="color: #AD0000;">9</span>  ae            <span class="fl" style="color: #AD0000;">220</span>        <span class="fl" style="color: #AD0000;">709</span>       <span class="fl" style="color: #AD0000;">2565</span>       <span class="fl" style="color: #AD0000;">3526</span>    <span class="fl" style="color: #AD0000;">626</span>    <span class="fl" style="color: #AD0000;">2545</span>     <span class="fl" style="color: #AD0000;">3504</span>    <span class="fl" style="color: #AD0000;">709</span>    <span class="fl" style="color: #AD0000;">2565</span>     <span class="fl" style="color: #AD0000;">3526</span>    <span class="fl" style="color: #AD0000;">663</span>    <span class="fl" style="color: #AD0000;">26</span></span>
+<span id="cb11-13">    <span class="fl" style="color: #AD0000;">9</span> │ b10ae               <span class="fl" style="color: #AD0000;">396</span>  boy         <span class="fl" style="color: #AD0000;">10</span>  ae            <span class="fl" style="color: #AD0000;">205</span>        <span class="fl" style="color: #AD0000;">634</span>       <span class="fl" style="color: #AD0000;">2555</span>       <span class="fl" style="color: #AD0000;">3121</span>    <span class="fl" style="color: #AD0000;">635</span>    <span class="fl" style="color: #AD0000;">2560</span>     <span class="fl" style="color: #AD0000;">3230</span>    <span class="fl" style="color: #AD0000;">642</span>    <span class="fl" style="color: #AD0000;">2559</span>     <span class="fl" style="color: #AD0000;">3126</span>    <span class="fl" style="color: #AD0000;">633</span>    <span class="fl" style="color: #AD0000;">25</span> <span class="op" style="color: #5E5E5E;">⋯</span></span>
+<span id="cb11-14">   <span class="fl" style="color: #AD0000;">10</span> │ b11ae               <span class="fl" style="color: #AD0000;">298</span>  boy         <span class="fl" style="color: #AD0000;">11</span>  ae            <span class="fl" style="color: #AD0000;">209</span>        <span class="fl" style="color: #AD0000;">630</span>       <span class="fl" style="color: #AD0000;">2509</span>       <span class="fl" style="color: #AD0000;">3112</span>    <span class="fl" style="color: #AD0000;">630</span>    <span class="fl" style="color: #AD0000;">2509</span>     <span class="fl" style="color: #AD0000;">3112</span>    <span class="fl" style="color: #AD0000;">627</span>    <span class="fl" style="color: #AD0000;">2513</span>     <span class="fl" style="color: #AD0000;">3098</span>    <span class="fl" style="color: #AD0000;">616</span>    <span class="fl" style="color: #AD0000;">25</span></span>
+<span id="cb11-15">   <span class="fl" style="color: #AD0000;">11</span> │ b12ae               <span class="fl" style="color: #AD0000;">415</span>  boy         <span class="fl" style="color: #AD0000;">12</span>  ae            <span class="fl" style="color: #AD0000;">252</span>        <span class="fl" style="color: #AD0000;">736</span>       <span class="fl" style="color: #AD0000;">2505</span>       <span class="fl" style="color: #AD0000;">3332</span>    <span class="fl" style="color: #AD0000;">729</span>    <span class="fl" style="color: #AD0000;">2544</span>     <span class="fl" style="color: #AD0000;">3261</span>    <span class="fl" style="color: #AD0000;">736</span>    <span class="fl" style="color: #AD0000;">2504</span>     <span class="fl" style="color: #AD0000;">3307</span>    <span class="fl" style="color: #AD0000;">739</span>    <span class="fl" style="color: #AD0000;">25</span></span>
+<span id="cb11-16">   <span class="fl" style="color: #AD0000;">12</span> │ b13ae               <span class="fl" style="color: #AD0000;">281</span>  boy         <span class="fl" style="color: #AD0000;">13</span>  ae            <span class="fl" style="color: #AD0000;">216</span>        <span class="fl" style="color: #AD0000;">634</span>       <span class="fl" style="color: #AD0000;">2535</span>       <span class="fl" style="color: #AD0000;">3260</span>    <span class="fl" style="color: #AD0000;">634</span>    <span class="fl" style="color: #AD0000;">2535</span>     <span class="fl" style="color: #AD0000;">3260</span>    <span class="fl" style="color: #AD0000;">630</span>    <span class="fl" style="color: #AD0000;">2532</span>     <span class="fl" style="color: #AD0000;">3248</span>    <span class="fl" style="color: #AD0000;">623</span>    <span class="fl" style="color: #AD0000;">25</span></span>
+<span id="cb11-17">   <span class="fl" style="color: #AD0000;">13</span> │ b14ae               <span class="fl" style="color: #AD0000;">314</span>  boy         <span class="fl" style="color: #AD0000;">14</span>  ae            <span class="fl" style="color: #AD0000;">198</span>        <span class="fl" style="color: #AD0000;">697</span>       <span class="fl" style="color: #AD0000;">2418</span>       <span class="fl" style="color: #AD0000;">3371</span>    <span class="fl" style="color: #AD0000;">681</span>    <span class="fl" style="color: #AD0000;">2444</span>     <span class="fl" style="color: #AD0000;">3430</span>    <span class="fl" style="color: #AD0000;">657</span>    <span class="fl" style="color: #AD0000;">2471</span>     <span class="fl" style="color: #AD0000;">3376</span>    <span class="fl" style="color: #AD0000;">697</span>    <span class="fl" style="color: #AD0000;">24</span> <span class="op" style="color: #5E5E5E;">⋯</span></span>
+<span id="cb11-18">   <span class="fl" style="color: #AD0000;">14</span> │ b15ae               <span class="fl" style="color: #AD0000;">382</span>  boy         <span class="fl" style="color: #AD0000;">15</span>  ae            <span class="fl" style="color: #AD0000;">272</span>        <span class="fl" style="color: #AD0000;">607</span>       <span class="fl" style="color: #AD0000;">2620</span>       <span class="fl" style="color: #AD0000;">3350</span>    <span class="fl" style="color: #AD0000;">607</span>    <span class="fl" style="color: #AD0000;">2620</span>     <span class="fl" style="color: #AD0000;">3350</span>    <span class="fl" style="color: #AD0000;">617</span>    <span class="fl" style="color: #AD0000;">2599</span>     <span class="fl" style="color: #AD0000;">3369</span>    <span class="fl" style="color: #AD0000;">628</span>    <span class="fl" style="color: #AD0000;">25</span></span>
+<span id="cb11-19">   <span class="fl" style="color: #AD0000;">15</span> │ b16ae               <span class="fl" style="color: #AD0000;">367</span>  boy         <span class="fl" style="color: #AD0000;">16</span>  ae            <span class="fl" style="color: #AD0000;">187</span>        <span class="fl" style="color: #AD0000;">753</span>       <span class="fl" style="color: #AD0000;">2227</span>       <span class="fl" style="color: #AD0000;">3064</span>    <span class="fl" style="color: #AD0000;">788</span>    <span class="fl" style="color: #AD0000;">2244</span>     <span class="fl" style="color: #AD0000;">3150</span>    <span class="fl" style="color: #AD0000;">750</span>    <span class="fl" style="color: #AD0000;">2233</span>     <span class="fl" style="color: #AD0000;">3042</span>    <span class="fl" style="color: #AD0000;">749</span>    <span class="fl" style="color: #AD0000;">22</span></span>
+<span id="cb11-20">   <span class="fl" style="color: #AD0000;">16</span> │ b17ae               <span class="fl" style="color: #AD0000;">352</span>  boy         <span class="fl" style="color: #AD0000;">17</span>  ae            <span class="fl" style="color: #AD0000;">246</span>        <span class="fl" style="color: #AD0000;">726</span>       <span class="fl" style="color: #AD0000;">2231</span>       <span class="fl" style="color: #AD0000;">2932</span>    <span class="fl" style="color: #AD0000;">726</span>    <span class="fl" style="color: #AD0000;">2231</span>     <span class="fl" style="color: #AD0000;">2932</span>    <span class="fl" style="color: #AD0000;">742</span>    <span class="fl" style="color: #AD0000;">2246</span>     <span class="fl" style="color: #AD0000;">2902</span>    <span class="fl" style="color: #AD0000;">745</span>    <span class="fl" style="color: #AD0000;">22</span></span>
+<span id="cb11-21">   <span class="fl" style="color: #AD0000;">17</span> │ b18ae               <span class="fl" style="color: #AD0000;">307</span>  boy         <span class="fl" style="color: #AD0000;">18</span>  ae            <span class="fl" style="color: #AD0000;">249</span>        <span class="fl" style="color: #AD0000;">741</span>       <span class="fl" style="color: #AD0000;">2444</span>       <span class="fl" style="color: #AD0000;">3043</span>    <span class="fl" style="color: #AD0000;">735</span>    <span class="fl" style="color: #AD0000;">2446</span>     <span class="fl" style="color: #AD0000;">3008</span>    <span class="fl" style="color: #AD0000;">746</span>    <span class="fl" style="color: #AD0000;">2455</span>     <span class="fl" style="color: #AD0000;">3021</span>    <span class="fl" style="color: #AD0000;">748</span>    <span class="fl" style="color: #AD0000;">24</span> <span class="op" style="color: #5E5E5E;">⋯</span></span>
+<span id="cb11-22">   <span class="fl" style="color: #AD0000;">18</span> │ b19ae               <span class="fl" style="color: #AD0000;">312</span>  boy         <span class="fl" style="color: #AD0000;">19</span>  ae            <span class="fl" style="color: #AD0000;">209</span>        <span class="fl" style="color: #AD0000;">674</span>       <span class="fl" style="color: #AD0000;">2663</span>       <span class="fl" style="color: #AD0000;">3243</span>    <span class="fl" style="color: #AD0000;">684</span>    <span class="fl" style="color: #AD0000;">2665</span>     <span class="fl" style="color: #AD0000;">3268</span>    <span class="fl" style="color: #AD0000;">693</span>    <span class="fl" style="color: #AD0000;">2672</span>     <span class="fl" style="color: #AD0000;">3256</span>    <span class="fl" style="color: #AD0000;">733</span>    <span class="fl" style="color: #AD0000;">26</span></span>
+<span id="cb11-23">   <span class="fl" style="color: #AD0000;">19</span> │ b21ae               <span class="fl" style="color: #AD0000;">352</span>  boy         <span class="fl" style="color: #AD0000;">21</span>  ae            <span class="fl" style="color: #AD0000;">205</span>        <span class="fl" style="color: #AD0000;">769</span>       <span class="fl" style="color: #AD0000;">2234</span>       <span class="fl" style="color: #AD0000;">2910</span>    <span class="fl" style="color: #AD0000;">766</span>    <span class="fl" style="color: #AD0000;">2245</span>     <span class="fl" style="color: #AD0000;">2917</span>    <span class="fl" style="color: #AD0000;">771</span>    <span class="fl" style="color: #AD0000;">2215</span>     <span class="fl" style="color: #AD0000;">2889</span>    <span class="fl" style="color: #AD0000;">771</span>    <span class="fl" style="color: #AD0000;">21</span></span>
+<span id="cb11-24">   <span class="fl" style="color: #AD0000;">20</span> │ b22ae               <span class="fl" style="color: #AD0000;">256</span>  boy         <span class="fl" style="color: #AD0000;">22</span>  ae            <span class="fl" style="color: #AD0000;">229</span>        <span class="fl" style="color: #AD0000;">678</span>       <span class="fl" style="color: #AD0000;">2524</span>       <span class="fl" style="color: #AD0000;">3418</span>    <span class="fl" style="color: #AD0000;">687</span>    <span class="fl" style="color: #AD0000;">2580</span>     <span class="fl" style="color: #AD0000;">3288</span>    <span class="fl" style="color: #AD0000;">678</span>    <span class="fl" style="color: #AD0000;">2501</span>     <span class="fl" style="color: #AD0000;">3424</span>    <span class="fl" style="color: #AD0000;">677</span>    <span class="fl" style="color: #AD0000;">25</span></span></code></pre></div>
+<p>As always, there are lots of ways of achieving the same thing. This is just one version that I was satisfied with, and I hope you have learned one or two new techniques that can be useful to you in the future.</p>
+
+
+
+ ]]></description>
+  <category>julia</category>
+  <guid>https://jkrumbiegel.github.io/pages/2021-05-20-reading-data-from-web/index.html</guid>
+  <pubDate>Wed, 19 May 2021 22:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Tuples and Vectors, Allocations and Performance for Beginners</title>
+  <link>https://jkrumbiegel.github.io/pages/2020-10-31-tuples-and-vectors/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>If you’re new to Julia, here is a scenario that might have tripped you up already: Let’s define two points. Both are just a collection of two floating point numbers. But one is a <code>Vector</code>, written with the <code>[]</code> syntax, and one a <code>Tuple</code>, written with the <code>()</code> syntax. Then we make vectors of both types of points and run a short computation. Let’s see what the performance difference looks like.</p>
+<div class="sourceCode" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="fu" style="color: #4758AB;">rand_vector_point</span>() <span class="op" style="color: #5E5E5E;">=</span> [<span class="fu" style="color: #4758AB;">rand</span>(), <span class="fu" style="color: #4758AB;">rand</span>()] <span class="co" style="color: #5E5E5E;"># note the []</span></span>
+<span id="cb1-2"><span class="fu" style="color: #4758AB;">rand_tuple_point</span>()  <span class="op" style="color: #5E5E5E;">=</span> (<span class="fu" style="color: #4758AB;">rand</span>(), <span class="fu" style="color: #4758AB;">rand</span>()) <span class="co" style="color: #5E5E5E;"># note the ()</span></span>
+<span id="cb1-3"></span>
+<span id="cb1-4"><span class="co" style="color: #5E5E5E;"># create vectors of 500 random points each</span></span>
+<span id="cb1-5">vector_points <span class="op" style="color: #5E5E5E;">=</span> [<span class="fu" style="color: #4758AB;">rand_vector_point</span>() for _ <span class="kw" style="color: #003B4F;">in</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">500</span>]</span>
+<span id="cb1-6">tuple_points  <span class="op" style="color: #5E5E5E;">=</span> [<span class="fu" style="color: #4758AB;">rand_tuple_point</span>()  for _ <span class="kw" style="color: #003B4F;">in</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">500</span>]</span>
+<span id="cb1-7"></span>
+<span id="cb1-8"><span class="co" style="color: #5E5E5E;"># define a simple function calculating pairwise differences</span></span>
+<span id="cb1-9"><span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">difference_matrix</span>(points)</span>
+<span id="cb1-10">    [p1 <span class="op" style="color: #5E5E5E;">.-</span> p2 for p1 <span class="kw" style="color: #003B4F;">in</span> points, p2 <span class="kw" style="color: #003B4F;">in</span> points]</span>
+<span id="cb1-11"><span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb1-12"></span>
+<span id="cb1-13"><span class="co" style="color: #5E5E5E;"># run each version once, just to get compilation out of the way</span></span>
+<span id="cb1-14"><span class="fu" style="color: #4758AB;">difference_matrix</span>(vector_points)</span>
+<span id="cb1-15"><span class="fu" style="color: #4758AB;">difference_matrix</span>(tuple_points)</span>
+<span id="cb1-16"></span>
+<span id="cb1-17"><span class="fu" style="color: #4758AB;">println</span>(<span class="st" style="color: #20794D;">"Vector version:"</span>)</span>
+<span id="cb1-18"><span class="pp" style="color: #AD0000;">@time</span> <span class="fu" style="color: #4758AB;">difference_matrix</span>(vector_points)</span>
+<span id="cb1-19"><span class="fu" style="color: #4758AB;">println</span>(<span class="st" style="color: #20794D;">"Tuple version:"</span>)</span>
+<span id="cb1-20"><span class="pp" style="color: #AD0000;">@time</span> <span class="fu" style="color: #4758AB;">difference_matrix</span>(tuple_points)</span></code></pre></div>
+<pre><code>Vector version:
+  0.017412 seconds (250.00 k allocations: 24.796 MiB)
+Tuple version:
+  0.002698 seconds (2 allocations: 3.815 MiB)</code></pre>
+<p>The Vector version is much slower than the Tuple version. But why? Are Vectors bad and Tuples good?</p>
+<p>In the following post I’ll try to explain in simple terms why we see such a big difference and how you can use your new knowledge to write better code in Julia.</p>
+<section id="allocations" class="level2">
+<h2 class="anchored" data-anchor-id="allocations">Allocations</h2>
+<p>The <code>@time</code> outputs show that there were 250,000 allocations for the vector version and only 2 for the tuple version. What does that mean and why does it make the code slow?</p>
+<p>An allocation is a request for memory. Our program tells the operating system “I need space to store some values” and the operating system gives back the location of some empty space in our RAM we can use.</p>
+<p>Asking the operating system for memory takes time, therefore more allocations make our code slower. So far, so good.</p>
+<p>In the vector case, this happened 250,000 times, or once for each entry in the 500 x 500 distance matrix. In the tuple code it happened only twice.</p>
+<p>But isn’t that weird?</p>
+<p>In both cases, each point consists of two floating point numbers. Each computation generates the exact same number of points. So why do we need to ask for more memory in the vector version?</p>
+<p>This leads us to the next important piece of the puzzle: We need to look at what the stack and the heap are.</p>
+</section>
+<section id="stack-and-heap" class="level2">
+<h2 class="anchored" data-anchor-id="stack-and-heap">Stack And Heap</h2>
+<p>Many programming languages work with two concepts called the <em>stack</em> and the <em>heap</em>. These concepts are just two different ways of organizing memory, which influence the speed with which programs run.</p>
+<p>The heap is comparable to a big space where stored objects are scattered all over the place. Some objects are big, some are small, and there may be large or small gaps between them. The heap is a bit messy, but it is also spacious. If you want to store a new object there, the operating system finds a suitable location for you and gives you the address.</p>
+<p>The stack on the other hand has a very strict order. It’s like a tower of objects which are stacked neatly in memory, one on top of the other. There are no gaps between them, and you can’t just pull out objects from the middle. You can only take off the topmost object or stack new ones on top of that one. New objects are always stored on top, never anywhere else.</p>
+<p>Why do we have the two kinds?</p>
+<p>The heap is for all objects that can dynamically change in size and for objects that should live longer in memory. If you need more or less space for some object which is on the heap, you can maybe expand it into some empty space around it, or you have to find a new place and copy it there. The stack on the other hand can only be built out of objects that never change in size. Imagine how that neat tower would react if an object right in the middle suddenly shrank or expanded?</p>
+<p>That’s not allowed.</p>
+<p>This might seem restrictive, but on the other hand it makes the stack really fast. Our program always knows where each object in the stack is and what size it has. We also never need to ask the operating system for additional memory when storing things on the stack. That’s because we have preallocated memory for it that should be enough for almost all purposes (as long as we don’t just keep stacking on top without removing things in between, then you get one of the famed stack overflows).</p>
+<p>To sum up, using stack memory is much faster than allocating on the heap. The problem is that not every object can be stored on the stack, only those that never change in size can be.</p>
+<p>How does that relate to our Vectors and Tuples? It’s simple: Vectors are mutable and Tuples are not.</p>
+</section>
+<section id="mutable-and-immutable-objects" class="level2">
+<h2 class="anchored" data-anchor-id="mutable-and-immutable-objects">Mutable And Immutable Objects</h2>
+<p>At first glance, the two descriptions of a point <code>[rand(), rand()]</code> and <code>(rand(), rand())</code> might look really similar, and obviously we could run the same function with both versions. The difference is that the <code>Vector</code> created with <code>[]</code> is mutable, and the <code>Tuple</code> created with <code>()</code> is immutable.</p>
+<p>For example this works:</p>
+<div class="sourceCode" id="cb3" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1">vector_point <span class="op" style="color: #5E5E5E;">=</span> [<span class="fl" style="color: #AD0000;">1.0</span>, <span class="fl" style="color: #AD0000;">2.0</span>]</span>
+<span id="cb3-2"><span class="fu" style="color: #4758AB;">push!</span>(vector_point, <span class="fl" style="color: #AD0000;">3.0</span>)</span></code></pre></div>
+<pre><code>3-element Array{Float64,1}:
+ 1.0
+ 2.0
+ 3.0</code></pre>
+<p>And this doesn’t:</p>
+<div class="sourceCode" id="cb5" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1">tuple_point <span class="op" style="color: #5E5E5E;">=</span> (<span class="fl" style="color: #AD0000;">1.0</span>, <span class="fl" style="color: #AD0000;">2.0</span>)</span>
+<span id="cb5-2"><span class="fu" style="color: #4758AB;">push!</span>(tuple_point, <span class="fl" style="color: #AD0000;">3.0</span>)</span></code></pre></div>
+<pre><code>ERROR: MethodError: no method matching push!(::Tuple{Float64,Float64}, ::Float64)</code></pre>
+<p>Another important difference is the exact type of each object. The vector point is of type <code>Array{Float64,1}</code>, or a one-dimensional array of <code>Float64</code>s. The tuple point is of type <code>Tuple{Float64,Float64}</code>, or a tuple of exactly two <code>Float64</code>s.</p>
+<p>Notice the difference? The tuple type guarantees that there are always exactly two elements in our point. The <code>Array{Float64,1}</code> makes no such guarantee.</p>
+<p>In Julia, a generic function has a method compiled for each combination of specific types of input arguments that we give it. So the method of <code>difference_matrix(points)</code> where <code>points</code> is a Vector of points of type <code>Array{Float64,1}</code> doesn’t know how many elements such points have, or how much memory will be needed for the resulting points, or even the matrix storing these points. That all has to be determined dynamically. Dynamic is slow!</p>
+<p>When the compiler compiles the method of <code>difference_matrix(points)</code> that uses <code>points</code> of type <code>Tuple{Float64, Float64}</code>, it has so much more information. It knows that each point has a specific width in memory. It knows that for each subtraction operation, the exact same size will be needed on the stack. It also knows that the resulting Matrix of points can be stored contiguously in memory.</p>
+<p>Contiguous means packed tightly together. We can do that with the tuple points because again we know their size beforehand. With the vector points, we don’t know that. The matrix that stores our vector points actually only stores the addresses for each of the little mutable point vectors. These vectors are then scattered all over the heap, with no guaranteed order that the computer could make use of. This should strike you as a really messy way of dealing with a simple matrix of points, and you would be right. The array of tuples where all points are packed together like sardines is much better.</p>
+<p>Notice that the matrix of tuples itself is not stored on the stack, but is stored in contiguous fashion on the heap. As long as we only need one allocation for that big piece of memory, that cost disappears compared to the computations we do with that memory. The 250,000 allocations in the vector case come from each individual <code>Vector</code> that results from the subtraction of two existing <code>Vectors</code>. For the matrix that stores the addresses of those individual vectors we again need only one allocation, because the memory addresses of mutable objects are themselves immutable objects of fixed size…</p>
+</section>
+<section id="its-not-just-tuples" class="level2">
+<h2 class="anchored" data-anchor-id="its-not-just-tuples">It’s Not Just Tuples</h2>
+<p>The mechanism explained above is not specific to tuples. It works with basically every immutable data structure that has a fixed size in memory given its type. For example, we could define a point as an immutable struct containing exactly two <code>Float64</code>s and would enjoy similar benefits:</p>
+<div class="sourceCode" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><span class="kw" style="color: #003B4F;">struct</span> Point</span>
+<span id="cb7-2">    x<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Float64</span></span>
+<span id="cb7-3">    y<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Float64</span></span>
+<span id="cb7-4"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
+<p>Actually, such a point would have the exact same memory footprint as a <code>Tuple{Float64,Float64}</code> and the compiler might even treat them exactly the same on a machine code level.</p>
+<p>The important thing is that the type of our point gives the compiler complete information about the size in memory. Often, the compiler depends on knowing the exact type of objects that are stored in a collection. And it’s not immediately better just because that type is a <code>Tuple</code>.</p>
+<p>For example, you can store points of type <code>Tuple{Float64, Float64}</code> in a vector with parametric type <code>Tuple{Any,Any}</code>. This basically hides the true identity of our points from the compiler and results in abysmal performance:</p>
+<div class="sourceCode" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1">anytuple_points  <span class="op" style="color: #5E5E5E;">=</span> <span class="dt" style="color: #AD0000;">Tuple</span>{<span class="dt" style="color: #AD0000;">Any</span>,<span class="dt" style="color: #AD0000;">Any</span>}[<span class="fu" style="color: #4758AB;">rand_tuple_point</span>()  for _ <span class="kw" style="color: #003B4F;">in</span> <span class="fl" style="color: #AD0000;">1</span><span class="op" style="color: #5E5E5E;">:</span><span class="fl" style="color: #AD0000;">500</span>]</span>
+<span id="cb8-2"></span>
+<span id="cb8-3"><span class="fu" style="color: #4758AB;">println</span>(<span class="st" style="color: #20794D;">"We have hidden our points in an </span><span class="sc" style="color: #5E5E5E;">$</span>(<span class="fu" style="color: #4758AB;">typeof</span>(anytuple_points))<span class="st" style="color: #20794D;">"</span>)</span>
+<span id="cb8-4"></span>
+<span id="cb8-5"><span class="fu" style="color: #4758AB;">difference_matrix</span>(anytuple_points)</span>
+<span id="cb8-6"></span>
+<span id="cb8-7"><span class="fu" style="color: #4758AB;">println</span>(<span class="st" style="color: #20794D;">"AnyTuple version:"</span>)</span>
+<span id="cb8-8"><span class="pp" style="color: #AD0000;">@time</span> <span class="fu" style="color: #4758AB;">difference_matrix</span>(anytuple_points)</span></code></pre></div>
+<pre><code>We have hidden our points in an Array{Tuple{Any,Any},1}
+AnyTuple version:
+  0.109928 seconds (1.75 M allocations: 68.680 MiB, 8.43% gc time)</code></pre>
+<p>The instructions the compiler created for <code>Tuple{Any,Any}</code> points are much more bloated, because who knows what those tuples contain? Could it be <code>Float64</code>s by chance? The issue above actually leads to a very important concept in Julia called <em>type stability</em> which is another huge factor influencing performance, but is too much for this post.</p>
+</section>
+<section id="stack-those-immutables" class="level2">
+<h2 class="anchored" data-anchor-id="stack-those-immutables">Stack Those Immutables</h2>
+<p>To conclude this introduction, always check that your types are as concrete as possible, that your data structures can be represented by pure bit patterns and stored on the stack if possible. The function <code>isbits</code> helps to figure out if your objects have those desired properties. For example, <code>isbits([1, 2]) == false</code> but <code>isbits((1, 2)) == true</code>.</p>
+<p>You might never really have encountered immutable data structures if you come from languages like R or Matlab, but they are a big reason why Julia code can be so much faster, so make use of them! If you deal with data structures of known size, preferably use tuples or immutable structs (or check out <code>StaticArrays.jl</code>, which has tuples dressed up as arrays for convenience).</p>
+<p>You’ll make your compiler’s and therefore your computer’s job much easier, and end up with more efficient and fast code in the process.</p>
+<p>This is also not nearly all there is to say about the difference between Tuples and Vectors, but it should hopefully get some of the biggest misconceptions out of the way!</p>
+
+
+</section>
+
+ ]]></description>
+  <category>julia</category>
+  <guid>https://jkrumbiegel.github.io/pages/2020-10-31-tuples-and-vectors/index.html</guid>
+  <pubDate>Fri, 30 Oct 2020 23:00:00 GMT</pubDate>
+</item>
+<item>
+  <title>Julia Helps To Bridge The Gap Between User and Creator</title>
+  <link>https://jkrumbiegel.github.io/pages/2020-10-23-julia-bridge/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<p>You might have heard about Julia, the language often praised for the C-like performance it can attain while keeping a clean syntax reminiscent of Python. In this blog post, I want to share a different opinion why I like using Julia, which is only tangentially related to its pure performance. It is about the community Julia enables and how that could have a beneficial influence on the way scientific software is written.</p>
+<p>First off, I am not a trained computer scientist. Almost nobody in my research fields, psychology and neuroscience, is a trained computer scientist. But everybody needs to code nowadays to do research. Experiments are setup with code, data is analysed with code, graphs are made with code. So how does that work out if nobody is really trained for coding?</p>
+<p>It leads to a situation where people waste time and often produce inferior results because they don’t really grasp the tools they are using. Code is often of low quality, neither version controlled, maintainable nor reproducible. Matlab, R and Python ecosystems offer tools that allow researchers to focus on their direct interest, the data, and spend less time fighting with the compilers and complicated syntax of C++ and Fortran. But this “convenience layer” contributes to a situation where people use tools without a deeper understanding what they are doing, without an idea of what to do when those tools are not enough. We have powerful packages with relatively user-friendly API’s at our disposal in each dynamic language of choice. But the important and performant parts are written in C, C++ and Fortran, hidden from view.</p>
+<p>It is not easy to find out how things work under the hood in Python, R or Matlab. I think that this creates a big gap between users and creators of scientific tools.</p>
+<p>Students in a university R or Python data analysis course will probably learn a bit about loops and conditionals first, because that’s just how everyone learning to code starts. But after that first phase, they will quickly move on to learning APIs of packages like dplyr, ggplot, pandas, because that’s what’s <em>actually used</em> by everybody. These API’s tend to be quite removed from the basic building blocks of each language (like the common but non-standard <code>%&gt;%</code> syntax in R). If those tools don’t offer something out of the ordinary as a pre-packaged functionality, the students are out of luck. They know that they shouldn’t attempt to <em>write</em> any serious low-level analysis methods in R or Python directly, because that will probably be slow, and their tools of choice are also not made like that. One of the first things Python, R and Matlab novices learn is <em>“Vectorize everything! Don’t write for-loops, they are slow!”</em>. How surprised would they be to find out that the inside of pandas, dplyr and co is full of for-loops, because they are indispensable building blocks in compiled languages?</p>
+<p>One such example of the boundaries of existing packages I’ve encountered in my previous work was when I analysed head movement data with Python’s pandas library. I really wanted a column in my dataframe that had one rotation matrix per row, describing head orientation over time. But that was not possible to do effectively because a rotation matrix is just not a data type that pandas expects you to store in a column. At every corner my “weird” datatype caused problems with underlying assumptions of pandas, or numpy or matplotlib. In Julia, it would have been really easy to make a <code>Vector</code> with 3x3 matrices from <code>StaticArrays.jl</code>. <code>DataFrames.jl</code> doesn’t care what your column vectors contain. To me, the point was not even to have the fastest solution, just to have a solution that cleanly expressed my intent.</p>
+<p>The two-language problem is often presented as an <em>inconvenience</em> to researchers because of its time cost. I think it is a bit more than that. True, it takes a lot of time to figure out a solution to a problem in a dynamic language and then transfer it faithfully to a compiled language, to write bug-free bindings and package everything up for reuse. Julia tries to solve that problem, and it does very well to bridge the gap between a glue language with simple syntax and a serious numerical powerhouse. Countless benchmarks can attest to its speed. But when we focus only at how much time it takes to use two languages, I think we overlook what kind of effect a language gap has on research communities in this age of code.</p>
+<p>The Julia community is filled with people from diverse scientific backgrounds. Many of them, like me, are not computer scientists. That doesn’t stop them from being involved in writing serious low level packages. And if they are not writing packages themselves, they are often helping by filing issues and creating PRs, adding their own perspectives on design questions. They do this even for the Julia language itself, if they find bugs or API inconsistencies. When I was using Matlab, Python and R, I didn’t see other researchers contribute to the fundamentals of their respective ecosystems in this way. In Julia, I see it all the time.</p>
+<p>This is possible, in my opinion, because there is a continuous path from surface-level glue code to close-to-the-metal high-performance code in Julia, which can be discovered almost playfully - usually driven by the desire to reduce the number of allocations or runtime of a small function. In Julia, novices can learn first principles in a beginner friendly way, without caring about types, writing code that looks basically like Python. These first principles don’t lose their importance when <em>serious</em> packages are discovered. They instead become ever more powerful, the more knowledge a new user absorbs, because they can be combined in more and more flexible and innovative ways. As another example, if you use Stan from R, you have to feed it a script in a different language, while your <code>Turing.jl</code> models can be written in normal Julia. There’s really no limit to what you can send through Bayesian inference this way. Additionally, advanced topics like metaprogramming and optimization are always only a few steps away, and interesting lessons about one’s own code or the inner workings of Julia can be learned just by applying a couple of macros such as <code>@code_warntype</code> here and there. A transformation from beginner to expert code sometimes goes only through a couple minor changes like adding <code>@inbounds</code> in strategical places, or minimizing the use of allocations.</p>
+<p>For example, with <code>Revise.jl</code> and the <code>@edit</code> macro, it’s quite simple to manipulate even Base functions on the fly, and play around with different implementations of Julia’s fundamental building blocks. The multiple dispatch paradigm makes it possible to inject functionality deep into third party code and to connect one’s homegrown implementations with the work of others in a way that I have never seen in Python, R or Matlab. This is not brittle tampering like, e.g., monkeypatching in Python, but allows you to meaningfully extend the available functionality if you want to. Packages are specifically written to be extensible by others, each dispatch presents an opportunity for third parties to hook into. One person might have a small idea, but through Julia’s ability for composition, it can easily become part of something bigger (like the often cited Differential Equations + Measurements + Plot Recipe combo).</p>
+<p>I think Julia’s gentle learning curve and raw processing power are an invitation to domain experts outside of computer science to help write the software their fields need. Personally, it makes me feel more powerful and self-sufficient to work in a dynamic language that can not only give access to other people’s well written packages (written in Julia, but also R, Python and Matlab through <code>RCall.jl</code>, <code>PyCall.jl</code> and <code>MATLAB.jl</code>, respectively). It also allows me to write my own, and not just for toy problems but theoretically scalable even to supercomputers.</p>
+<p>I hope that in the future Julia loses the perception of being a niche language for numerics, which might discourage people who don’t need just that from trying it. Instead, I would frame it as a powerful general programming language that offers something for everyone from beginners to experts and encourages collaboration and code reuse through its extensible multiple dispatch paradigm. If researchers write more algorithms in high-level Julia and not in low-level C++, this could make them more accessible for novices and easier to check for other researchers, because Julia shares the same “pseudo-code” qualities of Python (which doesn’t actually look so clean anymore if everything is prefixed by <code>np.</code>). The Julia community also highly values CI and good test coverage and I hope that such things become more mainstream in the future, because every scientist that works with code can benefit from adopting these best practices.</p>
+<p>I wrote this post because I felt these aspects tend to be under-represented when Julia is discussed. Sometimes, the focus on micro-benchmarks and the resulting exaggerated or one-sided claims of superior performance expectedly cause users of other languages to go into defense mode. That’s not necessary in my opinion. Yes, Python R and Matlab also have amazing fast packages that enable people to do great research. But these languages are also fundamentally limited in how low-level users can reach, and they don’t allow for the same freedom to create beautiful and generic implementations that still harness all available computing power. They don’t allow scientists to bridge the gap from user to creator quite as well. And bridging that gap holds a lot of potential, especially in today’s world where everything is about code.</p>
+
+
+
+ ]]></description>
+  <category>julia</category>
+  <guid>https://jkrumbiegel.github.io/pages/2020-10-23-julia-bridge/index.html</guid>
+  <pubDate>Thu, 22 Oct 2020 22:00:00 GMT</pubDate>
+</item>
+</channel>
+</rss>
