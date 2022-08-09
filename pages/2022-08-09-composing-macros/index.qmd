@@ -90,7 +90,7 @@ Of course we can use higher-order functions for what I'm showing here, but that'
 ### The inside-out macro
 
 What I wanted to try here was to make the macros run from inside-out, like functions.
-For this, I made another small meta-macro which calls `macroexpand` from the inside out if it encounters multiple macros.
+For this, I made another small meta-macro which calls `macroexpand` from the inside out if it encounters multiple macros (with `recursive = false` because we want to keep any macros inside the main body intact throughout the transformations like usual).
 That means `@insideout @macro1 @macro2 expr` first expands `@macro2 expr` and then `@macro1 output_expr`.
 
 ```{julia}
@@ -98,7 +98,7 @@ macro insideout(exp)
     function apply_macro(exp::Expr)
         if exp isa Expr && exp.head == :macrocall
             exp.args[3] = apply_macro(exp.args[3])
-            return macroexpand(@__MODULE__, exp)
+            return macroexpand(@__MODULE__, exp, recursive = false)
         else
             return exp
         end
