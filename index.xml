@@ -50,10 +50,10 @@
 <span id="cb1-19"></span>
 <span id="cb1-20"><span class="fu" style="color: #4758AB;">func</span>()</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Started execution at 1.66004087907286e9
-Stopped execution at 1.660040879588599e9</code></pre>
+<pre><code>Started execution at 1.66004118494779e9
+Stopped execution at 1.660041185452062e9</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="2">
+<div class="cell-output cell-output-display" data-execution_count="15">
 <pre><code>"result"</code></pre>
 </div>
 </div>
@@ -80,9 +80,9 @@ Stopped execution at 1.660040879588599e9</code></pre>
 <span id="cb4-19"><span class="fu" style="color: #4758AB;">func2</span>()</span></code></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>┌ Info: Running function.
-└ @ Main In[3]:7</code></pre>
+└ @ Main In[16]:7</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="3">
+<div class="cell-output cell-output-display" data-execution_count="16">
 <pre><code>"result"</code></pre>
 </div>
 </div>
@@ -96,13 +96,13 @@ Stopped execution at 1.660040879588599e9</code></pre>
 </section>
 <section id="the-inside-out-macro" class="level3">
 <h3 class="anchored" data-anchor-id="the-inside-out-macro">The inside-out macro</h3>
-<p>What I wanted to try here was to make the macros run from inside-out, like functions. For this, I made another small meta-macro which calls <code>macroexpand</code> from the inside out if it encounters multiple macros. That means <code>@insideout @macro1 @macro2 expr</code> first expands <code>@macro2 expr</code> and then <code>@macro1 output_expr</code>.</p>
+<p>What I wanted to try here was to make the macros run from inside-out, like functions. For this, I made another small meta-macro which calls <code>macroexpand</code> from the inside out if it encounters multiple macros (with <code>recursive = false</code> because we want to keep any macros inside the main body intact throughout the transformations like usual). That means <code>@insideout @macro1 @macro2 expr</code> first expands <code>@macro2 expr</code> and then <code>@macro1 output_expr</code>.</p>
 <div class="cell" data-execution_count="3">
 <div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><span class="kw" style="color: #003B4F;">macro</span> <span class="fu" style="color: #4758AB;">insideout</span>(exp)</span>
 <span id="cb8-2">    <span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">apply_macro</span>(exp<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Expr</span>)</span>
 <span id="cb8-3">        <span class="cf" style="color: #003B4F;">if</span> exp isa <span class="dt" style="color: #AD0000;">Expr</span> <span class="op" style="color: #5E5E5E;">&amp;&amp;</span> exp.head <span class="op" style="color: #5E5E5E;">==</span> <span class="op" style="color: #5E5E5E;">:</span>macrocall</span>
 <span id="cb8-4">            exp.args[<span class="fl" style="color: #AD0000;">3</span>] <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">apply_macro</span>(exp.args[<span class="fl" style="color: #AD0000;">3</span>])</span>
-<span id="cb8-5">            <span class="cf" style="color: #003B4F;">return</span> <span class="fu" style="color: #4758AB;">macroexpand</span>(<span class="pp" style="color: #AD0000;">@__MODULE__</span>, exp)</span>
+<span id="cb8-5">            <span class="cf" style="color: #003B4F;">return</span> <span class="fu" style="color: #4758AB;">macroexpand</span>(<span class="pp" style="color: #AD0000;">@__MODULE__</span>, exp, recursive <span class="op" style="color: #5E5E5E;">=</span> <span class="cn" style="color: #8f5902;">false</span>)</span>
 <span id="cb8-6">        <span class="cf" style="color: #003B4F;">else</span></span>
 <span id="cb8-7">            <span class="cf" style="color: #003B4F;">return</span> exp</span>
 <span id="cb8-8">        <span class="cf" style="color: #003B4F;">end</span></span>
@@ -110,7 +110,7 @@ Stopped execution at 1.660040879588599e9</code></pre>
 <span id="cb8-10">    </span>
 <span id="cb8-11">    <span class="fu" style="color: #4758AB;">apply_macro</span>(exp)</span>
 <span id="cb8-12"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="4">
+<div class="cell-output cell-output-display" data-execution_count="17">
 <pre><code>@insideout (macro with 1 method)</code></pre>
 </div>
 </div>
@@ -123,14 +123,14 @@ Stopped execution at 1.660040879588599e9</code></pre>
 <span id="cb10-5"></span>
 <span id="cb10-6"><span class="fu" style="color: #4758AB;">func3</span>()</span></code></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Started execution at 1.660040881297988e9
-Stopped execution at 1.660040881802636e9</code></pre>
+<pre><code>Started execution at 1.660041186134917e9
+Stopped execution at 1.660041186639235e9</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>┌ Info: Running function.
-└ @ Main In[3]:7</code></pre>
+└ @ Main In[16]:7</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="5">
+<div class="cell-output cell-output-display" data-execution_count="18">
 <pre><code>"result"</code></pre>
 </div>
 </div>
@@ -141,9 +141,9 @@ Stopped execution at 1.660040881802636e9</code></pre>
 <div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><span class="pp" style="color: #AD0000;">@show</span> <span class="pp" style="color: #AD0000;">@show</span> <span class="fl" style="color: #AD0000;">1</span> <span class="op" style="color: #5E5E5E;">+</span> <span class="fl" style="color: #AD0000;">2</span></span></code></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1 + 2 = 3
-#= In[6]:1 =# @show(1 + 2) = 3</code></pre>
+#= In[19]:1 =# @show(1 + 2) = 3</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="6">
+<div class="cell-output cell-output-display" data-execution_count="19">
 <pre><code>3</code></pre>
 </div>
 </div>
@@ -155,12 +155,12 @@ Stopped execution at 1.660040881802636e9</code></pre>
 begin
     Base.println("1 + 2 = ", Base.repr(begin
                 #= show.jl:1047 =#
-                local var"#265#value" = 1 + 2
+                local var"#437#value" = 1 + 2
             end))
-    var"#265#value"
+    var"#437#value"
 end = 3</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="7">
+<div class="cell-output cell-output-display" data-execution_count="20">
 <pre><code>3</code></pre>
 </div>
 </div>
