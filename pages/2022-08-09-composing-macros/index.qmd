@@ -1,6 +1,6 @@
 ---
 title: Composing macros inside-out with Julia
-date: 2022-08-07
+date: 2022-08-09
 jupyter: julia-1.7
 ---
 
@@ -22,7 +22,8 @@ For example, there could be a `@remove_macros` macro, which just deletes any mac
 One problematic consequence of this is that macros do not really compose.
 For example, let's say you have two macros that operate on function definitions and add some useful things to them.
 
-Let's make one which wraps the body of a function in a timing operation:
+Let's make one which wraps the body of a function in a timing operation.
+Note that I do this with an inner function as a quick-and-dirty way, because otherwise I have to deal with possibly multiple `return` statements from the function body.
 
 ```{julia}
 macro functime(expr)
@@ -47,7 +48,7 @@ end
 func()
 ```
 
-And one that just logs that the function is being run:
+And here's one that just logs that the function is being run:
 
 ```{julia}
 macro funclog(expr)
@@ -84,9 +85,11 @@ So this doesn't work:
 end
 ```
 
+Of course we can use higher-order functions for what I'm showing here, but that's not the point of the exercise, it's to try and see if we can use macros in a layered / composed way.
+
 ### The inside-out macro
 
-What I wanted to try here was to make the macros expand inside-out, like functions.
+What I wanted to try here was to make the macros run from inside-out, like functions.
 For this, I made another small meta-macro which calls `macroexpand` from the inside out if it encounters multiple macros.
 That means `@insideout @macro1 @macro2 expr` first expands `@macro2 expr` and then `@macro1 output_expr`.
 
@@ -118,7 +121,7 @@ func3()
 
 These examples are contrived but I wonder if someone can come up with a more interesting use-case for the technique.
 
-At least it's fun trying it out with some of the usual macros to see  modify what happens in an interesting way:
+At least it's fun trying `@insideout` with some of the usual macros to modify what happens in an interesting way:
 
 For example, using `@show` on `@show`:
 
@@ -126,7 +129,7 @@ For example, using `@show` on `@show`:
 @show @show 1 + 2
 ```
 
-vs. with the inside-out mode, which turns `@show` into a kind of macroexpand-and-run:
+vs. with the inside-out mode, which turns `@show` into some weird kind of macroexpand-and-run:
 
 ```{julia}
 @insideout @show @show 1 + 2
