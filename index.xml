@@ -9,8 +9,169 @@
 <link>https://jkrumbiegel.github.io/index.html</link>
 <atom:link href="https://jkrumbiegel.github.io/index.xml" rel="self" type="application/rss+xml"/>
 <description>Programming, data visualization and data science with Julia.</description>
-<generator>quarto-1.0.37</generator>
-<lastBuildDate>Mon, 27 Dec 2021 23:00:00 GMT</lastBuildDate>
+<generator>quarto-1.0.38</generator>
+<lastBuildDate>Mon, 08 Aug 2022 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Composing macros inside-out with Julia</title>
+  <link>https://jkrumbiegel.github.io/pages/2022-08-09-composing-macros/index.html</link>
+  <description><![CDATA[ 
+
+
+
+<section id="macros-vs.-functions" class="level3">
+<h3 class="anchored" data-anchor-id="macros-vs.-functions">Macros vs.&nbsp;functions</h3>
+<p>Macros in Julia, denoted by the <code>@</code> prefix, are used to transform code before it is executed. They are often used to reduce boilerplate or implement domain specific languages (DSLs).</p>
+<p>In a way, they are just normal functions which take in an abstract syntax tree or AST and return a different one, and their execution happens before that of all the normal code.</p>
+<p>While functions run inside-out, macros run outside-in. When you execute <code>outer(inner(x))</code> then the inner function runs first, and <code>outer</code> takes in what <code>inner</code> outputs. But if you execute <code>@outer(@inner(x))</code>, then <code>@outer</code> runs first, only after which any remaining macros inside the AST it outputs are run. In this example could still be <code>@inner</code> depending on what <code>@outer</code> outputs, but it doesn’t have to be. For example, there could be a <code>@remove_macros</code> macro, which just deletes any macro calls inside its body.</p>
+</section>
+<section id="macros-dont-compose" class="level3">
+<h3 class="anchored" data-anchor-id="macros-dont-compose">Macros don’t compose</h3>
+<p>One problematic consequence of this is that macros do not really compose. For example, let’s say you have two macros that operate on function definitions and add some useful things to them.</p>
+<p>Let’s make one which wraps the body of a function in a timing operation. Note that I do this with an inner function as a quick-and-dirty way, because otherwise I have to deal with possibly multiple <code>return</code> statements from the function body.</p>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><span class="kw" style="color: #003B4F;">macro</span> <span class="fu" style="color: #4758AB;">functime</span>(expr)</span>
+<span id="cb1-2">    expr.head <span class="op" style="color: #5E5E5E;">==</span> <span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">function</span> <span class="op" style="color: #5E5E5E;">||</span> <span class="fu" style="color: #4758AB;">error</span>(<span class="st" style="color: #20794D;">"Not a function expression."</span>)</span>
+<span id="cb1-3">    funcname <span class="op" style="color: #5E5E5E;">=</span> expr.args[<span class="fl" style="color: #AD0000;">1</span>].args[<span class="fl" style="color: #AD0000;">1</span>]</span>
+<span id="cb1-4">    <span class="op" style="color: #5E5E5E;">:</span>(</span>
+<span id="cb1-5">        <span class="kw" style="color: #003B4F;">function</span> <span class="op" style="color: #5E5E5E;">$</span>(<span class="fu" style="color: #4758AB;">esc</span>(funcname))(args<span class="op" style="color: #5E5E5E;">...</span>; kwargs<span class="op" style="color: #5E5E5E;">...</span>)</span>
+<span id="cb1-6">            f <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">$</span>expr</span>
+<span id="cb1-7">            <span class="fu" style="color: #4758AB;">println</span>(<span class="st" style="color: #20794D;">"Started execution at </span><span class="sc" style="color: #5E5E5E;">$</span>(<span class="fu" style="color: #4758AB;">time</span>())<span class="st" style="color: #20794D;">"</span>)</span>
+<span id="cb1-8">            result <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">f</span>(args<span class="op" style="color: #5E5E5E;">...</span>; kwargs<span class="op" style="color: #5E5E5E;">...</span>)</span>
+<span id="cb1-9">            <span class="fu" style="color: #4758AB;">println</span>(<span class="st" style="color: #20794D;">"Stopped execution at </span><span class="sc" style="color: #5E5E5E;">$</span>(<span class="fu" style="color: #4758AB;">time</span>())<span class="st" style="color: #20794D;">"</span>)</span>
+<span id="cb1-10">            <span class="cf" style="color: #003B4F;">return</span> result</span>
+<span id="cb1-11">        <span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb1-12">    )</span>
+<span id="cb1-13"><span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb1-14"></span>
+<span id="cb1-15"><span class="pp" style="color: #AD0000;">@functime</span> <span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">func</span>()</span>
+<span id="cb1-16">    <span class="fu" style="color: #4758AB;">sleep</span>(<span class="fl" style="color: #AD0000;">0.5</span>)</span>
+<span id="cb1-17">    <span class="cf" style="color: #003B4F;">return</span> <span class="st" style="color: #20794D;">"result"</span></span>
+<span id="cb1-18"><span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb1-19"></span>
+<span id="cb1-20"><span class="fu" style="color: #4758AB;">func</span>()</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Started execution at 1.66004087907286e9
+Stopped execution at 1.660040879588599e9</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="2">
+<pre><code>"result"</code></pre>
+</div>
+</div>
+<p>And here’s one that just logs that the function is being run:</p>
+<div class="cell" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb4" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><span class="kw" style="color: #003B4F;">macro</span> <span class="fu" style="color: #4758AB;">funclog</span>(expr)</span>
+<span id="cb4-2">    expr.head <span class="op" style="color: #5E5E5E;">==</span> <span class="op" style="color: #5E5E5E;">:</span><span class="kw" style="color: #003B4F;">function</span> <span class="op" style="color: #5E5E5E;">||</span> <span class="fu" style="color: #4758AB;">error</span>(<span class="st" style="color: #20794D;">"Not a function expression."</span>)</span>
+<span id="cb4-3">    funcname <span class="op" style="color: #5E5E5E;">=</span> expr.args[<span class="fl" style="color: #AD0000;">1</span>].args[<span class="fl" style="color: #AD0000;">1</span>]</span>
+<span id="cb4-4">    <span class="op" style="color: #5E5E5E;">:</span>(</span>
+<span id="cb4-5">        <span class="kw" style="color: #003B4F;">function</span> <span class="op" style="color: #5E5E5E;">$</span>(<span class="fu" style="color: #4758AB;">esc</span>(funcname))(args<span class="op" style="color: #5E5E5E;">...</span>; kwargs<span class="op" style="color: #5E5E5E;">...</span>)</span>
+<span id="cb4-6">            f <span class="op" style="color: #5E5E5E;">=</span> <span class="op" style="color: #5E5E5E;">$</span>expr</span>
+<span id="cb4-7">            <span class="pp" style="color: #AD0000;">@info</span>(<span class="st" style="color: #20794D;">"Running function."</span>)</span>
+<span id="cb4-8">            result <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">f</span>(args<span class="op" style="color: #5E5E5E;">...</span>; kwargs<span class="op" style="color: #5E5E5E;">...</span>)</span>
+<span id="cb4-9">            <span class="cf" style="color: #003B4F;">return</span> result</span>
+<span id="cb4-10">        <span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb4-11">    )</span>
+<span id="cb4-12"><span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb4-13"></span>
+<span id="cb4-14"><span class="pp" style="color: #AD0000;">@funclog</span> <span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">func2</span>()</span>
+<span id="cb4-15">    <span class="fu" style="color: #4758AB;">sleep</span>(<span class="fl" style="color: #AD0000;">0.5</span>)</span>
+<span id="cb4-16">    <span class="cf" style="color: #003B4F;">return</span> <span class="st" style="color: #20794D;">"result"</span></span>
+<span id="cb4-17"><span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb4-18"></span>
+<span id="cb4-19"><span class="fu" style="color: #4758AB;">func2</span>()</span></code></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>┌ Info: Running function.
+└ @ Main In[3]:7</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="3">
+<pre><code>"result"</code></pre>
+</div>
+</div>
+<p>But you cannot use both macros at once on a single function definition, because each macro expects an expression in form of a function definition as its argument. And putting a different macro inside means that the expression is of type <code>:macrocall</code> and not type <code>:function</code>, which our macros don’t know how to deal with.</p>
+<p>So this doesn’t work:</p>
+<div class="sourceCode" id="cb7" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><span class="pp" style="color: #AD0000;">@functime</span> <span class="pp" style="color: #AD0000;">@funclog</span> <span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">func3</span>()</span>
+<span id="cb7-2">    <span class="fu" style="color: #4758AB;">sleep</span>(<span class="fl" style="color: #AD0000;">0.5</span>)</span>
+<span id="cb7-3">    <span class="cf" style="color: #003B4F;">return</span> <span class="st" style="color: #20794D;">"result"</span></span>
+<span id="cb7-4"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
+<p>Of course we can use higher-order functions for what I’m showing here, but that’s not the point of the exercise, it’s to try and see if we can use macros in a layered / composed way.</p>
+</section>
+<section id="the-inside-out-macro" class="level3">
+<h3 class="anchored" data-anchor-id="the-inside-out-macro">The inside-out macro</h3>
+<p>What I wanted to try here was to make the macros run from inside-out, like functions. For this, I made another small meta-macro which calls <code>macroexpand</code> from the inside out if it encounters multiple macros. That means <code>@insideout @macro1 @macro2 expr</code> first expands <code>@macro2 expr</code> and then <code>@macro1 output_expr</code>.</p>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb8" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><span class="kw" style="color: #003B4F;">macro</span> <span class="fu" style="color: #4758AB;">insideout</span>(exp)</span>
+<span id="cb8-2">    <span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">apply_macro</span>(exp<span class="op" style="color: #5E5E5E;">::</span><span class="dt" style="color: #AD0000;">Expr</span>)</span>
+<span id="cb8-3">        <span class="cf" style="color: #003B4F;">if</span> exp isa <span class="dt" style="color: #AD0000;">Expr</span> <span class="op" style="color: #5E5E5E;">&amp;&amp;</span> exp.head <span class="op" style="color: #5E5E5E;">==</span> <span class="op" style="color: #5E5E5E;">:</span>macrocall</span>
+<span id="cb8-4">            exp.args[<span class="fl" style="color: #AD0000;">3</span>] <span class="op" style="color: #5E5E5E;">=</span> <span class="fu" style="color: #4758AB;">apply_macro</span>(exp.args[<span class="fl" style="color: #AD0000;">3</span>])</span>
+<span id="cb8-5">            <span class="cf" style="color: #003B4F;">return</span> <span class="fu" style="color: #4758AB;">macroexpand</span>(<span class="pp" style="color: #AD0000;">@__MODULE__</span>, exp)</span>
+<span id="cb8-6">        <span class="cf" style="color: #003B4F;">else</span></span>
+<span id="cb8-7">            <span class="cf" style="color: #003B4F;">return</span> exp</span>
+<span id="cb8-8">        <span class="cf" style="color: #003B4F;">end</span></span>
+<span id="cb8-9">    <span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb8-10">    </span>
+<span id="cb8-11">    <span class="fu" style="color: #4758AB;">apply_macro</span>(exp)</span>
+<span id="cb8-12"><span class="kw" style="color: #003B4F;">end</span></span></code></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="4">
+<pre><code>@insideout (macro with 1 method)</code></pre>
+</div>
+</div>
+<p>This means one can now compose macros:</p>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb10" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><span class="pp" style="color: #AD0000;">@insideout</span> <span class="pp" style="color: #AD0000;">@functime</span> <span class="pp" style="color: #AD0000;">@funclog</span> <span class="kw" style="color: #003B4F;">function</span> <span class="fu" style="color: #4758AB;">func3</span>()</span>
+<span id="cb10-2">    <span class="fu" style="color: #4758AB;">sleep</span>(<span class="fl" style="color: #AD0000;">0.5</span>)</span>
+<span id="cb10-3">    <span class="cf" style="color: #003B4F;">return</span> <span class="st" style="color: #20794D;">"result"</span></span>
+<span id="cb10-4"><span class="kw" style="color: #003B4F;">end</span></span>
+<span id="cb10-5"></span>
+<span id="cb10-6"><span class="fu" style="color: #4758AB;">func3</span>()</span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Started execution at 1.660040881297988e9
+Stopped execution at 1.660040881802636e9</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>┌ Info: Running function.
+└ @ Main In[3]:7</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="5">
+<pre><code>"result"</code></pre>
+</div>
+</div>
+<p>These examples are contrived but I wonder if someone can come up with a more interesting use-case for the technique.</p>
+<p>At least it’s fun trying <code>@insideout</code> with some of the usual macros to modify what happens in an interesting way:</p>
+<p>For example, using <code>@show</code> on <code>@show</code>:</p>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb14" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><span class="pp" style="color: #AD0000;">@show</span> <span class="pp" style="color: #AD0000;">@show</span> <span class="fl" style="color: #AD0000;">1</span> <span class="op" style="color: #5E5E5E;">+</span> <span class="fl" style="color: #AD0000;">2</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1 + 2 = 3
+#= In[6]:1 =# @show(1 + 2) = 3</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="6">
+<pre><code>3</code></pre>
+</div>
+</div>
+<p>vs.&nbsp;with the inside-out mode, which turns <code>@show</code> into some weird kind of macroexpand-and-run:</p>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb17" style="background: #f1f3f5;"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb17-1"><span class="pp" style="color: #AD0000;">@insideout</span> <span class="pp" style="color: #AD0000;">@show</span> <span class="pp" style="color: #AD0000;">@show</span> <span class="fl" style="color: #AD0000;">1</span> <span class="op" style="color: #5E5E5E;">+</span> <span class="fl" style="color: #AD0000;">2</span></span></code></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1 + 2 = 3
+begin
+    Base.println("1 + 2 = ", Base.repr(begin
+                #= show.jl:1047 =#
+                local var"#265#value" = 1 + 2
+            end))
+    var"#265#value"
+end = 3</code></pre>
+</div>
+<div class="cell-output cell-output-display" data-execution_count="7">
+<pre><code>3</code></pre>
+</div>
+</div>
+
+
+</section>
+
+ ]]></description>
+  <guid>https://jkrumbiegel.github.io/pages/2022-08-09-composing-macros/index.html</guid>
+  <pubDate>Mon, 08 Aug 2022 22:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Multi-columns, shortcut strings and subset transformations in DataFrameMacros.jl v0.2</title>
   <link>https://jkrumbiegel.github.io/pages/2021-12-28-new-features-dataframemacros/index.html</link>
