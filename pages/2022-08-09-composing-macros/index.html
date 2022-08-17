@@ -166,7 +166,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Composing macros inside-out with Julia</h1>
-</div>
+  <div class="quarto-categories">
+    <div class="quarto-category">julia</div>
+  </div>
+  </div>
 
 
 
@@ -217,10 +220,10 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="fu">func</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Started execution at 1.66004118494779e9
-Stopped execution at 1.660041185452062e9</code></pre>
+<pre><code>Started execution at 1.660750233496578e9
+Stopped execution at 1.660750234009722e9</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="15">
+<div class="cell-output cell-output-display" data-execution_count="2">
 <pre><code>"result"</code></pre>
 </div>
 </div>
@@ -247,9 +250,9 @@ Stopped execution at 1.660041185452062e9</code></pre>
 <span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="fu">func2</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>┌ Info: Running function.
-└ @ Main In[16]:7</code></pre>
+└ @ Main In[3]:7</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="16">
+<div class="cell-output cell-output-display" data-execution_count="3">
 <pre><code>"result"</code></pre>
 </div>
 </div>
@@ -277,7 +280,7 @@ Stopped execution at 1.660041185452062e9</code></pre>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">apply_macro</span>(exp)</span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-display" data-execution_count="17">
+<div class="cell-output cell-output-display" data-execution_count="4">
 <pre><code>@insideout (macro with 1 method)</code></pre>
 </div>
 </div>
@@ -290,14 +293,14 @@ Stopped execution at 1.660041185452062e9</code></pre>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">func3</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Started execution at 1.660041186134917e9
-Stopped execution at 1.660041186639235e9</code></pre>
+<pre><code>Started execution at 1.66075023553111e9
+Stopped execution at 1.660750236036416e9</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>┌ Info: Running function.
-└ @ Main In[16]:7</code></pre>
+└ @ Main In[3]:7</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="18">
+<div class="cell-output cell-output-display" data-execution_count="5">
 <pre><code>"result"</code></pre>
 </div>
 </div>
@@ -308,9 +311,9 @@ Stopped execution at 1.660041186639235e9</code></pre>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@show</span> <span class="pp">@show</span> <span class="fl">1</span> <span class="op">+</span> <span class="fl">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>1 + 2 = 3
-#= In[19]:1 =# @show(1 + 2) = 3</code></pre>
+#= In[6]:1 =# @show(1 + 2) = 3</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="19">
+<div class="cell-output cell-output-display" data-execution_count="6">
 <pre><code>3</code></pre>
 </div>
 </div>
@@ -322,12 +325,12 @@ Stopped execution at 1.660041186639235e9</code></pre>
 begin
     Base.println("1 + 2 = ", Base.repr(begin
                 #= show.jl:1047 =#
-                local var"#437#value" = 1 + 2
+                local var"#208#value" = 1 + 2
             end))
-    var"#437#value"
+    var"#208#value"
 end = 3</code></pre>
 </div>
-<div class="cell-output cell-output-display" data-execution_count="20">
+<div class="cell-output cell-output-display" data-execution_count="7">
 <pre><code>3</code></pre>
 </div>
 </div>

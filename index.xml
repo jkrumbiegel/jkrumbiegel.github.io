@@ -15,6 +15,7 @@
   <title>Composing macros inside-out with Julia</title>
   <link>https://jkrumbiegel.com/pages/2022-08-09-composing-macros/index.html</link>
   <description><![CDATA[ Macros in Julia, denoted by the <code>@</code> prefix, are used to transform code before it is executed. They are often used to reduce boilerplate or implement domain specific languages (DSLs). ]]></description>
+  <category>julia</category>
   <guid>https://jkrumbiegel.com/pages/2022-08-09-composing-macros/index.html</guid>
   <pubDate>Mon, 08 Aug 2022 22:00:00 GMT</pubDate>
 </item>
