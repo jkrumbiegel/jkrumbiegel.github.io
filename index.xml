@@ -10,7 +10,15 @@
 <atom:link href="https://jkrumbiegel.com/index.xml" rel="self" type="application/rss+xml"/>
 <description>Programming, data visualization and data science with Julia.</description>
 <generator>quarto-1.1.75</generator>
-<lastBuildDate>Mon, 08 Aug 2022 22:00:00 GMT</lastBuildDate>
+<lastBuildDate>Fri, 26 Aug 2022 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Pkg.jl and Julia Environments for Beginners</title>
+  <link>https://jkrumbiegel.com/pages/2022-08-26-pkg-introduction/index.html</link>
+  <description><![CDATA[ When you start using Julia, you will quickly come in contact with Pkg.jl, its package manager. It’s reasonably easy to install a few packages and start using Julia. But from reading questions on Slack and Discourse, many users only start understanding relatively late what commands like <code>instantiate</code> are doing. This post should teach you how you can step beyond a messy global environment and towards neatly packaged local versions that allow you to collaborate more effectively and make your results reproducible. ]]></description>
+  <category>julia</category>
+  <guid>https://jkrumbiegel.com/pages/2022-08-26-pkg-introduction/index.html</guid>
+  <pubDate>Fri, 26 Aug 2022 22:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Composing macros inside-out with Julia</title>
   <link>https://jkrumbiegel.com/pages/2022-08-09-composing-macros/index.html</link>
