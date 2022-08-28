@@ -1,0 +1,808 @@
+---
+title: "Pkg.jl and Julia Environments for Beginners"
+date: 2022-08-27
+categories: ["julia"]
+---
+
+When you start using Julia, you will quickly come in contact with Pkg.jl, its package manager.
+It's reasonably easy to install a few packages and start using Julia.
+But from reading questions on Slack and Discourse, many users only start understanding relatively late what commands like `instantiate` are doing.
+This post should teach you how you can step beyond a messy global environment and towards neatly packaged local versions that allow you to collaborate more effectively and make your results reproducible.
+
+## Getting started
+
+When you install Julia for the first time, there are no environments.
+Let's say you installed Julia 1.8.
+When you start the REPL with the `julia` command, you will see the standard prompt
+
+```julia
+julia>
+```
+
+From there, you get to the Pkg.jl REPL mode by typing `]`.
+The prompt will change to indicate this, by showing the name of the active environment:
+
+```julia
+(@v1.8) pkg>
+```
+
+But wait, didn't I just say there are no environments, yet?
+That's true, there shouldn't be any environment files on your computer.
+You can check the `.julia/environments` folder, it should be empty.
+This folder contains all your "shared" environments.
+You can tell that an environment is shared by the leading `@` character in the package REPL prompt, in our case `@v1.8` because we use Julia 1.8.
+
+(Note that if you already have a folder called `v1.8`, or whatever Julia version you're using, you can just rename that to `v1.8_deactivated` or something and restart Julia for the purposes of this tutorial.)
+
+If a new environment is activated, this doesn't yet create any files, and that's why we don't have any files in `.julia/environments`, yet.
+They only appear once you actually do something with your environment.
+
+We can test this quickly.
+Activate a new environment by typing `(@v1.8) pkg> activate MyEnvironment`.
+You won't see any new files being created in your working directory, as I said this only happens once you manipulate an environment.
+But the prompt will have changed:
+
+```julia
+(@v1.8) pkg> activate MyEnvironment
+  Activating new project at `~/MyEnvironment`
+
+(MyEnvironment) pkg>
+```
+
+Let's switch back to the "main" environment `@v1.8` for now.
+
+The purpose of shared environments is that you can activate them easily from any working directory because they start with `@`, and Pkg knows to look for them in `.julia/environments`.
+For all other environments, you can activate them by name if you are in the directory where they were created, or you have to specify the full path.
+
+So we activate `@v1.8` again by typing:
+
+```julia
+(MyEnvironment) pkg> activate @v1.8
+  Activating new project at `~/.julia/environments/v1.8`
+
+(@v1.8) pkg>
+```
+
+As you see, Pkg told us we were activating a new project (another word for environment), because as we saw before, no files did actually exist, yet.
+
+There's another shortcut to activate the main environment, which is `activate` without an argument:
+
+```julia
+(@v1.8) pkg> activate
+  Activating new project at `~/.julia/environments/v1.8`
+
+(@v1.8) pkg>
+```
+
+## Adding a package
+
+Let's add our first package to our shared `@v1.8` environment.
+For this, we use the `add` command.
+I choose the `MacroTools` package because it has few dependencies.
+
+```julia
+(@v1.8) pkg> add MacroTools
+    Updating registry at `~/.julia/registries/General.toml`
+   Resolving package versions...
+    Updating `~/.julia/environments/v1.8/Project.toml`
+  [1914dd2f] + MacroTools v0.5.9
+    Updating `~/.julia/environments/v1.8/Manifest.toml`
+  [1914dd2f] + MacroTools v0.5.9
+  [2a0f44e3] + Base64
+  [d6f4376e] + Markdown
+  [9a3f8284] + Random
+  [ea8e919c] + SHA v0.7.0
+  [9e88b42a] + Serialization
+```
+
+As you probably know, after doing this, the `MacroTools` code has been downloaded onto your system and you can use it in your own code:
+
+```julia
+julia> using MacroTools
+```
+
+So what actually happened when we ran the `add` command?
+
+In the first line, you can see that the general registry was updated.
+The general registry ([https://github.com/JuliaRegistries/General](https://github.com/JuliaRegistries/General)) is a list of third-party packages that are available to the public, where each package lists all its dependencies and versions.
+There can be other registries, even private ones, but the general registry is the main one which will be the only one relevant for most users.
+
+Pkg has first updated this list on our computer when we ran `add MacroTools` so that it knows about the most recent versions of all packages in the ecosystem.
+You can have a look at it in `.julia/registries/` if you want.
+
+After updating the registry, Pkg is `Resolving package versions`.
+First, `MacroTools` latest version at the time of writing, `v0.5.9`, was added to `~/.julia/environments/v1.8/Project.toml`.
+So at this point in time, finally the environment file I was talking about earlier is being created.
+
+We can look at the content of `Project.toml`:
+
+```toml
+[deps]
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+```
+
+So this just says that our environment has one dependency declared, which is `MacroTools.jl`.
+The UUID string `1914dd2f-81c6...` is there because that's the "real" unique identifier of the package because, e.g., if another hypothetical registry had a different `MacroTools`, then at least you could specify the one you really want via the UUID.
+
+Pkg also updated the file `~/.julia/environments/v1.8/Manifest.toml`.
+Let's have a look at this one:
+
+```toml
+# This file is machine-generated - editing it directly is not advised
+
+julia_version = "1.8.0-rc3"
+manifest_format = "2.0"
+project_hash = "e39ab6d265da4acedccb7411db33219b8d7db4fc"
+
+[[deps.Base64]]
+uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
+
+[[deps.MacroTools]]
+deps = ["Markdown", "Random"]
+git-tree-sha1 = "3d3e902b31198a27340d0bf00d6ac452866021cf"
+uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+version = "0.5.9"
+
+[[deps.Markdown]]
+deps = ["Base64"]
+uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
+
+[[deps.Random]]
+deps = ["SHA", "Serialization"]
+uuid = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+
+[[deps.SHA]]
+uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
+version = "0.7.0"
+
+[[deps.Serialization]]
+uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
+```
+
+The `Manifest.toml` lists all the packages that were actually installed for you, while the `Project.toml` only lists the `MacroTools` dependency.
+
+You can think of the two files this way:
+
+  - `Project.toml`: What you want.
+  - `Manifest.toml`: What you get.
+
+The `Project.toml` is always the first file being edited when you make environment changes, if that is through the Pkg REPL or manually.
+The `Manifest.toml` is then the result of a computation that tries to find compatible versions of all packages specified in the `Project.toml` and their dependencies.
+Note that `Project.toml` can in principle specify impossible demands, like two packages that require incompatible dependencies.
+A `Manifest.toml` however should always be in a valid state, if no valid configuration of package dependencies can be resolved, you will just get an error.
+
+We can see the dependency graph that Pkg resolved in the `Manifest.toml`, if we look at the `deps` fields:
+
+```{dot}
+digraph G {
+  MacroTools -> Markdown
+  MacroTools -> Random
+  Markdown -> Base64
+  Random -> SHA
+  Random -> Serialization
+  MacroTools [label="MacroTools v0.5.9", style=filled, fillcolor="slategray2"]
+  SHA [label="SHA v0.7.0", style=filled, fillcolor="slategray2"]
+  Markdown [style=filled, fillcolor="tomato"]
+  Random [style=filled, fillcolor="tomato"]
+  Serialization [style=filled, fillcolor="tomato"]
+  Base64 [style=filled, fillcolor="tomato"]
+}
+```
+
+The blue nodes have versions and the red ones do not, that's because the red ones are standard libraries.
+Standard libraries are shipped with Julia, so they don't have their own version.
+They only change with each Julia release.
+But as you can see, even standard libraries can depend on other, even, external packages, as SHA is not a normal standard library (it's hosted externally) and has a version.
+
+You can check the versions of libraries in your `Project.toml` and `Manifest.toml` with the `status` or `st` command.
+With the `-m` flag you can see the `Manifest.toml` entries, which can be important for checking which dependencies were resolved.
+
+```julia
+(@v1.8) pkg> st
+Status `~/.julia/environments/v1.8/Project.toml`
+  [1914dd2f] MacroTools v0.5.9
+
+(@v1.8) pkg> st -m
+Status `~/.julia/environments/v1.8/Manifest.toml`
+  [1914dd2f] MacroTools v0.5.9
+  [2a0f44e3] Base64
+  [d6f4376e] Markdown
+  [9a3f8284] Random
+  [ea8e919c] SHA v0.7.0
+  [9e88b42a] Serialization
+
+(@v1.8) pkg> st -m SHA
+Status `~/.julia/environments/v1.8/Manifest.toml`
+  [ea8e919c] SHA v0.7.0
+```
+
+## Version numbers
+
+To understand how dependencies are resolved, you have to understand [SemVer versioning](https://semver.org).
+SemVer stands for semantic versioning, which just means that version numbers should be meaningful, not just random labels.
+The three parts of the version number are `major`.`minor`.`patch`.
+In Julia, all newer versions with the same major version should have compatible public APIs, so code that works with `v1.2.3` should also work with `v1.20.5`.
+The exception is major version `0`, where each new minor version can be considered potentially breaking.
+So code that works with `v0.2.4` should still work with `v0.2.13` but not necessarily with `v0.3.0`.
+This is because package developers want to be able to make breaking changes even if they haven't brought their package to `v1.0` yet, a version that usually carries the implication of public API stability and is often reached only after the package has been around for a while.
+
+## Adding specific variants of a package
+
+So far, we have only used the command `add MacroTools`, which pulled the latest version `v0.5.9` into our environment.
+Sometimes, however, you want a specific variant of a package.
+That doesn't necessarily have to be a specific version.
+It can also be a commit or branch of a certain repository.
+Let's try this out with `MacroTools`.
+
+We can install the version `v0.5.1` by using the `@` syntax:
+
+```julia
+(@v1.8) pkg> add MacroTools@0.5.1
+   Resolving package versions...
+    Updating `~/.julia/environments/v1.8/Project.toml`
+⌃ [1914dd2f] ↓ MacroTools v0.5.9 ⇒ v0.5.1
+    Updating `~/.julia/environments/v1.8/Manifest.toml`
+⌅ [00ebfdb7] + CSTParser v2.5.0
+⌅ [34da2185] + Compat v2.2.1
+⌅ [864edb3b] + DataStructures v0.17.20
+⌃ [1914dd2f] ↓ MacroTools v0.5.9 ⇒ v0.5.1
+  [bac558e1] + OrderedCollections v1.4.1
+  [0796e94c] + Tokenize v0.5.24
+  [0dad84c5] + ArgTools v1.1.1
+  [56f22d72] + Artifacts
+  [ade2ca70] + Dates
+  [8bb1440f] + DelimitedFiles
+  [8ba89e20] + Distributed
+  [f43a241f] + Downloads v1.6.0
+  [7b1f6079] + FileWatching
+  [b77e0a4c] + InteractiveUtils
+  [b27032c2] + LibCURL v0.6.3
+  [76f85450] + LibGit2
+  [8f399da3] + Libdl
+  [37e2e46d] + LinearAlgebra
+  [56ddb016] + Logging
+  [a63ad114] + Mmap
+  [ca575930] + NetworkOptions v1.2.0
+  [44cfe95a] + Pkg v1.8.0
+  [de0858da] + Printf
+  [3fa0cd96] + REPL
+  [1a1011a3] + SharedArrays
+  [6462fe0b] + Sockets
+  [2f01184e] + SparseArrays
+  [10745b16] + Statistics
+  [fa267f1f] + TOML v1.0.0
+  [a4e569a6] + Tar v1.10.0
+  [8dfed614] + Test
+  [cf7118a7] + UUIDs
+  [4ec0a83e] + Unicode
+  [e66e0078] + CompilerSupportLibraries_jll v0.5.2+0
+  [deac9b47] + LibCURL_jll v7.83.1+1
+  [29816b5a] + LibSSH2_jll v1.10.2+0
+  [c8ffd9c3] + MbedTLS_jll v2.28.0+0
+  [14a3606d] + MozillaCACerts_jll v2022.2.1
+  [4536629a] + OpenBLAS_jll v0.3.20+0
+  [83775a58] + Zlib_jll v1.2.12+3
+  [8e850b90] + libblastrampoline_jll v5.1.1+0
+  [8e850ede] + nghttp2_jll v1.47.0+0
+  [3f19e933] + p7zip_jll v17.4.0+0
+        Info Packages marked with ⌃ and ⌅ have new versions available, but those with ⌅ cannot be upgraded. To see why use `status --outdated -m`
+```
+
+You can see that we got a ton of new dependencies.
+This happened because `MacroTools` managed to cut the number of packages it depends on a lot over time, so the older version pulls in much more.
+
+If we take a look at the new `Manifest.toml` entry for `MacroTools`, we see:
+
+```toml
+[[deps.MacroTools]]
+deps = ["CSTParser", "Compat", "DataStructures", "Test", "Tokenize"]
+git-tree-sha1 = "d6e9dedb8c92c3465575442da456aec15a89ff76"
+uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+version = "0.5.1"
+```
+
+This just goes to show that even between patch versions of a package, which should all follow the same public API, the dependencies can change a lot.
+
+If you look at the `Project.toml`, you will see that it hasn't changed.
+The version requirement was just enforced during this one dependency resolution, and won't be remembered or enforced again in future Pkg operations.
+
+Let's try one other syntax, which is the one for choosing a specific commit or branch from a repository.
+In this case, we use the commit `639d1a6`, but we could also use something like `master` to fetch the latest commit on that branch.
+
+```julia
+(@v1.8) pkg> add MacroTools#639d1a6
+     Cloning git-repo `https://github.com/FluxML/MacroTools.jl.git`
+    Updating git-repo `https://github.com/FluxML/MacroTools.jl.git`
+   Resolving package versions...
+    Updating `~/.julia/environments/v1.8/Project.toml`
+  [1914dd2f] ~ MacroTools v0.5.1 ⇒ v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`
+    Updating `~/.julia/environments/v1.8/Manifest.toml`
+  [00ebfdb7] - CSTParser v2.5.0
+  [34da2185] - Compat v2.2.1
+  [864edb3b] - DataStructures v0.17.20
+  [1914dd2f] ~ MacroTools v0.5.1 ⇒ v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`
+  [bac558e1] - OrderedCollections v1.4.1
+  [0796e94c] - Tokenize v0.5.24
+  [0dad84c5] - ArgTools v1.1.1
+  [56f22d72] - Artifacts
+  [ade2ca70] - Dates
+  [8bb1440f] - DelimitedFiles
+  [8ba89e20] - Distributed
+  [f43a241f] - Downloads v1.6.0
+  [7b1f6079] - FileWatching
+  [b77e0a4c] - InteractiveUtils
+  [b27032c2] - LibCURL v0.6.3
+  [76f85450] - LibGit2
+  [8f399da3] - Libdl
+  [37e2e46d] - LinearAlgebra
+  [56ddb016] - Logging
+  [a63ad114] - Mmap
+  [ca575930] - NetworkOptions v1.2.0
+  [44cfe95a] - Pkg v1.8.0
+  [de0858da] - Printf
+  [3fa0cd96] - REPL
+  [1a1011a3] - SharedArrays
+  [6462fe0b] - Sockets
+  [2f01184e] - SparseArrays
+  [10745b16] - Statistics
+  [fa267f1f] - TOML v1.0.0
+  [a4e569a6] - Tar v1.10.0
+  [8dfed614] - Test
+  [cf7118a7] - UUIDs
+  [4ec0a83e] - Unicode
+  [e66e0078] - CompilerSupportLibraries_jll v0.5.2+0
+  [deac9b47] - LibCURL_jll v7.83.1+1
+  [29816b5a] - LibSSH2_jll v1.10.2+0
+  [c8ffd9c3] - MbedTLS_jll v2.28.0+0
+  [14a3606d] - MozillaCACerts_jll v2022.2.1
+  [4536629a] - OpenBLAS_jll v0.3.20+0
+  [83775a58] - Zlib_jll v1.2.12+3
+  [8e850b90] - libblastrampoline_jll v5.1.1+0
+  [8e850ede] - nghttp2_jll v1.47.0+0
+  [3f19e933] - p7zip_jll v17.4.0+0
+Precompiling project...
+  ✓ MacroTools
+  1 dependency successfully precompiled in 1 seconds
+  1 dependency precompiled but a different version is currently loaded. Restart julia to access the new version
+```
+
+Note that even though the version printed for MacroTools is again `0.5.9`, this doesn't necessarily mean that we are on the same commit as the one pointed to by the version `0.5.9` in the registry.
+It just means that Pkg cloned the repository, checked out the commit with hash `639d1a6` and found the version specifier `0.5.9` in MacroTools's own `Project.toml` file.
+Therefore, infinitely many code versions of a package can be treated as version `X.Y.Z` by Pkg, but `X.Y.Z` itself refers only to exactly one version.
+This distinction is important to remember when developing and editing a package, but more about that later.
+
+If we take another look at our `Manifest.toml`, we can see the following entry for MacroTools:
+
+```toml
+[[deps.MacroTools]]
+deps = ["Markdown", "Random"]
+git-tree-sha1 = "465a4803356bcb11f6eb97df992680f13a9ba776"
+repo-rev = "639d1a6"
+repo-url = "https://github.com/FluxML/MacroTools.jl.git"
+uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+version = "0.5.9"
+```
+
+This time, the URL of the repository was recorded, as well as the revision, which was `639d1a6`.
+This is because as soon as you specify a revision in the `add` command, Pkg knows you're operating outside of the registry, so it cannot rely on the repository information stored there for MacroTools.
+
+(Note that you can also install unregistered packages, or forks of registered packages this way, by doing `add https://the_url_to_the_git_repository`.)
+
+The manifest needs to store the url and revision in order to make the project reproducible by someone else.
+Let's actually look at what reproducing an environment looks like:
+
+## Reproducing an environment
+
+Let's say you have written some code relying on the specific `MacroTools` version we added via `add MacroTools#639d1a6` and want your colleague to be able to run that code with the exact packages installed that we used at the time.
+
+Which files do they need to reproduce the state of your environment?
+Not just the `Project.toml`, because remember, it still only contains this information:
+
+```julia
+[deps]
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+```
+
+We need to also send the `Manifest.toml` because it records the exact versions of all packages.
+Let's pretend we are our colleague, and we just received a `Project.toml` and `Manifest.toml` file.
+How do we actually get the environment installed?
+
+Let's copy the files into a new folder we call `ColleagueEnv` in our current working directory.
+
+To pretend we're the colleague who just uses Julia for the first time, we also delete the `.julia/packages/MacroTools` folder in which the downloaded source code of `MacroTools` was stored.
+
+Note that this means that the source code is not part of an environment but stored centrally.
+It would be pretty wasteful to download the same sources over and over just because you're using different local environments.
+
+Let's now restart Julia and activate the `ColleagueEnv` environment:
+
+```julia
+(@v1.8) pkg> activate ./ColleagueEnv
+  Activating project at `~/ColleagueEnv`
+```
+
+We can check the installed packages via `st -m`:
+
+```julia
+(ColleagueEnv) pkg> st -m
+Status `~/ColleagueEnv/Manifest.toml`
+→ [1914dd2f] MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#master`
+  [2a0f44e3] Base64
+  [d6f4376e] Markdown
+  [9a3f8284] Random
+  [ea8e919c] SHA v0.7.0
+  [9e88b42a] Serialization
+Info Packages marked with → are not downloaded, use `instantiate` to download
+```
+
+If we were trying to just run some code using `MacroTools` now, this would happen:
+
+```julia
+julia> using MacroTools
+ERROR: ArgumentError: Package MacroTools [1914dd2f-81c6-5fcd-8719-6d5c9610ff09] is required but does not seem to be installed:
+ - Run `Pkg.instantiate()` to install all recorded dependencies.
+```
+
+So we need to follow the advice already printed twice for us, and call `instantiate`.
+This will download everything specified in the `Manifest.toml` exactly as it was recorded there.
+You can actually be sure that it's exactly the same because the `Manifest.toml` stores git tree hashes of each dependency.
+Unless someone deletes these specific parts of the repository you will be able to download the source exactly as it was:
+
+```julia
+(ColleagueEnv) pkg> instantiate
+Precompiling project...
+  1 dependency successfully precompiled in 1 seconds
+
+(ColleagueEnv) pkg> st -m
+Status `~/ColleagueEnv/Manifest.toml`
+  [1914dd2f] MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#master`
+  [2a0f44e3] Base64
+  [d6f4376e] Markdown
+  [9a3f8284] Random
+  [ea8e919c] SHA v0.7.0
+  [9e88b42a] Serialization
+```
+
+Now we don't get a warning anymore, our dependencies have been downloaded correctly.
+You will find `MacroTools` downloaded into the `.julia/packages` folder again.
+
+## Packages and environments
+
+Packages and normal environments are pretty similar.
+Each package must have a `Project.toml` which specifies its name, UUID, version and dependencies.
+The easiest way to make a package to test this out, is to use the `generate` command of the Pkg REPL.
+
+Let's first remove `MacroTools` from our main environment so it is empty:
+
+```julia
+(@v1.8) pkg> rm MacroTools
+    Updating `~/.julia/environments/v1.8/Project.toml`
+  [1914dd2f] - MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`
+    Updating `~/.julia/environments/v1.8/Manifest.toml`
+  [1914dd2f] - MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`
+  [2a0f44e3] - Base64
+  [d6f4376e] - Markdown
+  [9a3f8284] - Random
+  [ea8e919c] - SHA v0.7.0
+  [9e88b42a] - Serialization
+```
+
+Now, we generate a new package called `MyPackage`:
+
+```julia
+(@v1.8) pkg> generate MyPackage
+  Generating  project MyPackage:
+    MyPackage/Project.toml
+    MyPackage/src/MyPackage.jl
+```
+
+As you can see, a `Project.toml` file was generated in the `MyPackage` directory.
+
+Let's have a look at this one:
+
+```toml
+name = "MyPackage"
+uuid = "ac28244f-b540-4f11-9028-3fbea21f5993"
+authors = ["Your Name <your@email.com>"]
+version = "0.1.0"
+```
+
+The only difference from a basic package environment to a normal environment are those four fields.
+If we want to use `MacroTools` in our package, we can add it manually to a `deps` section in the `Project.toml`, or we use the Pkg REPL.
+For that, we first activate the package as an environment, then we add `MacroTools`.
+
+```julia
+(@v1.8) pkg> activate MyPackage/
+  Activating project at `~/MyPackage`
+
+(MyPackage) pkg> add MacroTools
+    Updating registry at `~/.julia/registries/General.toml`
+   Resolving package versions...
+   Installed MacroTools ─ v0.5.9
+    Updating `~/MyPackage/Project.toml`
+  [1914dd2f] + MacroTools v0.5.9
+    Updating `~/MyPackage/Manifest.toml`
+  [1914dd2f] + MacroTools v0.5.9
+  [2a0f44e3] + Base64
+  [d6f4376e] + Markdown
+  [9a3f8284] + Random
+  [ea8e919c] + SHA v0.7.0
+  [9e88b42a] + Serialization
+Precompiling project...
+  2 dependencies successfully precompiled in 2 seconds
+
+(MyPackage) pkg>
+```
+
+The `Project.toml` now looks like this:
+
+```toml
+name = "MyPackage"
+uuid = "ac28244f-b540-4f11-9028-3fbea21f5993"
+authors = ["Your Name <your@email.com>"]
+version = "0.1.0"
+
+[deps]
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+```
+
+In the file `MyPackage/src/MyPackage.jl`, we can now import `MacroTools` and work with it.
+Let's change the content of that file to:
+
+```julia
+module MyPackage
+
+import MacroTools
+
+function test()
+    MacroTools.@capture :(1 + 2) x_ + y_
+    @show x
+    @show y
+    return
+end
+
+end # module MyPackage
+```
+
+We can now `import` or `using` our package and verify that `MacroTools` can be used by its source code:
+
+```julia
+julia> using MyPackage
+[ Info: Precompiling MyPackage [ac28244f-b540-4f11-9028-3fbea21f5993]
+
+julia> MyPackage.test()
+x = 1
+y = 2
+```
+
+That worked!
+
+Let's restart Julia now, which will bring us back to the main environment.
+Let's try again to import our package:
+
+```julia
+julia> using MyPackage
+ERROR: ArgumentError: Package MyPackage not found in current path.
+- Run `import Pkg; Pkg.add("MyPackage")` to install the MyPackage package.
+Stacktrace:
+ [1] macro expansion
+   @ ./loading.jl:1163 [inlined]
+ [2] macro expansion
+   @ ./lock.jl:223 [inlined]
+ [3] require(into::Module, mod::Symbol)
+   @ Base ./loading.jl:1144
+```
+
+This doesn't work, because our main environment doesn't have `MyPackage` installed.
+You can use `MyPackage` as long as you have its own environment activated, but outside of that it is not visible.
+
+We can change that by using the `develop` or `dev` command of the Pkg REPL, which will install and track `MyPackage`:
+
+```julia
+(@v1.8) pkg> dev ./MyPackage/
+   Resolving package versions...
+    Updating `~/.julia/environments/v1.8/Project.toml`
+  [ac28244f] + MyPackage v0.1.0 `../../../MyPackage`
+    Updating `~/.julia/environments/v1.8/Manifest.toml`
+  [1914dd2f] + MacroTools v0.5.9
+  [ac28244f] + MyPackage v0.1.0 `../../../MyPackage`
+  [2a0f44e3] + Base64
+  [d6f4376e] + Markdown
+  [9a3f8284] + Random
+  [ea8e919c] + SHA v0.7.0
+  [9e88b42a] + Serialization
+```
+
+Great, that worked.
+Now we can access `MyPackage` again:
+
+```julia
+julia> using MyPackage
+[ Info: Precompiling MyPackage [ac28244f-b540-4f11-9028-3fbea21f5993]
+
+julia> MyPackage.test()
+x = 1
+y = 2
+```
+
+Why would we want to do this, use a separate environment to access our package environment?
+It's because we might want to use packages that should not be dependencies of `MyPackage` while developing it.
+
+## Compatibility bounds
+
+Currently our package `MyPackage` does not specify the versions of `MacroTools` with which it is compatible.
+That is usually not a good idea, in fact, the general registry doesn't allow packages to be registered if they don't specify upper compatibility boundaries for each dependency.
+That makes sense because you don't know if your package will be compatible with all future versions of your dependencies, so it makes sense to cap the compatibility to the point where you have tested everything works.
+
+Let's pretend we tested our package only up to `MacroTools` version `0.5.8`.
+We can write this requirement into the `Project.toml` of `MyPackage`:
+
+```toml
+name = "MyPackage"
+uuid = "ac28244f-b540-4f11-9028-3fbea21f5993"
+authors = ["Your Name <your@email.com>"]
+version = "0.1.0"
+
+[deps]
+MacroTools = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
+
+[compat]
+MacroTools = "<0.5.9"
+```
+
+But this change is not picked up automatically by the `@v1.8` environment.
+To recompute the dependency graph and throw away the old `Manifest.toml`, we can run `update` or `up`:
+
+```julia
+(@v1.8) pkg> up
+    Updating registry at `~/.julia/registries/General.toml`
+   Installed MacroTools ─ v0.5.8
+  No Changes to `~/.julia/environments/v1.8/Project.toml`
+    Updating `~/.julia/environments/v1.8/Manifest.toml`
+⌃ [1914dd2f] ↓ MacroTools v0.5.9 ⇒ v0.5.8
+        Info Packages marked with ⌃ have new versions available
+```
+
+As you can see, the MacroTools package was correctly downgraded to `v0.5.8`.
+
+What would happen if we now tried to install `v0.5.9` into the main environment?
+
+```julia
+(@v1.8) pkg> add MacroTools@0.5.9
+   Resolving package versions...
+ERROR: Unsatisfiable requirements detected for package MacroTools [1914dd2f]:
+ MacroTools [1914dd2f] log:
+ ├─possible versions are: 0.4.3-0.5.9 or uninstalled
+ ├─restricted to versions 0.0.0-0.5.8 by MyPackage [ac28244f], leaving only versions 0.4.3-0.5.8
+ │ └─MyPackage [ac28244f] log:
+ │   ├─possible versions are: 0.1.0 or uninstalled
+ │   └─MyPackage [ac28244f] is fixed to version 0.1.0
+ └─restricted to versions 0.5.9 by an explicit requirement — no versions left
+```
+
+We get a version compatibility conflict.
+It is not possible to reconcile the requirement of adding `MacroTools` `0.5.9` with the fact that it is only allowed to reach up to `0.5.8` for `MyPackage`.
+
+Compatibility conflicts are the main reason why you should give each of your projects its own local environment instead of always using the global one.
+First of all, you're more and more likely to end up with old versions or compatibility clashes, the more packages you install.
+Second, if you inadvertently update your main environment for project B, but later go back to project A, it could very well be that the new package versions are now incompatible with the code you wrote for A at the time.
+You don't want to tangle all your projects up together, so just make separate environments for each.
+
+## Stacked environments
+
+There's another behavior of environments that is potentially very confusing for beginners, and it's called "stacked environments".
+Let's restart Julia again, and add the package `Infiltrator` to the main environment:
+
+```julia
+(@v1.8) pkg> add Infiltrator
+    Updating registry at `~/.julia/registries/General.toml`
+   Resolving package versions...
+   Installed Infiltrator ─ v1.6.1
+    Updating `~/.julia/environments/v1.8/Project.toml`
+  [5903a43b] + Infiltrator v1.6.1
+    Updating `~/.julia/environments/v1.8/Manifest.toml`
+  [5903a43b] + Infiltrator v1.6.1
+  [b77e0a4c] + InteractiveUtils
+  [3fa0cd96] + REPL
+  [6462fe0b] + Sockets
+  [cf7118a7] + UUIDs
+  [4ec0a83e] + Unicode
+Precompiling project...
+  1 dependency successfully precompiled in 1 seconds. 2 already precompiled.
+```
+
+Now we activate the environment of `MyPackage`:
+
+```julia
+(@v1.8) pkg> activate MyPackage
+  Activating project at `~/MyPackage`
+```
+
+Let's see what happens if we load `Infiltrator`:
+
+```julia
+julia> using Infiltrator
+```
+
+It worked.
+But why?
+`Infiltrator` is not available in `MyPackage`'s Project.toml.
+
+The reason is that Julia can import packages from multiple environments at the same time.
+This depends on the `LOAD_PATH` global variable.
+Let's have a look:
+
+```julia
+julia> LOAD_PATH
+3-element Vector{String}:
+ "@"
+ "@v#.#"
+ "@stdlib"
+```
+
+The first entry, `"@"`, means "active environment", so the first place where Julia looked for Infiltrator was in `MyPackage`'s environment, where it didn't find it.
+
+The second entry, `"@v#.#"` means "the shared environment of this Julia version", in our case this is `@v1.8`.
+That's why I kept calling this the "main" environment, not only because it's the default one, but also because it's always available by default due to the `LOAD_PATH` configuration.
+This is where Julia found `Infiltrator` and loaded it.
+
+The third entry, `"@stdlib"`, refers to the list of standard libraries that belongs to the current Julia version.
+This is the reason why we can do `using Statistics` or `using REPL` in a new Julia session, even if our main environment is empty.
+
+The potential confusion comes from the fact that a user can activate a package environment and work there under the assumption that only package dependencies are available.
+This might hide the fact that some of the included packages are drawn in from the main environment, which will lead to an error later, if the package is installed to a new environment and can't access the dependency anymore.
+
+The best practice for stacked environments is to use the main environment sparingly.
+`Infiltrator` is a good example for a package to install there, because it's a debugging package and basically never needed as a dependency for another package.
+On the other hand it's very useful to have available without further work when developing.
+Another example is `Revise`.
+
+If you really want to make sure that only the packages from your currently activated project are accessible, you can remove other entries from the load path.
+
+To demonstrate this, if we empty the load path we can't load any package at all, neither `Infiltrator` from `@v1.8`, nor `MyPackage` from our active environment, nor the standard library `Statistics`:
+
+```julia
+julia> empty!(LOAD_PATH)
+String[]
+
+julia> using Infiltrator
+ │ Package Infiltrator not found, but a package named Infiltrator is available from a registry.
+ │ Install package?
+ │   (MyPackage) pkg> add Infiltrator
+ └ (y/n/o) [y]: n
+ERROR: ArgumentError: Package Infiltrator not found in current path, maybe you meant `import/using .Infiltrator`.
+
+julia> using MyPackage
+ERROR: ArgumentError: Package MyPackage not found in current path.
+- Run `import Pkg; Pkg.add("MyPackage")` to install the MyPackage package.
+
+julia> using Statistics
+ERROR: ArgumentError: Package Statistics not found in current path.
+- Run `import Pkg; Pkg.add("Statistics")` to install the Statistics package.
+```
+
+## Temporary environments
+
+One thing that's useful for quick tests are temporary environments.
+If you read about a new package and quickly want to try it, but don't want to mess with your main environment or clutter your working directory with environment files, you can use `activate --temp`:
+
+```julia
+(@v1.8) pkg> activate --temp
+  Activating new project at `/var/folders/z5/r5q6djwn5g10k3w279bn37700000gn/T/jl_LM4bTG`
+
+(jl_LM4bTG) pkg>
+```
+
+This environment will only exist until the Julia process exits, so it's perfect to run something once and then forget about it.
+
+## Conclusion
+
+This was a short tour of `Pkg` and its main functions.
+I hope it has become more clear how environments work and why you shouldn't rely on a single global one.
+It's quite easy to make one environment per project and the text files created use effectively no space, so there's no downside to doing this.
+
+For more info, have a look at some of these sources:
+
+- [Pkg.jl documentation](https://pkgdocs.julialang.org/v1/)
+- [Dr. Watson](https://juliadynamics.github.io/DrWatson.jl/), a tool that tries to make the process of setting up reproducible projects easier
+- [TestEnv.jl](https://github.com/JuliaTesting/TestEnv.jl) which helps with the problem of stacked environments in the context of tests (not covered here)
