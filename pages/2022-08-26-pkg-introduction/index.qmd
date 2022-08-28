@@ -803,6 +803,7 @@ It's quite easy to make one environment per project and the text files created u
 
 For more info, have a look at some of these sources:
 
-- [Pkg.jl documentation](https://pkgdocs.julialang.org/v1/)
-- [Dr. Watson](https://juliadynamics.github.io/DrWatson.jl/), a tool that tries to make the process of setting up reproducible projects easier
-- [TestEnv.jl](https://github.com/JuliaTesting/TestEnv.jl) which helps with the problem of stacked environments in the context of tests (not covered here)
+- [Pkg.jl documentation](https://pkgdocs.julialang.org/v1/).
+- [DrWatson.jl](https://juliadynamics.github.io/DrWatson.jl/stable/), a tool that tries to make the process of setting up reproducible projects easier.
+- [TestEnv.jl](https://github.com/JuliaTesting/TestEnv.jl) which helps with the problem of stacked environments in the context of tests (not covered here).
+- [PkgTemplates.jl](https://github.com/invenia/PkgTemplates.jl) which makes creating packages easier.
