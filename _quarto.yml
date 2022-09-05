@@ -15,3 +15,6 @@ format:
     css: styles.css
 execute:
   freeze: auto
+filters:
+  - terminal_html.lua
+  - quarto
