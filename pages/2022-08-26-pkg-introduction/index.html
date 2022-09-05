@@ -720,9 +720,9 @@ y = 2
  </span><span class="sgr-fg-b1"> [cf7118a7] </span><span class="sgr-fg-b3">+ UUIDs</span><span>
  </span><span class="sgr-fg-b1"> [4ec0a83e] </span><span class="sgr-fg-b3">+ Unicode</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now we activate the environment of <code>MyPackage</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>span class<span class="op">=</span><span class="st">"sgr-bold sgr-fg-5"</span><span class="fu">&gt;</span>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> <span class="op">&lt;/</span>span<span class="op">&gt;&lt;</span>span<span class="op">&gt;</span>activate MyPackage</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;/</span>span<span class="op">&gt;&lt;</span>span class<span class="op">=</span><span class="st">"sgr-bold sgr-fg-3"</span><span class="op">&gt;</span>  Activating<span class="op">&lt;/</span>span<span class="op">&gt;&lt;</span>span<span class="op">&gt;</span> project at <span class="ss">`~/MyPackage`</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;/</span>span<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>activate MyPackage
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/MyPackage`
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Let’s see what happens if we load <code>Infiltrator</code>:</p>
 <div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>using Infiltrator</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>It worked. But why? <code>Infiltrator</code> is not available in <code>MyPackage</code>’s Project.toml.</p>
