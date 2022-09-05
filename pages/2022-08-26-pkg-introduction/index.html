@@ -192,86 +192,87 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <section id="getting-started" class="level2">
 <h2 class="anchored" data-anchor-id="getting-started">Getting started</h2>
 <p>When you install Julia for the first time, there are no environments. Let’s say you installed Julia 1.8. When you start the REPL with the <code>julia</code> command, you will see the standard prompt</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-3">julia&gt; </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>From there, you get to the Pkg.jl REPL mode by typing <code>]</code>. The prompt will change to indicate this, by showing the name of the active environment:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>But wait, didn’t I just say there are no environments, yet? That’s true, there shouldn’t be any environment files on your computer. You can check the <code>.julia/environments</code> folder, it should be empty. This folder contains all your “shared” environments. You can tell that an environment is shared by the leading <code>@</code> character in the package REPL prompt, in our case <code>@v1.8</code> because we use Julia 1.8.</p>
 <p>(Note that if you already have a folder called <code>v1.8</code>, or whatever Julia version you’re using, you can just rename that to <code>v1.8_deactivated</code> or something and restart Julia for the purposes of this tutorial.)</p>
 <p>If a new environment is activated, this doesn’t yet create any files, and that’s why we don’t have any files in <code>.julia/environments</code>, yet. They only appear once you actually do something with your environment.</p>
 <p>We can test this quickly. Activate a new environment by typing <code>(@v1.8) pkg&gt; activate MyEnvironment</code>. You won’t see any new files being created in your working directory, as I said this only happens once you manipulate an environment. But the prompt will have changed:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> activate MyEnvironment</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  Activating <span class="kw">new</span> project at <span class="ss">`~/MyEnvironment`</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>(MyEnvironment) pkg<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>activate MyEnvironment
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> new project at `~/MyEnvironment`
+
+</span><span class="sgr-bold sgr-fg-5">(MyEnvironment) pkg&gt; </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Let’s switch back to the “main” environment <code>@v1.8</code> for now.</p>
 <p>The purpose of shared environments is that you can activate them easily from any working directory because they start with <code>@</code>, and Pkg knows to look for them in <code>.julia/environments</code>. For all other environments, you can activate them by name if you are in the directory where they were created, or you have to specify the full path.</p>
 <p>So we activate <code>@v1.8</code> again by typing:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(MyEnvironment) pkg<span class="op">&gt;</span> activate <span class="pp">@v1</span><span class="fl">.8</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  Activating <span class="kw">new</span> project at <span class="ss">`~/.julia/environments/v1.8`</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(MyEnvironment) pkg&gt; </span><span>activate @v1.8
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/.julia/environments/v1.8`
+
+</span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>As you see, Pkg told us we were activating a new project (another word for environment), because as we saw before, no files did actually exist, yet.</p>
 <p>There’s another shortcut to activate the main environment, which is <code>activate</code> without an argument:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> activate</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  Activating <span class="kw">new</span> project at <span class="ss">`~/.julia/environments/v1.8`</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>activate
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/.julia/environments/v1.8`
+
+</span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="adding-a-package" class="level2">
 <h2 class="anchored" data-anchor-id="adding-a-package">Adding a package</h2>
 <p>Let’s add our first package to our shared <code>@v1.8</code> environment. For this, we use the <code>add</code> command. I choose the <code>MacroTools</code> package because it has few dependencies.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> add MacroTools</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    Updating registry at <span class="ss">`~/.julia/registries/General.toml`</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>   Resolving package versions<span class="op">...</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Project.toml`</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] <span class="op">+</span> MacroTools v0<span class="fl">.5.9</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Manifest.toml`</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] <span class="op">+</span> MacroTools v0<span class="fl">.5.9</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">2</span>a0f44e3] <span class="op">+</span> <span class="bu">Base64</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  [d6f4376e] <span class="op">+</span> Markdown</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9</span>a3f8284] <span class="op">+</span> <span class="bu">Random</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  [ea8e919c] <span class="op">+</span> <span class="bu">SHA</span> v0<span class="fl">.7.0</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9e88</span>b42a] <span class="op">+</span> <span class="bu">Serialization</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>add MacroTools
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> registry at `~/.julia/registries/General.toml`
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b3">+ MacroTools v0.5.9</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b3">+ MacroTools v0.5.9</span><span>
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span class="sgr-fg-b3">+ Base64</span><span>
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span class="sgr-fg-b3">+ Markdown</span><span>
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span class="sgr-fg-b3">+ Random</span><span>
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span class="sgr-fg-b3">+ SHA v0.7.0</span><span>
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span class="sgr-fg-b3">+ Serialization</span><span>
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>As you probably know, after doing this, the <code>MacroTools</code> code has been downloaded onto your system and you can use it in your own code:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="im">using</span> <span class="bu">MacroTools</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>using MacroTools</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>So what actually happened when we ran the <code>add</code> command?</p>
 <p>In the first line, you can see that the general registry was updated. The general registry (<a href="https://github.com/JuliaRegistries/General">https://github.com/JuliaRegistries/General</a>) is a list of third-party packages that are available to the public, where each package lists all its dependencies and versions. There can be other registries, even private ones, but the general registry is the main one which will be the only one relevant for most users.</p>
 <p>Pkg has first updated this list on our computer when we ran <code>add MacroTools</code> so that it knows about the most recent versions of all packages in the ecosystem. You can have a look at it in <code>.julia/registries/</code> if you want.</p>
 <p>After updating the registry, Pkg is <code>Resolving package versions</code>. First, <code>MacroTools</code> latest version at the time of writing, <code>v0.5.9</code>, was added to <code>~/.julia/environments/v1.8/Project.toml</code>. So at this point in time, finally the environment file I was talking about earlier is being created.</p>
 <p>We can look at the content of <code>Project.toml</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">deps</span><span class="kw">]</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">deps</span><span class="kw">]</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>So this just says that our environment has one dependency declared, which is <code>MacroTools.jl</code>. The UUID string <code>1914dd2f-81c6...</code> is there because that’s the “real” unique identifier of the package because, e.g., if another hypothetical registry had a different <code>MacroTools</code>, then at least you could specify the one you really want via the UUID.</p>
 <p>Pkg also updated the file <code>~/.julia/environments/v1.8/Manifest.toml</code>. Let’s have a look at this one:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This file is machine-generated - editing it directly is not advised</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">julia_version</span> <span class="op">=</span> <span class="st">"1.8.0-rc3"</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="dt">manifest_format</span> <span class="op">=</span> <span class="st">"2.0"</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="dt">project_hash</span> <span class="op">=</span> <span class="st">"e39ab6d265da4acedccb7411db33219b8d7db4fc"</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Base64</span><span class="kw">]]</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">MacroTools</span><span class="kw">]]</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Markdown"</span><span class="op">,</span> <span class="st">"Random"</span><span class="op">]</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="dt">git-tree-sha1</span> <span class="op">=</span> <span class="st">"3d3e902b31198a27340d0bf00d6ac452866021cf"</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.5.9"</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Markdown</span><span class="kw">]]</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Base64"</span><span class="op">]</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"d6f4376e-aef5-505a-96c1-9c027394607a"</span></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Random</span><span class="kw">]]</span></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"SHA"</span><span class="op">,</span> <span class="st">"Serialization"</span><span class="op">]</span></span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"9a3f8284-a2c9-5f02-9a11-845980a1fd5c"</span></span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">SHA</span><span class="kw">]]</span></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"ea8e919c-243c-51af-8825-aaa63cd721ce"</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.7.0"</span></span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Serialization</span><span class="kw">]]</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"9e88b42a-f829-5b0c-bbe9-9e923198166b"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This file is machine-generated - editing it directly is not advised</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="dt">julia_version</span> <span class="op">=</span> <span class="st">"1.8.0-rc3"</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">manifest_format</span> <span class="op">=</span> <span class="st">"2.0"</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">project_hash</span> <span class="op">=</span> <span class="st">"e39ab6d265da4acedccb7411db33219b8d7db4fc"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Base64</span><span class="kw">]]</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">MacroTools</span><span class="kw">]]</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Markdown"</span><span class="op">,</span> <span class="st">"Random"</span><span class="op">]</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="dt">git-tree-sha1</span> <span class="op">=</span> <span class="st">"3d3e902b31198a27340d0bf00d6ac452866021cf"</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.5.9"</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Markdown</span><span class="kw">]]</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Base64"</span><span class="op">]</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"d6f4376e-aef5-505a-96c1-9c027394607a"</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Random</span><span class="kw">]]</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"SHA"</span><span class="op">,</span> <span class="st">"Serialization"</span><span class="op">]</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"9a3f8284-a2c9-5f02-9a11-845980a1fd5c"</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">SHA</span><span class="kw">]]</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"ea8e919c-243c-51af-8825-aaa63cd721ce"</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.7.0"</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Serialization</span><span class="kw">]]</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"9e88b42a-f829-5b0c-bbe9-9e923198166b"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The <code>Manifest.toml</code> lists all the packages that were actually installed for you, while the <code>Project.toml</code> only lists the <code>MacroTools</code> dependency.</p>
 <p>You can think of the two files this way:</p>
 <ul>
@@ -341,22 +342,23 @@ Random-&gt;Serialization
 </div>
 <p>The blue nodes have versions and the red ones do not, that’s because the red ones are standard libraries. Standard libraries are shipped with Julia, so they don’t have their own version. They only change with each Julia release. But as you can see, even standard libraries can depend on other, even, external packages, as SHA is not a normal standard library (it’s hosted externally) and has a version.</p>
 <p>You can check the versions of libraries in your <code>Project.toml</code> and <code>Manifest.toml</code> with the <code>status</code> or <code>st</code> command. With the <code>-m</code> flag you can see the <code>Manifest.toml</code> entries, which can be important for checking which dependencies were resolved.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> st</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>Status <span class="ss">`~/.julia/environments/v1.8/Project.toml`</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] MacroTools v0<span class="fl">.5.9</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> st <span class="op">-</span>m</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>Status <span class="ss">`~/.julia/environments/v1.8/Manifest.toml`</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] MacroTools v0<span class="fl">.5.9</span></span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">2</span>a0f44e3] <span class="bu">Base64</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  [d6f4376e] Markdown</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9</span>a3f8284] <span class="bu">Random</span></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  [ea8e919c] <span class="bu">SHA</span> v0<span class="fl">.7.0</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9e88</span>b42a] <span class="bu">Serialization</span></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> st <span class="op">-</span>m <span class="bu">SHA</span></span>
-<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>Status <span class="ss">`~/.julia/environments/v1.8/Manifest.toml`</span></span>
-<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  [ea8e919c] <span class="bu">SHA</span> v0<span class="fl">.7.0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>st
+</span><span class="sgr-bold sgr-fg-3">Status</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span>MacroTools v0.5.9
+
+</span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>st -m
+</span><span class="sgr-bold sgr-fg-3">Status</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span>MacroTools v0.5.9
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span>Base64
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span>Markdown
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span>Random
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span>SHA v0.7.0
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span>Serialization
+
+</span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>st -m SHA
+</span><span class="sgr-bold sgr-fg-3">Status</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span>SHA v0.7.0
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="version-numbers" class="level2">
 <h2 class="anchored" data-anchor-id="version-numbers">Version numbers</h2>
@@ -366,128 +368,123 @@ Random-&gt;Serialization
 <h2 class="anchored" data-anchor-id="adding-specific-variants-of-a-package">Adding specific variants of a package</h2>
 <p>So far, we have only used the command <code>add MacroTools</code>, which pulled the latest version <code>v0.5.9</code> into our environment. Sometimes, however, you want a specific variant of a package. That doesn’t necessarily have to be a specific version. It can also be a commit or branch of a certain repository. Let’s try this out with <code>MacroTools</code>.</p>
 <p>We can install the version <code>v0.5.1</code> by using the <code>@</code> syntax:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> add MacroTools@<span class="fl">0.5.1</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>   Resolving package versions<span class="op">...</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Project.toml`</span></span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>⌃ [<span class="fl">1914</span>dd2f] <span class="op">↓</span> MacroTools v0<span class="fl">.5.9</span> <span class="op">⇒</span> v0<span class="fl">.5.1</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Manifest.toml`</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>⌅ [<span class="fl">00</span>ebfdb7] <span class="op">+</span> CSTParser v2<span class="fl">.5.0</span></span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>⌅ [<span class="fl">34</span>da2185] <span class="op">+</span> Compat v2<span class="fl">.2.1</span></span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>⌅ [<span class="fl">864</span>edb3b] <span class="op">+</span> DataStructures v0<span class="fl">.17.20</span></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>⌃ [<span class="fl">1914</span>dd2f] <span class="op">↓</span> MacroTools v0<span class="fl">.5.9</span> <span class="op">⇒</span> v0<span class="fl">.5.1</span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  [bac558e1] <span class="op">+</span> OrderedCollections v1<span class="fl">.4.1</span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">0796e94</span>c] <span class="op">+</span> Tokenize v0<span class="fl">.5.24</span></span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">0</span>dad84c5] <span class="op">+</span> ArgTools v1<span class="fl">.1.1</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">56f22</span>d72] <span class="op">+</span> <span class="bu">Artifacts</span></span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  [ade2ca70] <span class="op">+</span> <span class="bu">Dates</span></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8</span>bb1440f] <span class="op">+</span> <span class="bu">DelimitedFiles</span></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8</span>ba89e20] <span class="op">+</span> <span class="bu">Distributed</span></span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  [f43a241f] <span class="op">+</span> <span class="bu">Downloads</span> v1<span class="fl">.6.0</span></span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">7</span>b1f6079] <span class="op">+</span> <span class="bu">FileWatching</span></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  [b77e0a4c] <span class="op">+</span> <span class="bu">InteractiveUtils</span></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  [b27032c2] <span class="op">+</span> LibCURL v0<span class="fl">.6.3</span></span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">76f85450</span>] <span class="op">+</span> <span class="bu">LibGit2</span></span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8f399</span>da3] <span class="op">+</span> <span class="bu">Libdl</span></span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">37e2</span>e46d] <span class="op">+</span> <span class="bu">LinearAlgebra</span></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">56</span>ddb016] <span class="op">+</span> <span class="bu">Logging</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  [a63ad114] <span class="op">+</span> <span class="bu">Mmap</span></span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>  [ca575930] <span class="op">+</span> NetworkOptions v1<span class="fl">.2.0</span></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">44</span>cfe95a] <span class="op">+</span> <span class="bu">Pkg</span> v1<span class="fl">.8.0</span></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>  [de0858da] <span class="op">+</span> <span class="bu">Printf</span></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">3</span>fa0cd96] <span class="op">+</span> <span class="bu">REPL</span></span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1</span>a1011a3] <span class="op">+</span> <span class="bu">SharedArrays</span></span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">6462</span>fe0b] <span class="op">+</span> <span class="bu">Sockets</span></span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">2f01184</span>e] <span class="op">+</span> <span class="bu">SparseArrays</span></span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">10745</span>b16] <span class="op">+</span> <span class="bu">Statistics</span></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>  [fa267f1f] <span class="op">+</span> <span class="bu">TOML</span> v1<span class="fl">.0.0</span></span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>  [a4e569a6] <span class="op">+</span> Tar v1<span class="fl">.10.0</span></span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8</span>dfed614] <span class="op">+</span> <span class="bu">Test</span></span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>  [cf7118a7] <span class="op">+</span> <span class="bu">UUIDs</span></span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">4</span>ec0a83e] <span class="op">+</span> <span class="bu">Unicode</span></span>
-<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>  [e66e0078] <span class="op">+</span> CompilerSupportLibraries_jll v0<span class="fl">.5.2</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>  [deac9b47] <span class="op">+</span> LibCURL_jll v7<span class="fl">.83.1</span><span class="op">+</span><span class="fl">1</span></span>
-<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">29816</span>b5a] <span class="op">+</span> LibSSH2_jll v1<span class="fl">.10.2</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>  [c8ffd9c3] <span class="op">+</span> MbedTLS_jll v2<span class="fl">.28.0</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">14</span>a3606d] <span class="op">+</span> MozillaCACerts_jll v2022<span class="fl">.2.1</span></span>
-<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">4536629</span>a] <span class="op">+</span> OpenBLAS_jll v0<span class="fl">.3.20</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">83775</span>a58] <span class="op">+</span> Zlib_jll v1<span class="fl">.2.12</span><span class="op">+</span><span class="fl">3</span></span>
-<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8e850</span>b90] <span class="op">+</span> libblastrampoline_jll v5<span class="fl">.1.1</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8e850</span>ede] <span class="op">+</span> nghttp2_jll v1<span class="fl">.47.0</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">3f19</span>e933] <span class="op">+</span> p7zip_jll v17<span class="fl">.4.0</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>        Info Packages marked with ⌃ and ⌅ have <span class="kw">new</span> versions available, but those with ⌅ cannot be upgraded. To see why use <span class="ss">`status --outdated -m`</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>add MacroTools@0.5.1
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+</span><span class="sgr-fg-3">⌃</span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b6">↓ MacroTools v0.5.9 ⇒ v0.5.1</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+</span><span class="sgr-fg-4">⌅</span><span class="sgr-fg-b1"> [00ebfdb7] </span><span class="sgr-fg-b3">+ CSTParser v2.5.0</span><span>
+</span><span class="sgr-fg-4">⌅</span><span class="sgr-fg-b1"> [34da2185] </span><span class="sgr-fg-b3">+ Compat v2.2.1</span><span>
+</span><span class="sgr-fg-4">⌅</span><span class="sgr-fg-b1"> [864edb3b] </span><span class="sgr-fg-b3">+ DataStructures v0.17.20</span><span>
+</span><span class="sgr-fg-3">⌃</span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b6">↓ MacroTools v0.5.9 ⇒ v0.5.1</span><span>
+ </span><span class="sgr-fg-b1"> [bac558e1] </span><span class="sgr-fg-b3">+ OrderedCollections v1.4.1</span><span>
+ </span><span class="sgr-fg-b1"> [0796e94c] </span><span class="sgr-fg-b3">+ Tokenize v0.5.24</span><span>
+ </span><span class="sgr-fg-b1"> [0dad84c5] </span><span class="sgr-fg-b3">+ ArgTools v1.1.1</span><span>
+ </span><span class="sgr-fg-b1"> [56f22d72] </span><span class="sgr-fg-b3">+ Artifacts</span><span>
+ </span><span class="sgr-fg-b1"> [ade2ca70] </span><span class="sgr-fg-b3">+ Dates</span><span>
+ </span><span class="sgr-fg-b1"> [8bb1440f] </span><span class="sgr-fg-b3">+ DelimitedFiles</span><span>
+ </span><span class="sgr-fg-b1"> [8ba89e20] </span><span class="sgr-fg-b3">+ Distributed</span><span>
+ </span><span class="sgr-fg-b1"> [f43a241f] </span><span class="sgr-fg-b3">+ Downloads v1.6.0</span><span>
+ </span><span class="sgr-fg-b1"> [7b1f6079] </span><span class="sgr-fg-b3">+ FileWatching</span><span>
+ </span><span class="sgr-fg-b1"> [b77e0a4c] </span><span class="sgr-fg-b3">+ InteractiveUtils</span><span>
+ </span><span class="sgr-fg-b1"> [b27032c2] </span><span class="sgr-fg-b3">+ LibCURL v0.6.3</span><span>
+ </span><span class="sgr-fg-b1"> [76f85450] </span><span class="sgr-fg-b3">+ LibGit2</span><span>
+ </span><span class="sgr-fg-b1"> [8f399da3] </span><span class="sgr-fg-b3">+ Libdl</span><span>
+ </span><span class="sgr-fg-b1"> [37e2e46d] </span><span class="sgr-fg-b3">+ LinearAlgebra</span><span>
+ </span><span class="sgr-fg-b1"> [56ddb016] </span><span class="sgr-fg-b3">+ Logging</span><span>
+ </span><span class="sgr-fg-b1"> [a63ad114] </span><span class="sgr-fg-b3">+ Mmap</span><span>
+ </span><span class="sgr-fg-b1"> [ca575930] </span><span class="sgr-fg-b3">+ NetworkOptions v1.2.0</span><span>
+ </span><span class="sgr-fg-b1"> [44cfe95a] </span><span class="sgr-fg-b3">+ Pkg v1.8.0</span><span>
+ </span><span class="sgr-fg-b1"> [de0858da] </span><span class="sgr-fg-b3">+ Printf</span><span>
+ </span><span class="sgr-fg-b1"> [3fa0cd96] </span><span class="sgr-fg-b3">+ REPL</span><span>
+ </span><span class="sgr-fg-b1"> [1a1011a3] </span><span class="sgr-fg-b3">+ SharedArrays</span><span>
+ </span><span class="sgr-fg-b1"> [6462fe0b] </span><span class="sgr-fg-b3">+ Sockets</span><span>
+ </span><span class="sgr-fg-b1"> [2f01184e] </span><span class="sgr-fg-b3">+ SparseArrays</span><span>
+ </span><span class="sgr-fg-b1"> [10745b16] </span><span class="sgr-fg-b3">+ Statistics</span><span>
+ </span><span class="sgr-fg-b1"> [fa267f1f] </span><span class="sgr-fg-b3">+ TOML v1.0.0</span><span>
+ </span><span class="sgr-fg-b1"> [a4e569a6] </span><span class="sgr-fg-b3">+ Tar v1.10.0</span><span>
+ </span><span class="sgr-fg-b1"> [8dfed614] </span><span class="sgr-fg-b3">+ Test</span><span>
+ </span><span class="sgr-fg-b1"> [cf7118a7] </span><span class="sgr-fg-b3">+ UUIDs</span><span>
+ </span><span class="sgr-fg-b1"> [4ec0a83e] </span><span class="sgr-fg-b3">+ Unicode</span><span>
+ </span><span class="sgr-fg-b1"> [e66e0078] </span><span class="sgr-fg-b3">+ CompilerSupportLibraries_jll v0.5.2+0</span><span>
+ </span><span class="sgr-fg-b1"> [deac9b47] </span><span class="sgr-fg-b3">+ LibCURL_jll v7.83.1+1</span><span>
+ </span><span class="sgr-fg-b1"> [29816b5a] </span><span class="sgr-fg-b3">+ LibSSH2_jll v1.10.2+0</span><span>
+ </span><span class="sgr-fg-b1"> [c8ffd9c3] </span><span class="sgr-fg-b3">+ MbedTLS_jll v2.28.0+0</span><span>
+ </span><span class="sgr-fg-b1"> [14a3606d] </span><span class="sgr-fg-b3">+ MozillaCACerts_jll v2022.2.1</span><span>
+ </span><span class="sgr-fg-b1"> [4536629a] </span><span class="sgr-fg-b3">+ OpenBLAS_jll v0.3.20+0</span><span>
+ </span><span class="sgr-fg-b1"> [83775a58] </span><span class="sgr-fg-b3">+ Zlib_jll v1.2.12+3</span><span>
+ </span><span class="sgr-fg-b1"> [8e850b90] </span><span class="sgr-fg-b3">+ libblastrampoline_jll v5.1.1+0</span><span>
+ </span><span class="sgr-fg-b1"> [8e850ede] </span><span class="sgr-fg-b3">+ nghttp2_jll v1.47.0+0</span><span>
+ </span><span class="sgr-fg-b1"> [3f19e933] </span><span class="sgr-fg-b3">+ p7zip_jll v17.4.0+0</span><span>
+</span><span class="sgr-bold sgr-fg-7">        Info</span><span> Packages marked with </span><span class="sgr-fg-3">⌃</span><span> and </span><span class="sgr-fg-4">⌅</span><span> have new versions available, but those with </span><span class="sgr-fg-4">⌅</span><span> cannot be upgraded. To see why use `status --outdated -m`
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>You can see that we got a ton of new dependencies. This happened because <code>MacroTools</code> managed to cut the number of packages it depends on a lot over time, so the older version pulls in much more.</p>
 <p>If we take a look at the new <code>Manifest.toml</code> entry for <code>MacroTools</code>, we see:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">MacroTools</span><span class="kw">]]</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"CSTParser"</span><span class="op">,</span> <span class="st">"Compat"</span><span class="op">,</span> <span class="st">"DataStructures"</span><span class="op">,</span> <span class="st">"Test"</span><span class="op">,</span> <span class="st">"Tokenize"</span><span class="op">]</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="dt">git-tree-sha1</span> <span class="op">=</span> <span class="st">"d6e9dedb8c92c3465575442da456aec15a89ff76"</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.5.1"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">MacroTools</span><span class="kw">]]</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"CSTParser"</span><span class="op">,</span> <span class="st">"Compat"</span><span class="op">,</span> <span class="st">"DataStructures"</span><span class="op">,</span> <span class="st">"Test"</span><span class="op">,</span> <span class="st">"Tokenize"</span><span class="op">]</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">git-tree-sha1</span> <span class="op">=</span> <span class="st">"d6e9dedb8c92c3465575442da456aec15a89ff76"</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.5.1"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This just goes to show that even between patch versions of a package, which should all follow the same public API, the dependencies can change a lot.</p>
 <p>If you look at the <code>Project.toml</code>, you will see that it hasn’t changed. The version requirement was just enforced during this one dependency resolution, and won’t be remembered or enforced again in future Pkg operations.</p>
 <p>Let’s try one other syntax, which is the one for choosing a specific commit or branch from a repository. In this case, we use the commit <code>639d1a6</code>, but we could also use something like <code>master</code> to fetch the latest commit on that branch.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> add MacroTools<span class="co">#639d1a6</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>     Cloning git<span class="op">-</span>repo <span class="ss">`https://github.com/FluxML/MacroTools.jl.git`</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    Updating git<span class="op">-</span>repo <span class="ss">`https://github.com/FluxML/MacroTools.jl.git`</span></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>   Resolving package versions<span class="op">...</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Project.toml`</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] <span class="op">~</span> MacroTools v0<span class="fl">.5.1</span> <span class="op">⇒</span> v0<span class="fl">.5.9</span> <span class="ss">`https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Manifest.toml`</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">00</span>ebfdb7] <span class="op">-</span> CSTParser v2<span class="fl">.5.0</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">34</span>da2185] <span class="op">-</span> Compat v2<span class="fl">.2.1</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">864</span>edb3b] <span class="op">-</span> DataStructures v0<span class="fl">.17.20</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] <span class="op">~</span> MacroTools v0<span class="fl">.5.1</span> <span class="op">⇒</span> v0<span class="fl">.5.9</span> <span class="ss">`https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span></span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  [bac558e1] <span class="op">-</span> OrderedCollections v1<span class="fl">.4.1</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">0796e94</span>c] <span class="op">-</span> Tokenize v0<span class="fl">.5.24</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">0</span>dad84c5] <span class="op">-</span> ArgTools v1<span class="fl">.1.1</span></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">56f22</span>d72] <span class="op">-</span> <span class="bu">Artifacts</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  [ade2ca70] <span class="op">-</span> <span class="bu">Dates</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8</span>bb1440f] <span class="op">-</span> <span class="bu">DelimitedFiles</span></span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8</span>ba89e20] <span class="op">-</span> <span class="bu">Distributed</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  [f43a241f] <span class="op">-</span> <span class="bu">Downloads</span> v1<span class="fl">.6.0</span></span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">7</span>b1f6079] <span class="op">-</span> <span class="bu">FileWatching</span></span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  [b77e0a4c] <span class="op">-</span> <span class="bu">InteractiveUtils</span></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  [b27032c2] <span class="op">-</span> LibCURL v0<span class="fl">.6.3</span></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">76f85450</span>] <span class="op">-</span> <span class="bu">LibGit2</span></span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8f399</span>da3] <span class="op">-</span> <span class="bu">Libdl</span></span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">37e2</span>e46d] <span class="op">-</span> <span class="bu">LinearAlgebra</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">56</span>ddb016] <span class="op">-</span> <span class="bu">Logging</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  [a63ad114] <span class="op">-</span> <span class="bu">Mmap</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>  [ca575930] <span class="op">-</span> NetworkOptions v1<span class="fl">.2.0</span></span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">44</span>cfe95a] <span class="op">-</span> <span class="bu">Pkg</span> v1<span class="fl">.8.0</span></span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>  [de0858da] <span class="op">-</span> <span class="bu">Printf</span></span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">3</span>fa0cd96] <span class="op">-</span> <span class="bu">REPL</span></span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1</span>a1011a3] <span class="op">-</span> <span class="bu">SharedArrays</span></span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">6462</span>fe0b] <span class="op">-</span> <span class="bu">Sockets</span></span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">2f01184</span>e] <span class="op">-</span> <span class="bu">SparseArrays</span></span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">10745</span>b16] <span class="op">-</span> <span class="bu">Statistics</span></span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>  [fa267f1f] <span class="op">-</span> <span class="bu">TOML</span> v1<span class="fl">.0.0</span></span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>  [a4e569a6] <span class="op">-</span> Tar v1<span class="fl">.10.0</span></span>
-<span id="cb13-38"><a href="#cb13-38" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8</span>dfed614] <span class="op">-</span> <span class="bu">Test</span></span>
-<span id="cb13-39"><a href="#cb13-39" aria-hidden="true" tabindex="-1"></a>  [cf7118a7] <span class="op">-</span> <span class="bu">UUIDs</span></span>
-<span id="cb13-40"><a href="#cb13-40" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">4</span>ec0a83e] <span class="op">-</span> <span class="bu">Unicode</span></span>
-<span id="cb13-41"><a href="#cb13-41" aria-hidden="true" tabindex="-1"></a>  [e66e0078] <span class="op">-</span> CompilerSupportLibraries_jll v0<span class="fl">.5.2</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb13-42"><a href="#cb13-42" aria-hidden="true" tabindex="-1"></a>  [deac9b47] <span class="op">-</span> LibCURL_jll v7<span class="fl">.83.1</span><span class="op">+</span><span class="fl">1</span></span>
-<span id="cb13-43"><a href="#cb13-43" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">29816</span>b5a] <span class="op">-</span> LibSSH2_jll v1<span class="fl">.10.2</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb13-44"><a href="#cb13-44" aria-hidden="true" tabindex="-1"></a>  [c8ffd9c3] <span class="op">-</span> MbedTLS_jll v2<span class="fl">.28.0</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb13-45"><a href="#cb13-45" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">14</span>a3606d] <span class="op">-</span> MozillaCACerts_jll v2022<span class="fl">.2.1</span></span>
-<span id="cb13-46"><a href="#cb13-46" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">4536629</span>a] <span class="op">-</span> OpenBLAS_jll v0<span class="fl">.3.20</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb13-47"><a href="#cb13-47" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">83775</span>a58] <span class="op">-</span> Zlib_jll v1<span class="fl">.2.12</span><span class="op">+</span><span class="fl">3</span></span>
-<span id="cb13-48"><a href="#cb13-48" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8e850</span>b90] <span class="op">-</span> libblastrampoline_jll v5<span class="fl">.1.1</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb13-49"><a href="#cb13-49" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">8e850</span>ede] <span class="op">-</span> nghttp2_jll v1<span class="fl">.47.0</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb13-50"><a href="#cb13-50" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">3f19</span>e933] <span class="op">-</span> p7zip_jll v17<span class="fl">.4.0</span><span class="op">+</span><span class="fl">0</span></span>
-<span id="cb13-51"><a href="#cb13-51" aria-hidden="true" tabindex="-1"></a>Precompiling project<span class="op">...</span></span>
-<span id="cb13-52"><a href="#cb13-52" aria-hidden="true" tabindex="-1"></a>  ✓ MacroTools</span>
-<span id="cb13-53"><a href="#cb13-53" aria-hidden="true" tabindex="-1"></a>  <span class="fl">1</span> dependency successfully precompiled <span class="kw">in</span> <span class="fl">1</span> seconds</span>
-<span id="cb13-54"><a href="#cb13-54" aria-hidden="true" tabindex="-1"></a>  <span class="fl">1</span> dependency precompiled but a different version is currently loaded. Restart julia to access the <span class="kw">new</span> version</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>add MacroTools#639d1a6
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b4">~ MacroTools v0.5.1 ⇒ v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [00ebfdb7] </span><span class="sgr-fg-b2">- CSTParser v2.5.0</span><span>
+ </span><span class="sgr-fg-b1"> [34da2185] </span><span class="sgr-fg-b2">- Compat v2.2.1</span><span>
+ </span><span class="sgr-fg-b1"> [864edb3b] </span><span class="sgr-fg-b2">- DataStructures v0.17.20</span><span>
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b4">~ MacroTools v0.5.1 ⇒ v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span><span>
+ </span><span class="sgr-fg-b1"> [bac558e1] </span><span class="sgr-fg-b2">- OrderedCollections v1.4.1</span><span>
+ </span><span class="sgr-fg-b1"> [0796e94c] </span><span class="sgr-fg-b2">- Tokenize v0.5.24</span><span>
+ </span><span class="sgr-fg-b1"> [0dad84c5] </span><span class="sgr-fg-b2">- ArgTools v1.1.1</span><span>
+ </span><span class="sgr-fg-b1"> [56f22d72] </span><span class="sgr-fg-b2">- Artifacts</span><span>
+ </span><span class="sgr-fg-b1"> [ade2ca70] </span><span class="sgr-fg-b2">- Dates</span><span>
+ </span><span class="sgr-fg-b1"> [8bb1440f] </span><span class="sgr-fg-b2">- DelimitedFiles</span><span>
+ </span><span class="sgr-fg-b1"> [8ba89e20] </span><span class="sgr-fg-b2">- Distributed</span><span>
+ </span><span class="sgr-fg-b1"> [f43a241f] </span><span class="sgr-fg-b2">- Downloads v1.6.0</span><span>
+ </span><span class="sgr-fg-b1"> [7b1f6079] </span><span class="sgr-fg-b2">- FileWatching</span><span>
+ </span><span class="sgr-fg-b1"> [b77e0a4c] </span><span class="sgr-fg-b2">- InteractiveUtils</span><span>
+ </span><span class="sgr-fg-b1"> [b27032c2] </span><span class="sgr-fg-b2">- LibCURL v0.6.3</span><span>
+ </span><span class="sgr-fg-b1"> [76f85450] </span><span class="sgr-fg-b2">- LibGit2</span><span>
+ </span><span class="sgr-fg-b1"> [8f399da3] </span><span class="sgr-fg-b2">- Libdl</span><span>
+ </span><span class="sgr-fg-b1"> [37e2e46d] </span><span class="sgr-fg-b2">- LinearAlgebra</span><span>
+ </span><span class="sgr-fg-b1"> [56ddb016] </span><span class="sgr-fg-b2">- Logging</span><span>
+ </span><span class="sgr-fg-b1"> [a63ad114] </span><span class="sgr-fg-b2">- Mmap</span><span>
+ </span><span class="sgr-fg-b1"> [ca575930] </span><span class="sgr-fg-b2">- NetworkOptions v1.2.0</span><span>
+ </span><span class="sgr-fg-b1"> [44cfe95a] </span><span class="sgr-fg-b2">- Pkg v1.8.0</span><span>
+ </span><span class="sgr-fg-b1"> [de0858da] </span><span class="sgr-fg-b2">- Printf</span><span>
+ </span><span class="sgr-fg-b1"> [3fa0cd96] </span><span class="sgr-fg-b2">- REPL</span><span>
+ </span><span class="sgr-fg-b1"> [1a1011a3] </span><span class="sgr-fg-b2">- SharedArrays</span><span>
+ </span><span class="sgr-fg-b1"> [6462fe0b] </span><span class="sgr-fg-b2">- Sockets</span><span>
+ </span><span class="sgr-fg-b1"> [2f01184e] </span><span class="sgr-fg-b2">- SparseArrays</span><span>
+ </span><span class="sgr-fg-b1"> [10745b16] </span><span class="sgr-fg-b2">- Statistics</span><span>
+ </span><span class="sgr-fg-b1"> [fa267f1f] </span><span class="sgr-fg-b2">- TOML v1.0.0</span><span>
+ </span><span class="sgr-fg-b1"> [a4e569a6] </span><span class="sgr-fg-b2">- Tar v1.10.0</span><span>
+ </span><span class="sgr-fg-b1"> [8dfed614] </span><span class="sgr-fg-b2">- Test</span><span>
+ </span><span class="sgr-fg-b1"> [cf7118a7] </span><span class="sgr-fg-b2">- UUIDs</span><span>
+ </span><span class="sgr-fg-b1"> [4ec0a83e] </span><span class="sgr-fg-b2">- Unicode</span><span>
+ </span><span class="sgr-fg-b1"> [e66e0078] </span><span class="sgr-fg-b2">- CompilerSupportLibraries_jll v0.5.2+0</span><span>
+ </span><span class="sgr-fg-b1"> [deac9b47] </span><span class="sgr-fg-b2">- LibCURL_jll v7.83.1+1</span><span>
+ </span><span class="sgr-fg-b1"> [29816b5a] </span><span class="sgr-fg-b2">- LibSSH2_jll v1.10.2+0</span><span>
+ </span><span class="sgr-fg-b1"> [c8ffd9c3] </span><span class="sgr-fg-b2">- MbedTLS_jll v2.28.0+0</span><span>
+ </span><span class="sgr-fg-b1"> [14a3606d] </span><span class="sgr-fg-b2">- MozillaCACerts_jll v2022.2.1</span><span>
+ </span><span class="sgr-fg-b1"> [4536629a] </span><span class="sgr-fg-b2">- OpenBLAS_jll v0.3.20+0</span><span>
+ </span><span class="sgr-fg-b1"> [83775a58] </span><span class="sgr-fg-b2">- Zlib_jll v1.2.12+3</span><span>
+ </span><span class="sgr-fg-b1"> [8e850b90] </span><span class="sgr-fg-b2">- libblastrampoline_jll v5.1.1+0</span><span>
+ </span><span class="sgr-fg-b1"> [8e850ede] </span><span class="sgr-fg-b2">- nghttp2_jll v1.47.0+0</span><span>
+ </span><span class="sgr-fg-b1"> [3f19e933] </span><span class="sgr-fg-b2">- p7zip_jll v17.4.0+0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Note that even though the version printed for MacroTools is again <code>0.5.9</code>, this doesn’t necessarily mean that we are on the same commit as the one pointed to by the version <code>0.5.9</code> in the registry. It just means that Pkg cloned the repository, checked out the commit with hash <code>639d1a6</code> and found the version specifier <code>0.5.9</code> in MacroTools’s own <code>Project.toml</code> file. Therefore, infinitely many code versions of a package can be treated as version <code>X.Y.Z</code> by Pkg, but <code>X.Y.Z</code> itself refers only to exactly one version. This distinction is important to remember when developing and editing a package, but more about that later.</p>
 <p>If we take another look at our <code>Manifest.toml</code>, we can see the following entry for MacroTools:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">MacroTools</span><span class="kw">]]</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Markdown"</span><span class="op">,</span> <span class="st">"Random"</span><span class="op">]</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="dt">git-tree-sha1</span> <span class="op">=</span> <span class="st">"465a4803356bcb11f6eb97df992680f13a9ba776"</span></span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="dt">repo-rev</span> <span class="op">=</span> <span class="st">"639d1a6"</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="dt">repo-url</span> <span class="op">=</span> <span class="st">"https://github.com/FluxML/MacroTools.jl.git"</span></span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.5.9"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">MacroTools</span><span class="kw">]]</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Markdown"</span><span class="op">,</span> <span class="st">"Random"</span><span class="op">]</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">git-tree-sha1</span> <span class="op">=</span> <span class="st">"465a4803356bcb11f6eb97df992680f13a9ba776"</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">repo-rev</span> <span class="op">=</span> <span class="st">"639d1a6"</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="dt">repo-url</span> <span class="op">=</span> <span class="st">"https://github.com/FluxML/MacroTools.jl.git"</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.5.9"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This time, the URL of the repository was recorded, as well as the revision, which was <code>639d1a6</code>. This is because as soon as you specify a revision in the <code>add</code> command, Pkg knows you’re operating outside of the registry, so it cannot rely on the repository information stored there for MacroTools.</p>
 <p>(Note that you can also install unregistered packages, or forks of registered packages this way, by doing <code>add https://the_url_to_the_git_repository</code>.)</p>
 <p>The manifest needs to store the url and revision in order to make the project reproducible by someone else. Let’s actually look at what reproducing an environment looks like:</p>
@@ -496,220 +493,246 @@ Random-&gt;Serialization
 <h2 class="anchored" data-anchor-id="reproducing-an-environment">Reproducing an environment</h2>
 <p>Let’s say you have written some code relying on the specific <code>MacroTools</code> version we added via <code>add MacroTools#639d1a6</code> and want your colleague to be able to run that code with the exact packages installed that we used at the time.</p>
 <p>Which files do they need to reproduce the state of your environment? Not just the <code>Project.toml</code>, because remember, it still only contains this information:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>[deps]</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>MacroTools <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>[deps]</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>MacroTools <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>We need to also send the <code>Manifest.toml</code> because it records the exact versions of all packages. Let’s pretend we are our colleague, and we just received a <code>Project.toml</code> and <code>Manifest.toml</code> file. How do we actually get the environment installed?</p>
 <p>Let’s copy the files into a new folder we call <code>ColleagueEnv</code> in our current working directory.</p>
 <p>To pretend we’re the colleague who just uses Julia for the first time, we also delete the <code>.julia/packages/MacroTools</code> folder in which the downloaded source code of <code>MacroTools</code> was stored.</p>
 <p>Note that this means that the source code is not part of an environment but stored centrally. It would be pretty wasteful to download the same sources over and over just because you’re using different local environments.</p>
 <p>Let’s now restart Julia and activate the <code>ColleagueEnv</code> environment:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> activate <span class="op">./</span>ColleagueEnv</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  Activating project at <span class="ss">`~/ColleagueEnv`</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>activate ./ColleagueEnv
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/ColleagueEnv`
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>We can check the installed packages via <code>st -m</code>:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>(ColleagueEnv) pkg<span class="op">&gt;</span> st <span class="op">-</span>m</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>Status <span class="ss">`~/ColleagueEnv/Manifest.toml`</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="op">→</span> [<span class="fl">1914</span>dd2f] MacroTools v0<span class="fl">.5.9</span> <span class="ss">`https://github.com/FluxML/MacroTools.jl.git#master`</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">2</span>a0f44e3] <span class="bu">Base64</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  [d6f4376e] Markdown</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9</span>a3f8284] <span class="bu">Random</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  [ea8e919c] <span class="bu">SHA</span> v0<span class="fl">.7.0</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9e88</span>b42a] <span class="bu">Serialization</span></span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>Info Packages marked with <span class="op">→</span> are not downloaded, use <span class="ss">`instantiate`</span> to download</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(ColleagueEnv) pkg&gt; </span><span>st -m
+</span><span class="sgr-bold sgr-fg-3">Status</span><span> `~/ColleagueEnv/Manifest.toml`
+</span><span class="sgr-fg-b2">→</span><span class="sgr-fg-b1"> [1914dd2f] </span><span>MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#master`
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span>Base64
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span>Markdown
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span>Random
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span>SHA v0.7.0
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span>Serialization
+</span><span class="sgr-bold sgr-fg-7">Info</span><span> Packages marked with </span><span class="sgr-fg-b2">→</span><span> are not downloaded, use `instantiate` to download
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>If we were trying to just run some code using <code>MacroTools</code> now, this would happen:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="im">using</span> <span class="bu">MacroTools</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>ERROR<span class="op">:</span> <span class="dt">ArgumentError</span><span class="op">:</span> Package MacroTools [<span class="fl">1914</span>dd2f<span class="op">-</span><span class="fl">81</span>c6<span class="op">-</span><span class="fl">5</span>fcd<span class="op">-</span><span class="fl">8719</span><span class="op">-</span><span class="fl">6</span>d5c9610ff09] is required but does not seem to be installed<span class="op">:</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a> <span class="op">-</span> Run <span class="ss">`Pkg.instantiate()`</span> to install all recorded dependencies.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>using MacroTools
+</span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>ArgumentError: Package MacroTools [1914dd2f-81c6-5fcd-8719-6d5c9610ff09] is required but does not seem to be installed:
+ - Run `Pkg.instantiate()` to install all recorded dependencies.
+
+Stacktrace:
+ [1] </span><span class="sgr-bold">_require(</span><span class="sgr-fg-b1">pkg</span><span>::Base.PkgId</span><span class="sgr-bold">)</span><span>
+</span><span class="sgr-fg-b1">   @ Base</span><span> </span><span class="sgr-fg-b1">./loading.jl:1306</span><span>
+ [2] </span><span class="sgr-bold">_require_prelocked(</span><span class="sgr-fg-b1">uuidkey</span><span>::Base.PkgId</span><span class="sgr-bold">)</span><span>
+</span><span class="sgr-fg-b1">   @ Base</span><span> </span><span class="sgr-fg-b1">./loading.jl:1200</span><span>
+ [3] </span><span class="sgr-bold">macro expansion</span><span>
+</span><span class="sgr-fg-b1">   @ ./loading.jl:1180 [inlined]</span><span>
+ [4] </span><span class="sgr-bold">macro expansion</span><span>
+</span><span class="sgr-fg-b1">   @ ./lock.jl:223 [inlined]</span><span>
+ [5] </span><span class="sgr-bold">require(</span><span class="sgr-fg-b1">into</span><span>::Module, </span><span class="sgr-fg-b1">mod</span><span>::Symbol</span><span class="sgr-bold">)</span><span>
+</span><span class="sgr-fg-b1">   @ Base</span><span> </span><span class="sgr-fg-b1">./loading.jl:1144</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>So we need to follow the advice already printed twice for us, and call <code>instantiate</code>. This will download everything specified in the <code>Manifest.toml</code> exactly as it was recorded there. You can actually be sure that it’s exactly the same because the <code>Manifest.toml</code> stores git tree hashes of each dependency. Unless someone deletes these specific parts of the repository you will be able to download the source exactly as it was:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>(ColleagueEnv) pkg<span class="op">&gt;</span> instantiate</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>Precompiling project<span class="op">...</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fl">1</span> dependency successfully precompiled <span class="kw">in</span> <span class="fl">1</span> seconds</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>(ColleagueEnv) pkg<span class="op">&gt;</span> st <span class="op">-</span>m</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>Status <span class="ss">`~/ColleagueEnv/Manifest.toml`</span></span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] MacroTools v0<span class="fl">.5.9</span> <span class="ss">`https://github.com/FluxML/MacroTools.jl.git#master`</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">2</span>a0f44e3] <span class="bu">Base64</span></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  [d6f4376e] Markdown</span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9</span>a3f8284] <span class="bu">Random</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  [ea8e919c] <span class="bu">SHA</span> v0<span class="fl">.7.0</span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9e88</span>b42a] <span class="bu">Serialization</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(ColleagueEnv) pkg&gt; </span><span>instantiate
+</span><span class="sgr-bold sgr-fg-3">Precompiling</span><span> project...
+</span><span class="sgr-fg-3">  ✓ </span><span>MacroTools
+  1 dependency successfully precompiled in 1 seconds
+
+</span><span class="sgr-bold sgr-fg-5">(ColleagueEnv) pkg&gt; </span><span>st -m
+</span><span class="sgr-bold sgr-fg-3">Status</span><span> `~/ColleagueEnv/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span>MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#master`
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span>Base64
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span>Markdown
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span>Random
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span>SHA v0.7.0
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span>Serialization
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now we don’t get a warning anymore, our dependencies have been downloaded correctly. You will find <code>MacroTools</code> downloaded into the <code>.julia/packages</code> folder again.</p>
 </section>
 <section id="packages-and-environments" class="level2">
 <h2 class="anchored" data-anchor-id="packages-and-environments">Packages and environments</h2>
 <p>Packages and normal environments are pretty similar. Each package must have a <code>Project.toml</code> which specifies its name, UUID, version and dependencies. The easiest way to make a package to test this out, is to use the <code>generate</code> command of the Pkg REPL.</p>
-<p>Let’s first remove <code>MacroTools</code> from our main environment so it is empty:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> rm MacroTools</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Project.toml`</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] <span class="op">-</span> MacroTools v0<span class="fl">.5.9</span> <span class="ss">`https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Manifest.toml`</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] <span class="op">-</span> MacroTools v0<span class="fl">.5.9</span> <span class="ss">`https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span></span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">2</span>a0f44e3] <span class="op">-</span> <span class="bu">Base64</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  [d6f4376e] <span class="op">-</span> Markdown</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9</span>a3f8284] <span class="op">-</span> <span class="bu">Random</span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  [ea8e919c] <span class="op">-</span> <span class="bu">SHA</span> v0<span class="fl">.7.0</span></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9e88</span>b42a] <span class="op">-</span> <span class="bu">Serialization</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Let’s restart Julia and remove <code>MacroTools</code> from our main environment so it is empty:</p>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>rm MacroTools
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b2">- MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b2">- MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span><span>
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span class="sgr-fg-b2">- Base64</span><span>
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span class="sgr-fg-b2">- Markdown</span><span>
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span class="sgr-fg-b2">- Random</span><span>
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span class="sgr-fg-b2">- SHA v0.7.0</span><span>
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span class="sgr-fg-b2">- Serialization</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now, we generate a new package called <code>MyPackage</code>:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> generate MyPackage</span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  Generating  project MyPackage<span class="op">:</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    MyPackage<span class="op">/</span>Project.toml</span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    MyPackage<span class="op">/</span>src<span class="op">/</span>MyPackage.jl</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>generate MyPackage
+</span><span class="sgr-bold sgr-fg-3">  Generating</span><span>  project MyPackage:
+    MyPackage/Project.toml
+    MyPackage/src/MyPackage.jl
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>As you can see, a <code>Project.toml</code> file was generated in the <code>MyPackage</code> directory.</p>
 <p>Let’s have a look at this one:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"MyPackage"</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"ac28244f-b540-4f11-9028-3fbea21f5993"</span></span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Your Name &lt;your@email.com&gt;"</span><span class="op">]</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"MyPackage"</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"025f59cc-7e1c-467d-8f56-70157e1cbbbb"</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Your Name &lt;your@email.com&gt;"</span><span class="op">]</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The only difference from a basic package environment to a normal environment are those four fields. If we want to use <code>MacroTools</code> in our package, we can add it manually to a <code>deps</code> section in the <code>Project.toml</code>, or we use the Pkg REPL. For that, we first activate the package as an environment, then we add <code>MacroTools</code>.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> activate MyPackage<span class="op">/</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  Activating project at <span class="ss">`~/MyPackage`</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>(MyPackage) pkg<span class="op">&gt;</span> add MacroTools</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    Updating registry at <span class="ss">`~/.julia/registries/General.toml`</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>   Resolving package versions<span class="op">...</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>   Installed MacroTools ─ v0<span class="fl">.5.9</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/MyPackage/Project.toml`</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] <span class="op">+</span> MacroTools v0<span class="fl">.5.9</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/MyPackage/Manifest.toml`</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] <span class="op">+</span> MacroTools v0<span class="fl">.5.9</span></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">2</span>a0f44e3] <span class="op">+</span> <span class="bu">Base64</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>  [d6f4376e] <span class="op">+</span> Markdown</span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9</span>a3f8284] <span class="op">+</span> <span class="bu">Random</span></span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  [ea8e919c] <span class="op">+</span> <span class="bu">SHA</span> v0<span class="fl">.7.0</span></span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9e88</span>b42a] <span class="op">+</span> <span class="bu">Serialization</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>Precompiling project<span class="op">...</span></span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  <span class="fl">2</span> dependencies successfully precompiled <span class="kw">in</span> <span class="fl">2</span> seconds</span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>(MyPackage) pkg<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>activate MyPackage/
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/MyPackage`
+
+</span><span class="sgr-bold sgr-fg-5">(MyPackage) pkg&gt; </span><span>add MacroTools
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> registry at `~/.julia/registries/General.toml`
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">   Installed</span><span> MacroTools ─ v0.5.9
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/MyPackage/Project.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b3">+ MacroTools v0.5.9</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/MyPackage/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b3">+ MacroTools v0.5.9</span><span>
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span class="sgr-fg-b3">+ Base64</span><span>
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span class="sgr-fg-b3">+ Markdown</span><span>
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span class="sgr-fg-b3">+ Random</span><span>
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span class="sgr-fg-b3">+ SHA v0.7.0</span><span>
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span class="sgr-fg-b3">+ Serialization</span><span>
+</span><span class="sgr-bold sgr-fg-3">Precompiling</span><span> project...
+</span><span class="sgr-fg-3">  ✓ </span><span>MacroTools
+</span><span class="sgr-fg-3">  ✓ </span><span>MyPackage
+  2 dependencies successfully precompiled in 1 seconds
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The <code>Project.toml</code> now looks like this:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"MyPackage"</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"ac28244f-b540-4f11-9028-3fbea21f5993"</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Your Name &lt;your@email.com&gt;"</span><span class="op">]</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">deps</span><span class="kw">]</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"MyPackage"</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"025f59cc-7e1c-467d-8f56-70157e1cbbbb"</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Your Name &lt;your@email.com&gt;"</span><span class="op">]</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">deps</span><span class="kw">]</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>In the file <code>MyPackage/src/MyPackage.jl</code>, we can now import <code>MacroTools</code> and work with it. Let’s change the content of that file to:</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> MyPackage</span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="bu">MacroTools</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">test</span>()</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>    MacroTools.<span class="pp">@capture</span> <span class="op">:</span>(<span class="fl">1</span> <span class="op">+</span> <span class="fl">2</span>) x_ <span class="op">+</span> y_</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show</span> x</span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show</span> y</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> <span class="co"># module MyPackage</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> MyPackage</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> <span class="bu">MacroTools</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">test</span>()</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    MacroTools.<span class="pp">@capture</span> <span class="op">:</span>(<span class="fl">1</span> <span class="op">+</span> <span class="fl">2</span>) x_ <span class="op">+</span> y_</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show</span> x</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@show</span> y</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> <span class="co"># module MyPackage</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>We can now <code>import</code> or <code>using</code> our package and verify that <code>MacroTools</code> can be used by its source code:</p>
-<div class="sourceCode" id="cb26"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="im">using</span> <span class="bu">MyPackage</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>[ Info<span class="op">:</span> Precompiling MyPackage [ac28244f<span class="op">-</span>b540<span class="op">-</span><span class="fl">4f11</span><span class="op">-</span><span class="fl">9028</span><span class="op">-</span><span class="fl">3</span>fbea21f5993]</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> MyPackage.<span class="fu">test</span>()</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="fl">1</span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="fl">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>using MyPackage
+
+</span><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>MyPackage.test()
+x = 1
+y = 2
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>That worked!</p>
 <p>Let’s restart Julia now, which will bring us back to the main environment. Let’s try again to import our package:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="im">using</span> <span class="bu">MyPackage</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>ERROR<span class="op">:</span> <span class="dt">ArgumentError</span><span class="op">:</span> Package MyPackage not found <span class="kw">in</span> current path.</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Run <span class="ss">`import Pkg; Pkg.add("MyPackage")`</span> to install the MyPackage package.</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>Stacktrace<span class="op">:</span></span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a> [<span class="fl">1</span>] <span class="kw">macro</span> expansion</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>   @ <span class="op">./</span>loading.jl<span class="op">:</span><span class="fl">1163</span> [inlined]</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a> [<span class="fl">2</span>] <span class="kw">macro</span> expansion</span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>   @ <span class="op">./</span>lock.jl<span class="op">:</span><span class="fl">223</span> [inlined]</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a> [<span class="fl">3</span>] <span class="fu">require</span>(into<span class="op">::</span><span class="dt">Module</span>, mod<span class="op">::</span><span class="dt">Symbol</span>)</span>
-<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>   @ <span class="bu">Base</span> <span class="op">./</span>loading.jl<span class="op">:</span><span class="fl">1144</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>using MyPackage
+</span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>ArgumentError: Package MyPackage not found in current path.
+- Run `import Pkg; Pkg.add("MyPackage")` to install the MyPackage package.
+Stacktrace:
+ [1] </span><span class="sgr-bold">macro expansion</span><span>
+</span><span class="sgr-fg-b1">   @ ./loading.jl:1163 [inlined]</span><span>
+ [2] </span><span class="sgr-bold">macro expansion</span><span>
+</span><span class="sgr-fg-b1">   @ ./lock.jl:223 [inlined]</span><span>
+ [3] </span><span class="sgr-bold">require(</span><span class="sgr-fg-b1">into</span><span>::Module, </span><span class="sgr-fg-b1">mod</span><span>::Symbol</span><span class="sgr-bold">)</span><span>
+</span><span class="sgr-fg-b1">   @ Base</span><span> </span><span class="sgr-fg-b1">./loading.jl:1144</span><span>
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This doesn’t work, because our main environment doesn’t have <code>MyPackage</code> installed. You can use <code>MyPackage</code> as long as you have its own environment activated, but outside of that it is not visible.</p>
 <p>We can change that by using the <code>develop</code> or <code>dev</code> command of the Pkg REPL, which will install and track <code>MyPackage</code>:</p>
-<div class="sourceCode" id="cb28"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> dev <span class="op">./</span>MyPackage<span class="op">/</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>   Resolving package versions<span class="op">...</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Project.toml`</span></span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  [ac28244f] <span class="op">+</span> MyPackage v0<span class="fl">.1.0</span> <span class="ss">`../../../MyPackage`</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Manifest.toml`</span></span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">1914</span>dd2f] <span class="op">+</span> MacroTools v0<span class="fl">.5.9</span></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  [ac28244f] <span class="op">+</span> MyPackage v0<span class="fl">.1.0</span> <span class="ss">`../../../MyPackage`</span></span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">2</span>a0f44e3] <span class="op">+</span> <span class="bu">Base64</span></span>
-<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  [d6f4376e] <span class="op">+</span> Markdown</span>
-<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9</span>a3f8284] <span class="op">+</span> <span class="bu">Random</span></span>
-<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  [ea8e919c] <span class="op">+</span> <span class="bu">SHA</span> v0<span class="fl">.7.0</span></span>
-<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">9e88</span>b42a] <span class="op">+</span> <span class="bu">Serialization</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>dev ./MyPackage/
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [025f59cc] </span><span class="sgr-fg-b3">+ MyPackage v0.1.0 `../../../MyPackage`</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b3">+ MacroTools v0.5.9</span><span>
+ </span><span class="sgr-fg-b1"> [025f59cc] </span><span class="sgr-fg-b3">+ MyPackage v0.1.0 `../../../MyPackage`</span><span>
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span class="sgr-fg-b3">+ Base64</span><span>
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span class="sgr-fg-b3">+ Markdown</span><span>
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span class="sgr-fg-b3">+ Random</span><span>
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span class="sgr-fg-b3">+ SHA v0.7.0</span><span>
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span class="sgr-fg-b3">+ Serialization</span><span>
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Great, that worked. Now we can access <code>MyPackage</code> again:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="im">using</span> <span class="bu">MyPackage</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>[ Info<span class="op">:</span> Precompiling MyPackage [ac28244f<span class="op">-</span>b540<span class="op">-</span><span class="fl">4f11</span><span class="op">-</span><span class="fl">9028</span><span class="op">-</span><span class="fl">3</span>fbea21f5993]</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> MyPackage.<span class="fu">test</span>()</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="fl">1</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> <span class="fl">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>using MyPackage
+</span><span class="sgr-bold sgr-fg-7">[ Info: </span><span>Precompiling MyPackage [025f59cc-7e1c-467d-8f56-70157e1cbbbb]
+
+</span><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>MyPackage.test()
+x = 1
+y = 2
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Why would we want to do this, use a separate environment to access our package environment? It’s because we might want to use packages that should not be dependencies of <code>MyPackage</code> while developing it.</p>
 </section>
 <section id="compatibility-bounds" class="level2">
 <h2 class="anchored" data-anchor-id="compatibility-bounds">Compatibility bounds</h2>
 <p>Currently our package <code>MyPackage</code> does not specify the versions of <code>MacroTools</code> with which it is compatible. That is usually not a good idea, in fact, the general registry doesn’t allow packages to be registered if they don’t specify upper compatibility boundaries for each dependency. That makes sense because you don’t know if your package will be compatible with all future versions of your dependencies, so it makes sense to cap the compatibility to the point where you have tested everything works.</p>
 <p>Let’s pretend we tested our package only up to <code>MacroTools</code> version <code>0.5.8</code>. We can write this requirement into the <code>Project.toml</code> of <code>MyPackage</code>:</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"MyPackage"</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"ac28244f-b540-4f11-9028-3fbea21f5993"</span></span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Your Name &lt;your@email.com&gt;"</span><span class="op">]</span></span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">deps</span><span class="kw">]</span></span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">compat</span><span class="kw">]</span></span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"&lt;0.5.9"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"MyPackage"</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"025f59cc-7e1c-467d-8f56-70157e1cbbbb"</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Your Name &lt;your@email.com&gt;"</span><span class="op">]</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">deps</span><span class="kw">]</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">compat</span><span class="kw">]</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"&lt;0.5.9"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>But this change is not picked up automatically by the <code>@v1.8</code> environment. To recompute the dependency graph and throw away the old <code>Manifest.toml</code>, we can run <code>update</code> or <code>up</code>:</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> up</span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    Updating registry at <span class="ss">`~/.julia/registries/General.toml`</span></span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>   Installed MacroTools ─ v0<span class="fl">.5.8</span></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  No Changes to <span class="ss">`~/.julia/environments/v1.8/Project.toml`</span></span>
-<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Manifest.toml`</span></span>
-<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>⌃ [<span class="fl">1914</span>dd2f] <span class="op">↓</span> MacroTools v0<span class="fl">.5.9</span> <span class="op">⇒</span> v0<span class="fl">.5.8</span></span>
-<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>        Info Packages marked with ⌃ have <span class="kw">new</span> versions available</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>up
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> registry at `~/.julia/registries/General.toml`
+</span><span class="sgr-bold sgr-fg-3">   Installed</span><span> MacroTools ─ v0.5.8
+</span><span class="sgr-bold sgr-fg-3">  No Changes</span><span> to `~/.julia/environments/v1.8/Project.toml`
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+</span><span class="sgr-fg-3">⌃</span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b6">↓ MacroTools v0.5.9 ⇒ v0.5.8</span><span>
+</span><span class="sgr-bold sgr-fg-7">        Info</span><span> Packages marked with </span><span class="sgr-fg-3">⌃</span><span> have new versions available
+</span><span class="sgr-bold sgr-fg-3">Precompiling</span><span> project...
+</span><span class="sgr-fg-4">  ✓ </span><span class="sgr-fg-b1">MacroTools</span><span>
+</span><span class="sgr-fg-4">  ✓ </span><span>MyPackage
+  2 dependencies successfully precompiled in 2 seconds
+  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>As you can see, the MacroTools package was correctly downgraded to <code>v0.5.8</code>.</p>
 <p>What would happen if we now tried to install <code>v0.5.9</code> into the main environment?</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> add MacroTools@<span class="fl">0.5.9</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>   Resolving package versions<span class="op">...</span></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>ERROR<span class="op">:</span> Unsatisfiable requirements detected <span class="cf">for</span> package MacroTools [<span class="fl">1914</span>dd2f]<span class="op">:</span></span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a> MacroTools [<span class="fl">1914</span>dd2f] log<span class="op">:</span></span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a> ├─possible versions are<span class="op">:</span> <span class="fl">0.4.3</span><span class="op">-</span><span class="fl">0.5.9</span> or uninstalled</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a> ├─restricted to versions <span class="fl">0.0.0</span><span class="op">-</span><span class="fl">0.5.8</span> by MyPackage [ac28244f], leaving only versions <span class="fl">0.4.3</span><span class="op">-</span><span class="fl">0.5.8</span></span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a> │ └─MyPackage [ac28244f] log<span class="op">:</span></span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a> │   ├─possible versions are<span class="op">:</span> <span class="fl">0.1.0</span> or uninstalled</span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a> │   └─MyPackage [ac28244f] is fixed to version <span class="fl">0.1.0</span></span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a> └─restricted to versions <span class="fl">0.5.9</span> by an explicit requirement — no versions left</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>add MacroTools@0.5.9
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>Unsatisfiable requirements detected for package MacroTools [1914dd2f]:
+ MacroTools [1914dd2f] log:
+ ├─possible versions are: 0.4.3-0.5.9 or uninstalled
+ ├─restricted to versions 0.0.0-0.5.8 by MyPackage [025f59cc], leaving only versions 0.4.3-0.5.8
+ │ └─MyPackage [025f59cc] log:
+ │   ├─possible versions are: 0.1.0 or uninstalled
+ │   └─MyPackage [025f59cc] is fixed to version 0.1.0
+ └─restricted to versions 0.5.9 by an explicit requirement — no versions left
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>We get a version compatibility conflict. It is not possible to reconcile the requirement of adding <code>MacroTools</code> <code>0.5.9</code> with the fact that it is only allowed to reach up to <code>0.5.8</code> for <code>MyPackage</code>.</p>
 <p>Compatibility conflicts are the main reason why you should give each of your projects its own local environment instead of always using the global one. First of all, you’re more and more likely to end up with old versions or compatibility clashes, the more packages you install. Second, if you inadvertently update your main environment for project B, but later go back to project A, it could very well be that the new package versions are now incompatible with the code you wrote for A at the time. You don’t want to tangle all your projects up together, so just make separate environments for each.</p>
 </section>
 <section id="stacked-environments" class="level2">
 <h2 class="anchored" data-anchor-id="stacked-environments">Stacked environments</h2>
 <p>There’s another behavior of environments that is potentially very confusing for beginners, and it’s called “stacked environments”. Let’s restart Julia again, and add the package <code>Infiltrator</code> to the main environment:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> add Infiltrator</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>    Updating registry at <span class="ss">`~/.julia/registries/General.toml`</span></span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>   Resolving package versions<span class="op">...</span></span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>   Installed Infiltrator ─ v1<span class="fl">.6.1</span></span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Project.toml`</span></span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">5903</span>a43b] <span class="op">+</span> Infiltrator v1<span class="fl">.6.1</span></span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    Updating <span class="ss">`~/.julia/environments/v1.8/Manifest.toml`</span></span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">5903</span>a43b] <span class="op">+</span> Infiltrator v1<span class="fl">.6.1</span></span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  [b77e0a4c] <span class="op">+</span> <span class="bu">InteractiveUtils</span></span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">3</span>fa0cd96] <span class="op">+</span> <span class="bu">REPL</span></span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">6462</span>fe0b] <span class="op">+</span> <span class="bu">Sockets</span></span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>  [cf7118a7] <span class="op">+</span> <span class="bu">UUIDs</span></span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>  [<span class="fl">4</span>ec0a83e] <span class="op">+</span> <span class="bu">Unicode</span></span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>Precompiling project<span class="op">...</span></span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>  <span class="fl">1</span> dependency successfully precompiled <span class="kw">in</span> <span class="fl">1</span> seconds. <span class="fl">2</span> already precompiled.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>add Infiltrator
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> registry at `~/.julia/registries/General.toml`
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [5903a43b] </span><span class="sgr-fg-b3">+ Infiltrator v1.6.1</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [5903a43b] </span><span class="sgr-fg-b3">+ Infiltrator v1.6.1</span><span>
+ </span><span class="sgr-fg-b1"> [b77e0a4c] </span><span class="sgr-fg-b3">+ InteractiveUtils</span><span>
+ </span><span class="sgr-fg-b1"> [3fa0cd96] </span><span class="sgr-fg-b3">+ REPL</span><span>
+ </span><span class="sgr-fg-b1"> [6462fe0b] </span><span class="sgr-fg-b3">+ Sockets</span><span>
+ </span><span class="sgr-fg-b1"> [cf7118a7] </span><span class="sgr-fg-b3">+ UUIDs</span><span>
+ </span><span class="sgr-fg-b1"> [4ec0a83e] </span><span class="sgr-fg-b3">+ Unicode</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Now we activate the environment of <code>MyPackage</code>:</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> activate MyPackage</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  Activating project at <span class="ss">`~/MyPackage`</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;</span>span class<span class="op">=</span><span class="st">"sgr-bold sgr-fg-5"</span><span class="fu">&gt;</span>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> <span class="op">&lt;/</span>span<span class="op">&gt;&lt;</span>span<span class="op">&gt;</span>activate MyPackage</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;/</span>span<span class="op">&gt;&lt;</span>span class<span class="op">=</span><span class="st">"sgr-bold sgr-fg-3"</span><span class="op">&gt;</span>  Activating<span class="op">&lt;/</span>span<span class="op">&gt;&lt;</span>span<span class="op">&gt;</span> project at <span class="ss">`~/MyPackage`</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="op">&lt;/</span>span<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Let’s see what happens if we load <code>Infiltrator</code>:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="im">using</span> <span class="bu">Infiltrator</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>using Infiltrator</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>It worked. But why? <code>Infiltrator</code> is not available in <code>MyPackage</code>’s Project.toml.</p>
 <p>The reason is that Julia can import packages from multiple environments at the same time. This depends on the <code>LOAD_PATH</code> global variable. Let’s have a look:</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="cn">LOAD_PATH</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fl">3</span><span class="op">-</span>element <span class="dt">Vector</span>{<span class="dt">String</span>}<span class="op">:</span></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a> <span class="st">"@"</span></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a> <span class="st">"@v#.#"</span></span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a> <span class="st">"@stdlib"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>LOAD_PATH
+3-element Vector{String}:
+ "@"
+ "@v#.#"
+ "@stdlib"
+</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The first entry, <code>"@"</code>, means “active environment”, so the first place where Julia looked for Infiltrator was in <code>MyPackage</code>’s environment, where it didn’t find it.</p>
 <p>The second entry, <code>"@v#.#"</code> means “the shared environment of this Julia version”, in our case this is <code>@v1.8</code>. That’s why I kept calling this the “main” environment, not only because it’s the default one, but also because it’s always available by default due to the <code>LOAD_PATH</code> configuration. This is where Julia found <code>Infiltrator</code> and loaded it.</p>
 <p>The third entry, <code>"@stdlib"</code>, refers to the list of standard libraries that belongs to the current Julia version. This is the reason why we can do <code>using Statistics</code> or <code>using REPL</code> in a new Julia session, even if our main environment is empty.</p>
@@ -717,31 +740,33 @@ Random-&gt;Serialization
 <p>The best practice for stacked environments is to use the main environment sparingly. <code>Infiltrator</code> is a good example for a package to install there, because it’s a debugging package and basically never needed as a dependency for another package. On the other hand it’s very useful to have available without further work when developing. Another example is <code>Revise</code>.</p>
 <p>If you really want to make sure that only the packages from your currently activated project are accessible, you can remove other entries from the load path.</p>
 <p>To demonstrate this, if we empty the load path we can’t load any package at all, neither <code>Infiltrator</code> from <code>@v1.8</code>, nor <code>MyPackage</code> from our active environment, nor the standard library <code>Statistics</code>:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="fu">empty!</span>(<span class="cn">LOAD_PATH</span>)</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="dt">String</span>[]</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="im">using</span> <span class="bu">Infiltrator</span></span>
-<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a> │ Package Infiltrator not found, but a package named Infiltrator is available from a registry.</span>
-<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a> │ Install package?</span>
-<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a> │   (MyPackage) pkg<span class="op">&gt;</span> add Infiltrator</span>
-<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a> └ (y<span class="op">/</span>n<span class="op">/</span>o) [y]<span class="op">:</span> n</span>
-<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>ERROR<span class="op">:</span> <span class="dt">ArgumentError</span><span class="op">:</span> Package Infiltrator not found <span class="kw">in</span> current path, maybe you meant <span class="ss">`import/using .Infiltrator`</span>.</span>
-<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="im">using</span> <span class="bu">MyPackage</span></span>
-<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a>ERROR<span class="op">:</span> <span class="dt">ArgumentError</span><span class="op">:</span> Package MyPackage not found <span class="kw">in</span> current path.</span>
-<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Run <span class="ss">`import Pkg; Pkg.add("MyPackage")`</span> to install the MyPackage package.</span>
-<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="im">using</span> <span class="bu">Statistics</span></span>
-<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>ERROR<span class="op">:</span> <span class="dt">ArgumentError</span><span class="op">:</span> Package <span class="bu">Statistics</span> not found <span class="kw">in</span> current path.</span>
-<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a><span class="op">-</span> Run <span class="ss">`import Pkg; Pkg.add("Statistics")`</span> to install the <span class="bu">Statistics</span> package.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>empty!(LOAD_PATH)
+String[]
+
+</span><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>using Infiltrator
+</span><span class="sgr-fg-3"> │ </span><span>Package Infiltrator not found, but a package named Infiltrator is available
+</span><span class="sgr-fg-3"> │ </span><span>from a registry. 
+</span><span class="sgr-fg-3"> │ </span><span>Install package?
+</span><span class="sgr-fg-3"> │   </span><span class="sgr-fg-5">(MyPackage) pkg&gt; </span><span>add Infiltrator 
+</span><span class="sgr-fg-3"> └ </span><span>(y/n/o) [y]: </span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>ArgumentError: Package Infiltrator not found in current path, maybe you meant `import/using .Infiltrator`.
+- Otherwise, run `import Pkg; Pkg.add("Infiltrator")` to install the Infiltrator package.
+
+<span class="sgr-bold sgr-fg-3">julia&gt; </span><span>using MyPackage
+</span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>ArgumentError: Package MyPackage not found in current path.
+- Run `import Pkg; Pkg.add("MyPackage")` to install the MyPackage package.
+
+<span class="sgr-bold sgr-fg-3">julia&gt; </span><span>using Statistics
+</span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>ArgumentError: Package Statistics not found in current path.
+- Run `import Pkg; Pkg.add("Statistics")` to install the Statistics package.
+</span></span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
 <section id="temporary-environments" class="level2">
 <h2 class="anchored" data-anchor-id="temporary-environments">Temporary environments</h2>
 <p>One thing that’s useful for quick tests are temporary environments. If you read about a new package and quickly want to try it, but don’t want to mess with your main environment or clutter your working directory with environment files, you can use <code>activate --temp</code>:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>(<span class="pp">@v1</span><span class="fl">.8</span>) pkg<span class="op">&gt;</span> activate <span class="op">--</span>temp</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  Activating <span class="kw">new</span> project at <span class="ss">`/var/folders/z5/r5q6djwn5g10k3w279bn37700000gn/T/jl_LM4bTG`</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>(jl_LM4bTG) pkg<span class="op">&gt;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(v1.8) pkg&gt; </span><span>activate --temp
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> new project at `/var/folders/z5/r5q6djwn5g10k3w279bn37700000gn/T/jl_e4klnB`
+
+</span><span class="sgr-bold sgr-fg-5">(jl_e4klnB) pkg&gt; </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This environment will only exist until the Julia process exits, so it’s perfect to run something once and then forget about it.</p>
 </section>
 <section id="conclusion" class="level2">

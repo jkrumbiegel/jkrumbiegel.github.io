@@ -1,1 +1,117 @@
-/* css styles */
+.ansiterminal {
+    padding: 0.8em 1em;
+    line-height: initial;
+}
+.ansiterminal pre:first-child {
+    padding-top: 2.2em;
+}
+
+.ansiterminal code {
+    padding: 0;
+}
+
+.ansiterminal pre {
+    padding: 0;
+}
+
+.ansiterminal::before {
+    content: '';
+    position: absolute;
+    height: 0.8em;
+    width: 0.8em;
+    margin: 0;
+    -moz-border-radius: 100%;
+    -webkit-border-radius: 100%;
+    border-radius: 100%;
+    background: #e34646;
+    -moz-box-shadow: 1.4em 0em #ccc, 2.8em 0em #ccc;
+    -webkit-box-shadow: 1.4em 0em #ccc, 2.8em 0em #ccc;
+    box-shadow: 1.4em 0em #f2ba50, 2.8em 0em #47cf73;
+}
+
+  .sgr-bold {
+    font-weight: bold;
+  }
+
+  .sgr-underline {
+    text-decoration: underline;
+  }
+
+  .sgr-faint {
+    font-weight: lighter;
+  }
+
+  .sgr-fg-9 {
+    color: #777;
+  }
+
+  .sgr-fg-1 {
+    color: #53c653;
+  }
+
+  .sgr-fg-2 {
+    color: #f58080;
+  }
+
+  .sgr-fg-3 {
+    color: #53c653;
+  }
+
+  .sgr-fg-4 {
+    color: #df9816;
+  }
+
+  .sgr-fg-5 {
+    color: #7897e1;
+  }
+
+  .sgr-fg-6 {
+    color: #df57e9;
+  }
+
+  .sgr-fg-7 {
+    color: #2766bf;
+  }
+
+  .sgr-fg-8 {
+    color: #df9816;
+  }
+
+  .sgr-fg-b1 {
+    color: #999;
+  }
+
+  .sgr-fg-b2 {
+    color: rgb(238, 72, 72);
+  }
+  .sgr-fg-b3 {
+    color: #6bb36b;
+  }
+  .sgr-fg-b6 {
+    color: #d568d9;
+  }
+
+  .sgr-bg-40 {
+    background-color: tomato;
+  }
+  .sgr-bg-41 {
+    background-color: tomato;
+  }
+  .sgr-bg-42 {
+    background-color: tomato;
+  }
+  .sgr-bg-43 {
+    background-color: tomato;
+  }
+  .sgr-bg-44 {
+    background-color: tomato;
+  }
+  .sgr-bg-45 {
+    background-color: tomato;
+  }
+  .sgr-bg-46 {
+    background-color: tomato;
+  }
+  .sgr-bg-47 {
+    background-color: tomato;
+  }
