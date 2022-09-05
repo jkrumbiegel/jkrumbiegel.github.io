@@ -15,15 +15,16 @@ When you install Julia for the first time, there are no environments.
 Let's say you installed Julia 1.8.
 When you start the REPL with the `julia` command, you will see the standard prompt
 
-```julia
-julia>
+
+```terminal
+<span class="sgr-bold sgr-fg-3">julia> </span>
 ```
 
 From there, you get to the Pkg.jl REPL mode by typing `]`.
 The prompt will change to indicate this, by showing the name of the active environment:
 
-```julia
-(@v1.8) pkg>
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span>
 ```
 
 But wait, didn't I just say there are no environments, yet?
@@ -42,11 +43,11 @@ Activate a new environment by typing `(@v1.8) pkg> activate MyEnvironment`.
 You won't see any new files being created in your working directory, as I said this only happens once you manipulate an environment.
 But the prompt will have changed:
 
-```julia
-(@v1.8) pkg> activate MyEnvironment
-  Activating new project at `~/MyEnvironment`
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>activate MyEnvironment
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> new project at `~/MyEnvironment`
 
-(MyEnvironment) pkg>
+</span><span class="sgr-bold sgr-fg-5">(MyEnvironment) pkg> </span>
 ```
 
 Let's switch back to the "main" environment `@v1.8` for now.
@@ -56,22 +57,22 @@ For all other environments, you can activate them by name if you are in the dire
 
 So we activate `@v1.8` again by typing:
 
-```julia
-(MyEnvironment) pkg> activate @v1.8
-  Activating new project at `~/.julia/environments/v1.8`
+```terminal
+</span><span class="sgr-bold sgr-fg-5">(MyEnvironment) pkg> </span><span>activate @v1.8
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/.julia/environments/v1.8`
 
-(@v1.8) pkg>
+</span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg> 
 ```
 
 As you see, Pkg told us we were activating a new project (another word for environment), because as we saw before, no files did actually exist, yet.
 
 There's another shortcut to activate the main environment, which is `activate` without an argument:
 
-```julia
-(@v1.8) pkg> activate
-  Activating new project at `~/.julia/environments/v1.8`
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>activate
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/.julia/environments/v1.8`
 
-(@v1.8) pkg>
+</span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg> 
 ```
 
 ## Adding a package
@@ -80,25 +81,26 @@ Let's add our first package to our shared `@v1.8` environment.
 For this, we use the `add` command.
 I choose the `MacroTools` package because it has few dependencies.
 
-```julia
-(@v1.8) pkg> add MacroTools
-    Updating registry at `~/.julia/registries/General.toml`
-   Resolving package versions...
-    Updating `~/.julia/environments/v1.8/Project.toml`
-  [1914dd2f] + MacroTools v0.5.9
-    Updating `~/.julia/environments/v1.8/Manifest.toml`
-  [1914dd2f] + MacroTools v0.5.9
-  [2a0f44e3] + Base64
-  [d6f4376e] + Markdown
-  [9a3f8284] + Random
-  [ea8e919c] + SHA v0.7.0
-  [9e88b42a] + Serialization
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>add MacroTools
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> registry at `~/.julia/registries/General.toml`
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b3">+ MacroTools v0.5.9</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b3">+ MacroTools v0.5.9</span><span>
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span class="sgr-fg-b3">+ Base64</span><span>
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span class="sgr-fg-b3">+ Markdown</span><span>
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span class="sgr-fg-b3">+ Random</span><span>
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span class="sgr-fg-b3">+ SHA v0.7.0</span><span>
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span class="sgr-fg-b3">+ Serialization</span><span>
+</span>
 ```
 
 As you probably know, after doing this, the `MacroTools` code has been downloaded onto your system and you can use it in your own code:
 
-```julia
-julia> using MacroTools
+```terminal
+<span class="sgr-bold sgr-fg-3">julia> </span><span>using MacroTools
 ```
 
 So what actually happened when we ran the `add` command?
@@ -197,23 +199,24 @@ But as you can see, even standard libraries can depend on other, even, external 
 You can check the versions of libraries in your `Project.toml` and `Manifest.toml` with the `status` or `st` command.
 With the `-m` flag you can see the `Manifest.toml` entries, which can be important for checking which dependencies were resolved.
 
-```julia
-(@v1.8) pkg> st
-Status `~/.julia/environments/v1.8/Project.toml`
-  [1914dd2f] MacroTools v0.5.9
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>st
+</span><span class="sgr-bold sgr-fg-3">Status</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span>MacroTools v0.5.9
 
-(@v1.8) pkg> st -m
-Status `~/.julia/environments/v1.8/Manifest.toml`
-  [1914dd2f] MacroTools v0.5.9
-  [2a0f44e3] Base64
-  [d6f4376e] Markdown
-  [9a3f8284] Random
-  [ea8e919c] SHA v0.7.0
-  [9e88b42a] Serialization
+</span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>st -m
+</span><span class="sgr-bold sgr-fg-3">Status</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span>MacroTools v0.5.9
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span>Base64
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span>Markdown
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span>Random
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span>SHA v0.7.0
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span>Serialization
 
-(@v1.8) pkg> st -m SHA
-Status `~/.julia/environments/v1.8/Manifest.toml`
-  [ea8e919c] SHA v0.7.0
+</span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>st -m SHA
+</span><span class="sgr-bold sgr-fg-3">Status</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span>SHA v0.7.0
+</span>
 ```
 
 ## Version numbers
@@ -236,56 +239,57 @@ Let's try this out with `MacroTools`.
 
 We can install the version `v0.5.1` by using the `@` syntax:
 
-```julia
-(@v1.8) pkg> add MacroTools@0.5.1
-   Resolving package versions...
-    Updating `~/.julia/environments/v1.8/Project.toml`
-⌃ [1914dd2f] ↓ MacroTools v0.5.9 ⇒ v0.5.1
-    Updating `~/.julia/environments/v1.8/Manifest.toml`
-⌅ [00ebfdb7] + CSTParser v2.5.0
-⌅ [34da2185] + Compat v2.2.1
-⌅ [864edb3b] + DataStructures v0.17.20
-⌃ [1914dd2f] ↓ MacroTools v0.5.9 ⇒ v0.5.1
-  [bac558e1] + OrderedCollections v1.4.1
-  [0796e94c] + Tokenize v0.5.24
-  [0dad84c5] + ArgTools v1.1.1
-  [56f22d72] + Artifacts
-  [ade2ca70] + Dates
-  [8bb1440f] + DelimitedFiles
-  [8ba89e20] + Distributed
-  [f43a241f] + Downloads v1.6.0
-  [7b1f6079] + FileWatching
-  [b77e0a4c] + InteractiveUtils
-  [b27032c2] + LibCURL v0.6.3
-  [76f85450] + LibGit2
-  [8f399da3] + Libdl
-  [37e2e46d] + LinearAlgebra
-  [56ddb016] + Logging
-  [a63ad114] + Mmap
-  [ca575930] + NetworkOptions v1.2.0
-  [44cfe95a] + Pkg v1.8.0
-  [de0858da] + Printf
-  [3fa0cd96] + REPL
-  [1a1011a3] + SharedArrays
-  [6462fe0b] + Sockets
-  [2f01184e] + SparseArrays
-  [10745b16] + Statistics
-  [fa267f1f] + TOML v1.0.0
-  [a4e569a6] + Tar v1.10.0
-  [8dfed614] + Test
-  [cf7118a7] + UUIDs
-  [4ec0a83e] + Unicode
-  [e66e0078] + CompilerSupportLibraries_jll v0.5.2+0
-  [deac9b47] + LibCURL_jll v7.83.1+1
-  [29816b5a] + LibSSH2_jll v1.10.2+0
-  [c8ffd9c3] + MbedTLS_jll v2.28.0+0
-  [14a3606d] + MozillaCACerts_jll v2022.2.1
-  [4536629a] + OpenBLAS_jll v0.3.20+0
-  [83775a58] + Zlib_jll v1.2.12+3
-  [8e850b90] + libblastrampoline_jll v5.1.1+0
-  [8e850ede] + nghttp2_jll v1.47.0+0
-  [3f19e933] + p7zip_jll v17.4.0+0
-        Info Packages marked with ⌃ and ⌅ have new versions available, but those with ⌅ cannot be upgraded. To see why use `status --outdated -m`
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>add MacroTools@0.5.1
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+</span><span class="sgr-fg-3">⌃</span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b6">↓ MacroTools v0.5.9 ⇒ v0.5.1</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+</span><span class="sgr-fg-4">⌅</span><span class="sgr-fg-b1"> [00ebfdb7] </span><span class="sgr-fg-b3">+ CSTParser v2.5.0</span><span>
+</span><span class="sgr-fg-4">⌅</span><span class="sgr-fg-b1"> [34da2185] </span><span class="sgr-fg-b3">+ Compat v2.2.1</span><span>
+</span><span class="sgr-fg-4">⌅</span><span class="sgr-fg-b1"> [864edb3b] </span><span class="sgr-fg-b3">+ DataStructures v0.17.20</span><span>
+</span><span class="sgr-fg-3">⌃</span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b6">↓ MacroTools v0.5.9 ⇒ v0.5.1</span><span>
+ </span><span class="sgr-fg-b1"> [bac558e1] </span><span class="sgr-fg-b3">+ OrderedCollections v1.4.1</span><span>
+ </span><span class="sgr-fg-b1"> [0796e94c] </span><span class="sgr-fg-b3">+ Tokenize v0.5.24</span><span>
+ </span><span class="sgr-fg-b1"> [0dad84c5] </span><span class="sgr-fg-b3">+ ArgTools v1.1.1</span><span>
+ </span><span class="sgr-fg-b1"> [56f22d72] </span><span class="sgr-fg-b3">+ Artifacts</span><span>
+ </span><span class="sgr-fg-b1"> [ade2ca70] </span><span class="sgr-fg-b3">+ Dates</span><span>
+ </span><span class="sgr-fg-b1"> [8bb1440f] </span><span class="sgr-fg-b3">+ DelimitedFiles</span><span>
+ </span><span class="sgr-fg-b1"> [8ba89e20] </span><span class="sgr-fg-b3">+ Distributed</span><span>
+ </span><span class="sgr-fg-b1"> [f43a241f] </span><span class="sgr-fg-b3">+ Downloads v1.6.0</span><span>
+ </span><span class="sgr-fg-b1"> [7b1f6079] </span><span class="sgr-fg-b3">+ FileWatching</span><span>
+ </span><span class="sgr-fg-b1"> [b77e0a4c] </span><span class="sgr-fg-b3">+ InteractiveUtils</span><span>
+ </span><span class="sgr-fg-b1"> [b27032c2] </span><span class="sgr-fg-b3">+ LibCURL v0.6.3</span><span>
+ </span><span class="sgr-fg-b1"> [76f85450] </span><span class="sgr-fg-b3">+ LibGit2</span><span>
+ </span><span class="sgr-fg-b1"> [8f399da3] </span><span class="sgr-fg-b3">+ Libdl</span><span>
+ </span><span class="sgr-fg-b1"> [37e2e46d] </span><span class="sgr-fg-b3">+ LinearAlgebra</span><span>
+ </span><span class="sgr-fg-b1"> [56ddb016] </span><span class="sgr-fg-b3">+ Logging</span><span>
+ </span><span class="sgr-fg-b1"> [a63ad114] </span><span class="sgr-fg-b3">+ Mmap</span><span>
+ </span><span class="sgr-fg-b1"> [ca575930] </span><span class="sgr-fg-b3">+ NetworkOptions v1.2.0</span><span>
+ </span><span class="sgr-fg-b1"> [44cfe95a] </span><span class="sgr-fg-b3">+ Pkg v1.8.0</span><span>
+ </span><span class="sgr-fg-b1"> [de0858da] </span><span class="sgr-fg-b3">+ Printf</span><span>
+ </span><span class="sgr-fg-b1"> [3fa0cd96] </span><span class="sgr-fg-b3">+ REPL</span><span>
+ </span><span class="sgr-fg-b1"> [1a1011a3] </span><span class="sgr-fg-b3">+ SharedArrays</span><span>
+ </span><span class="sgr-fg-b1"> [6462fe0b] </span><span class="sgr-fg-b3">+ Sockets</span><span>
+ </span><span class="sgr-fg-b1"> [2f01184e] </span><span class="sgr-fg-b3">+ SparseArrays</span><span>
+ </span><span class="sgr-fg-b1"> [10745b16] </span><span class="sgr-fg-b3">+ Statistics</span><span>
+ </span><span class="sgr-fg-b1"> [fa267f1f] </span><span class="sgr-fg-b3">+ TOML v1.0.0</span><span>
+ </span><span class="sgr-fg-b1"> [a4e569a6] </span><span class="sgr-fg-b3">+ Tar v1.10.0</span><span>
+ </span><span class="sgr-fg-b1"> [8dfed614] </span><span class="sgr-fg-b3">+ Test</span><span>
+ </span><span class="sgr-fg-b1"> [cf7118a7] </span><span class="sgr-fg-b3">+ UUIDs</span><span>
+ </span><span class="sgr-fg-b1"> [4ec0a83e] </span><span class="sgr-fg-b3">+ Unicode</span><span>
+ </span><span class="sgr-fg-b1"> [e66e0078] </span><span class="sgr-fg-b3">+ CompilerSupportLibraries_jll v0.5.2+0</span><span>
+ </span><span class="sgr-fg-b1"> [deac9b47] </span><span class="sgr-fg-b3">+ LibCURL_jll v7.83.1+1</span><span>
+ </span><span class="sgr-fg-b1"> [29816b5a] </span><span class="sgr-fg-b3">+ LibSSH2_jll v1.10.2+0</span><span>
+ </span><span class="sgr-fg-b1"> [c8ffd9c3] </span><span class="sgr-fg-b3">+ MbedTLS_jll v2.28.0+0</span><span>
+ </span><span class="sgr-fg-b1"> [14a3606d] </span><span class="sgr-fg-b3">+ MozillaCACerts_jll v2022.2.1</span><span>
+ </span><span class="sgr-fg-b1"> [4536629a] </span><span class="sgr-fg-b3">+ OpenBLAS_jll v0.3.20+0</span><span>
+ </span><span class="sgr-fg-b1"> [83775a58] </span><span class="sgr-fg-b3">+ Zlib_jll v1.2.12+3</span><span>
+ </span><span class="sgr-fg-b1"> [8e850b90] </span><span class="sgr-fg-b3">+ libblastrampoline_jll v5.1.1+0</span><span>
+ </span><span class="sgr-fg-b1"> [8e850ede] </span><span class="sgr-fg-b3">+ nghttp2_jll v1.47.0+0</span><span>
+ </span><span class="sgr-fg-b1"> [3f19e933] </span><span class="sgr-fg-b3">+ p7zip_jll v17.4.0+0</span><span>
+</span><span class="sgr-bold sgr-fg-7">        Info</span><span> Packages marked with </span><span class="sgr-fg-3">⌃</span><span> and </span><span class="sgr-fg-4">⌅</span><span> have new versions available, but those with </span><span class="sgr-fg-4">⌅</span><span> cannot be upgraded. To see why use `status --outdated -m`
+</span>
 ```
 
 You can see that we got a ton of new dependencies.
@@ -309,61 +313,55 @@ The version requirement was just enforced during this one dependency resolution,
 Let's try one other syntax, which is the one for choosing a specific commit or branch from a repository.
 In this case, we use the commit `639d1a6`, but we could also use something like `master` to fetch the latest commit on that branch.
 
-```julia
-(@v1.8) pkg> add MacroTools#639d1a6
-     Cloning git-repo `https://github.com/FluxML/MacroTools.jl.git`
-    Updating git-repo `https://github.com/FluxML/MacroTools.jl.git`
-   Resolving package versions...
-    Updating `~/.julia/environments/v1.8/Project.toml`
-  [1914dd2f] ~ MacroTools v0.5.1 ⇒ v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`
-    Updating `~/.julia/environments/v1.8/Manifest.toml`
-  [00ebfdb7] - CSTParser v2.5.0
-  [34da2185] - Compat v2.2.1
-  [864edb3b] - DataStructures v0.17.20
-  [1914dd2f] ~ MacroTools v0.5.1 ⇒ v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`
-  [bac558e1] - OrderedCollections v1.4.1
-  [0796e94c] - Tokenize v0.5.24
-  [0dad84c5] - ArgTools v1.1.1
-  [56f22d72] - Artifacts
-  [ade2ca70] - Dates
-  [8bb1440f] - DelimitedFiles
-  [8ba89e20] - Distributed
-  [f43a241f] - Downloads v1.6.0
-  [7b1f6079] - FileWatching
-  [b77e0a4c] - InteractiveUtils
-  [b27032c2] - LibCURL v0.6.3
-  [76f85450] - LibGit2
-  [8f399da3] - Libdl
-  [37e2e46d] - LinearAlgebra
-  [56ddb016] - Logging
-  [a63ad114] - Mmap
-  [ca575930] - NetworkOptions v1.2.0
-  [44cfe95a] - Pkg v1.8.0
-  [de0858da] - Printf
-  [3fa0cd96] - REPL
-  [1a1011a3] - SharedArrays
-  [6462fe0b] - Sockets
-  [2f01184e] - SparseArrays
-  [10745b16] - Statistics
-  [fa267f1f] - TOML v1.0.0
-  [a4e569a6] - Tar v1.10.0
-  [8dfed614] - Test
-  [cf7118a7] - UUIDs
-  [4ec0a83e] - Unicode
-  [e66e0078] - CompilerSupportLibraries_jll v0.5.2+0
-  [deac9b47] - LibCURL_jll v7.83.1+1
-  [29816b5a] - LibSSH2_jll v1.10.2+0
-  [c8ffd9c3] - MbedTLS_jll v2.28.0+0
-  [14a3606d] - MozillaCACerts_jll v2022.2.1
-  [4536629a] - OpenBLAS_jll v0.3.20+0
-  [83775a58] - Zlib_jll v1.2.12+3
-  [8e850b90] - libblastrampoline_jll v5.1.1+0
-  [8e850ede] - nghttp2_jll v1.47.0+0
-  [3f19e933] - p7zip_jll v17.4.0+0
-Precompiling project...
-  ✓ MacroTools
-  1 dependency successfully precompiled in 1 seconds
-  1 dependency precompiled but a different version is currently loaded. Restart julia to access the new version
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>add MacroTools#639d1a6
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b4">~ MacroTools v0.5.1 ⇒ v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [00ebfdb7] </span><span class="sgr-fg-b2">- CSTParser v2.5.0</span><span>
+ </span><span class="sgr-fg-b1"> [34da2185] </span><span class="sgr-fg-b2">- Compat v2.2.1</span><span>
+ </span><span class="sgr-fg-b1"> [864edb3b] </span><span class="sgr-fg-b2">- DataStructures v0.17.20</span><span>
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b4">~ MacroTools v0.5.1 ⇒ v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span><span>
+ </span><span class="sgr-fg-b1"> [bac558e1] </span><span class="sgr-fg-b2">- OrderedCollections v1.4.1</span><span>
+ </span><span class="sgr-fg-b1"> [0796e94c] </span><span class="sgr-fg-b2">- Tokenize v0.5.24</span><span>
+ </span><span class="sgr-fg-b1"> [0dad84c5] </span><span class="sgr-fg-b2">- ArgTools v1.1.1</span><span>
+ </span><span class="sgr-fg-b1"> [56f22d72] </span><span class="sgr-fg-b2">- Artifacts</span><span>
+ </span><span class="sgr-fg-b1"> [ade2ca70] </span><span class="sgr-fg-b2">- Dates</span><span>
+ </span><span class="sgr-fg-b1"> [8bb1440f] </span><span class="sgr-fg-b2">- DelimitedFiles</span><span>
+ </span><span class="sgr-fg-b1"> [8ba89e20] </span><span class="sgr-fg-b2">- Distributed</span><span>
+ </span><span class="sgr-fg-b1"> [f43a241f] </span><span class="sgr-fg-b2">- Downloads v1.6.0</span><span>
+ </span><span class="sgr-fg-b1"> [7b1f6079] </span><span class="sgr-fg-b2">- FileWatching</span><span>
+ </span><span class="sgr-fg-b1"> [b77e0a4c] </span><span class="sgr-fg-b2">- InteractiveUtils</span><span>
+ </span><span class="sgr-fg-b1"> [b27032c2] </span><span class="sgr-fg-b2">- LibCURL v0.6.3</span><span>
+ </span><span class="sgr-fg-b1"> [76f85450] </span><span class="sgr-fg-b2">- LibGit2</span><span>
+ </span><span class="sgr-fg-b1"> [8f399da3] </span><span class="sgr-fg-b2">- Libdl</span><span>
+ </span><span class="sgr-fg-b1"> [37e2e46d] </span><span class="sgr-fg-b2">- LinearAlgebra</span><span>
+ </span><span class="sgr-fg-b1"> [56ddb016] </span><span class="sgr-fg-b2">- Logging</span><span>
+ </span><span class="sgr-fg-b1"> [a63ad114] </span><span class="sgr-fg-b2">- Mmap</span><span>
+ </span><span class="sgr-fg-b1"> [ca575930] </span><span class="sgr-fg-b2">- NetworkOptions v1.2.0</span><span>
+ </span><span class="sgr-fg-b1"> [44cfe95a] </span><span class="sgr-fg-b2">- Pkg v1.8.0</span><span>
+ </span><span class="sgr-fg-b1"> [de0858da] </span><span class="sgr-fg-b2">- Printf</span><span>
+ </span><span class="sgr-fg-b1"> [3fa0cd96] </span><span class="sgr-fg-b2">- REPL</span><span>
+ </span><span class="sgr-fg-b1"> [1a1011a3] </span><span class="sgr-fg-b2">- SharedArrays</span><span>
+ </span><span class="sgr-fg-b1"> [6462fe0b] </span><span class="sgr-fg-b2">- Sockets</span><span>
+ </span><span class="sgr-fg-b1"> [2f01184e] </span><span class="sgr-fg-b2">- SparseArrays</span><span>
+ </span><span class="sgr-fg-b1"> [10745b16] </span><span class="sgr-fg-b2">- Statistics</span><span>
+ </span><span class="sgr-fg-b1"> [fa267f1f] </span><span class="sgr-fg-b2">- TOML v1.0.0</span><span>
+ </span><span class="sgr-fg-b1"> [a4e569a6] </span><span class="sgr-fg-b2">- Tar v1.10.0</span><span>
+ </span><span class="sgr-fg-b1"> [8dfed614] </span><span class="sgr-fg-b2">- Test</span><span>
+ </span><span class="sgr-fg-b1"> [cf7118a7] </span><span class="sgr-fg-b2">- UUIDs</span><span>
+ </span><span class="sgr-fg-b1"> [4ec0a83e] </span><span class="sgr-fg-b2">- Unicode</span><span>
+ </span><span class="sgr-fg-b1"> [e66e0078] </span><span class="sgr-fg-b2">- CompilerSupportLibraries_jll v0.5.2+0</span><span>
+ </span><span class="sgr-fg-b1"> [deac9b47] </span><span class="sgr-fg-b2">- LibCURL_jll v7.83.1+1</span><span>
+ </span><span class="sgr-fg-b1"> [29816b5a] </span><span class="sgr-fg-b2">- LibSSH2_jll v1.10.2+0</span><span>
+ </span><span class="sgr-fg-b1"> [c8ffd9c3] </span><span class="sgr-fg-b2">- MbedTLS_jll v2.28.0+0</span><span>
+ </span><span class="sgr-fg-b1"> [14a3606d] </span><span class="sgr-fg-b2">- MozillaCACerts_jll v2022.2.1</span><span>
+ </span><span class="sgr-fg-b1"> [4536629a] </span><span class="sgr-fg-b2">- OpenBLAS_jll v0.3.20+0</span><span>
+ </span><span class="sgr-fg-b1"> [83775a58] </span><span class="sgr-fg-b2">- Zlib_jll v1.2.12+3</span><span>
+ </span><span class="sgr-fg-b1"> [8e850b90] </span><span class="sgr-fg-b2">- libblastrampoline_jll v5.1.1+0</span><span>
+ </span><span class="sgr-fg-b1"> [8e850ede] </span><span class="sgr-fg-b2">- nghttp2_jll v1.47.0+0</span><span>
+ </span><span class="sgr-fg-b1"> [3f19e933] </span><span class="sgr-fg-b2">- p7zip_jll v17.4.0+0</span>
 ```
 
 Note that even though the version printed for MacroTools is again `0.5.9`, this doesn't necessarily mean that we are on the same commit as the one pointed to by the version `0.5.9` in the registry.
@@ -416,31 +414,45 @@ It would be pretty wasteful to download the same sources over and over just beca
 
 Let's now restart Julia and activate the `ColleagueEnv` environment:
 
-```julia
-(@v1.8) pkg> activate ./ColleagueEnv
-  Activating project at `~/ColleagueEnv`
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>activate ./ColleagueEnv
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/ColleagueEnv`
+</span>
 ```
 
 We can check the installed packages via `st -m`:
 
-```julia
-(ColleagueEnv) pkg> st -m
-Status `~/ColleagueEnv/Manifest.toml`
-→ [1914dd2f] MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#master`
-  [2a0f44e3] Base64
-  [d6f4376e] Markdown
-  [9a3f8284] Random
-  [ea8e919c] SHA v0.7.0
-  [9e88b42a] Serialization
-Info Packages marked with → are not downloaded, use `instantiate` to download
+```terminal
+<span class="sgr-bold sgr-fg-5">(ColleagueEnv) pkg> </span><span>st -m
+</span><span class="sgr-bold sgr-fg-3">Status</span><span> `~/ColleagueEnv/Manifest.toml`
+</span><span class="sgr-fg-b2">→</span><span class="sgr-fg-b1"> [1914dd2f] </span><span>MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#master`
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span>Base64
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span>Markdown
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span>Random
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span>SHA v0.7.0
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span>Serialization
+</span><span class="sgr-bold sgr-fg-7">Info</span><span> Packages marked with </span><span class="sgr-fg-b2">→</span><span> are not downloaded, use `instantiate` to download
+</span>
 ```
 
 If we were trying to just run some code using `MacroTools` now, this would happen:
 
-```julia
-julia> using MacroTools
-ERROR: ArgumentError: Package MacroTools [1914dd2f-81c6-5fcd-8719-6d5c9610ff09] is required but does not seem to be installed:
+```terminal
+<span class="sgr-bold sgr-fg-3">julia> </span><span>using MacroTools
+</span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>ArgumentError: Package MacroTools [1914dd2f-81c6-5fcd-8719-6d5c9610ff09] is required but does not seem to be installed:
  - Run `Pkg.instantiate()` to install all recorded dependencies.
+
+Stacktrace:
+ [1] </span><span class="sgr-bold">_require(</span><span class="sgr-fg-b1">pkg</span><span>::Base.PkgId</span><span class="sgr-bold">)</span><span>
+</span><span class="sgr-fg-b1">   @ Base</span><span> </span><span class="sgr-fg-b1">./loading.jl:1306</span><span>
+ [2] </span><span class="sgr-bold">_require_prelocked(</span><span class="sgr-fg-b1">uuidkey</span><span>::Base.PkgId</span><span class="sgr-bold">)</span><span>
+</span><span class="sgr-fg-b1">   @ Base</span><span> </span><span class="sgr-fg-b1">./loading.jl:1200</span><span>
+ [3] </span><span class="sgr-bold">macro expansion</span><span>
+</span><span class="sgr-fg-b1">   @ ./loading.jl:1180 [inlined]</span><span>
+ [4] </span><span class="sgr-bold">macro expansion</span><span>
+</span><span class="sgr-fg-b1">   @ ./lock.jl:223 [inlined]</span><span>
+ [5] </span><span class="sgr-bold">require(</span><span class="sgr-fg-b1">into</span><span>::Module, </span><span class="sgr-fg-b1">mod</span><span>::Symbol</span><span class="sgr-bold">)</span><span>
+</span><span class="sgr-fg-b1">   @ Base</span><span> </span><span class="sgr-fg-b1">./loading.jl:1144</span>
 ```
 
 So we need to follow the advice already printed twice for us, and call `instantiate`.
@@ -448,19 +460,21 @@ This will download everything specified in the `Manifest.toml` exactly as it was
 You can actually be sure that it's exactly the same because the `Manifest.toml` stores git tree hashes of each dependency.
 Unless someone deletes these specific parts of the repository you will be able to download the source exactly as it was:
 
-```julia
-(ColleagueEnv) pkg> instantiate
-Precompiling project...
+```terminal
+<span class="sgr-bold sgr-fg-5">(ColleagueEnv) pkg> </span><span>instantiate
+</span><span class="sgr-bold sgr-fg-3">Precompiling</span><span> project...
+</span><span class="sgr-fg-3">  ✓ </span><span>MacroTools
   1 dependency successfully precompiled in 1 seconds
 
-(ColleagueEnv) pkg> st -m
-Status `~/ColleagueEnv/Manifest.toml`
-  [1914dd2f] MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#master`
-  [2a0f44e3] Base64
-  [d6f4376e] Markdown
-  [9a3f8284] Random
-  [ea8e919c] SHA v0.7.0
-  [9e88b42a] Serialization
+</span><span class="sgr-bold sgr-fg-5">(ColleagueEnv) pkg> </span><span>st -m
+</span><span class="sgr-bold sgr-fg-3">Status</span><span> `~/ColleagueEnv/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span>MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#master`
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span>Base64
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span>Markdown
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span>Random
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span>SHA v0.7.0
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span>Serialization
+</span>
 ```
 
 Now we don't get a warning anymore, our dependencies have been downloaded correctly.
@@ -472,28 +486,29 @@ Packages and normal environments are pretty similar.
 Each package must have a `Project.toml` which specifies its name, UUID, version and dependencies.
 The easiest way to make a package to test this out, is to use the `generate` command of the Pkg REPL.
 
-Let's first remove `MacroTools` from our main environment so it is empty:
+Let's restart Julia and remove `MacroTools` from our main environment so it is empty:
 
-```julia
-(@v1.8) pkg> rm MacroTools
-    Updating `~/.julia/environments/v1.8/Project.toml`
-  [1914dd2f] - MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`
-    Updating `~/.julia/environments/v1.8/Manifest.toml`
-  [1914dd2f] - MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`
-  [2a0f44e3] - Base64
-  [d6f4376e] - Markdown
-  [9a3f8284] - Random
-  [ea8e919c] - SHA v0.7.0
-  [9e88b42a] - Serialization
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>rm MacroTools
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b2">- MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b2">- MacroTools v0.5.9 `https://github.com/FluxML/MacroTools.jl.git#639d1a6`</span><span>
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span class="sgr-fg-b2">- Base64</span><span>
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span class="sgr-fg-b2">- Markdown</span><span>
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span class="sgr-fg-b2">- Random</span><span>
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span class="sgr-fg-b2">- SHA v0.7.0</span><span>
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span class="sgr-fg-b2">- Serialization</span>
 ```
 
 Now, we generate a new package called `MyPackage`:
 
-```julia
-(@v1.8) pkg> generate MyPackage
-  Generating  project MyPackage:
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>generate MyPackage
+</span><span class="sgr-bold sgr-fg-3">  Generating</span><span>  project MyPackage:
     MyPackage/Project.toml
     MyPackage/src/MyPackage.jl
+</span>
 ```
 
 As you can see, a `Project.toml` file was generated in the `MyPackage` directory.
@@ -502,7 +517,7 @@ Let's have a look at this one:
 
 ```toml
 name = "MyPackage"
-uuid = "ac28244f-b540-4f11-9028-3fbea21f5993"
+uuid = "025f59cc-7e1c-467d-8f56-70157e1cbbbb"
 authors = ["Your Name <your@email.com>"]
 version = "0.1.0"
 ```
@@ -511,34 +526,35 @@ The only difference from a basic package environment to a normal environment are
 If we want to use `MacroTools` in our package, we can add it manually to a `deps` section in the `Project.toml`, or we use the Pkg REPL.
 For that, we first activate the package as an environment, then we add `MacroTools`.
 
-```julia
-(@v1.8) pkg> activate MyPackage/
-  Activating project at `~/MyPackage`
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>activate MyPackage/
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/MyPackage`
 
-(MyPackage) pkg> add MacroTools
-    Updating registry at `~/.julia/registries/General.toml`
-   Resolving package versions...
-   Installed MacroTools ─ v0.5.9
-    Updating `~/MyPackage/Project.toml`
-  [1914dd2f] + MacroTools v0.5.9
-    Updating `~/MyPackage/Manifest.toml`
-  [1914dd2f] + MacroTools v0.5.9
-  [2a0f44e3] + Base64
-  [d6f4376e] + Markdown
-  [9a3f8284] + Random
-  [ea8e919c] + SHA v0.7.0
-  [9e88b42a] + Serialization
-Precompiling project...
-  2 dependencies successfully precompiled in 2 seconds
-
-(MyPackage) pkg>
+</span><span class="sgr-bold sgr-fg-5">(MyPackage) pkg> </span><span>add MacroTools
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> registry at `~/.julia/registries/General.toml`
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">   Installed</span><span> MacroTools ─ v0.5.9
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/MyPackage/Project.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b3">+ MacroTools v0.5.9</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/MyPackage/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b3">+ MacroTools v0.5.9</span><span>
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span class="sgr-fg-b3">+ Base64</span><span>
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span class="sgr-fg-b3">+ Markdown</span><span>
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span class="sgr-fg-b3">+ Random</span><span>
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span class="sgr-fg-b3">+ SHA v0.7.0</span><span>
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span class="sgr-fg-b3">+ Serialization</span><span>
+</span><span class="sgr-bold sgr-fg-3">Precompiling</span><span> project...
+</span><span class="sgr-fg-3">  ✓ </span><span>MacroTools
+</span><span class="sgr-fg-3">  ✓ </span><span>MyPackage
+  2 dependencies successfully precompiled in 1 seconds
+</span>
 ```
 
 The `Project.toml` now looks like this:
 
 ```toml
 name = "MyPackage"
-uuid = "ac28244f-b540-4f11-9028-3fbea21f5993"
+uuid = "025f59cc-7e1c-467d-8f56-70157e1cbbbb"
 authors = ["Your Name <your@email.com>"]
 version = "0.1.0"
 
@@ -566,13 +582,13 @@ end # module MyPackage
 
 We can now `import` or `using` our package and verify that `MacroTools` can be used by its source code:
 
-```julia
-julia> using MyPackage
-[ Info: Precompiling MyPackage [ac28244f-b540-4f11-9028-3fbea21f5993]
+```terminal
+<span class="sgr-bold sgr-fg-3">julia> </span><span>using MyPackage
 
-julia> MyPackage.test()
+</span><span class="sgr-bold sgr-fg-3">julia> </span><span>MyPackage.test()
 x = 1
 y = 2
+</span>
 ```
 
 That worked!
@@ -580,17 +596,18 @@ That worked!
 Let's restart Julia now, which will bring us back to the main environment.
 Let's try again to import our package:
 
-```julia
-julia> using MyPackage
-ERROR: ArgumentError: Package MyPackage not found in current path.
+```terminal
+<span class="sgr-bold sgr-fg-3">julia> </span><span>using MyPackage
+</span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>ArgumentError: Package MyPackage not found in current path.
 - Run `import Pkg; Pkg.add("MyPackage")` to install the MyPackage package.
 Stacktrace:
- [1] macro expansion
-   @ ./loading.jl:1163 [inlined]
- [2] macro expansion
-   @ ./lock.jl:223 [inlined]
- [3] require(into::Module, mod::Symbol)
-   @ Base ./loading.jl:1144
+ [1] </span><span class="sgr-bold">macro expansion</span><span>
+</span><span class="sgr-fg-b1">   @ ./loading.jl:1163 [inlined]</span><span>
+ [2] </span><span class="sgr-bold">macro expansion</span><span>
+</span><span class="sgr-fg-b1">   @ ./lock.jl:223 [inlined]</span><span>
+ [3] </span><span class="sgr-bold">require(</span><span class="sgr-fg-b1">into</span><span>::Module, </span><span class="sgr-fg-b1">mod</span><span>::Symbol</span><span class="sgr-bold">)</span><span>
+</span><span class="sgr-fg-b1">   @ Base</span><span> </span><span class="sgr-fg-b1">./loading.jl:1144</span><span>
+</span>
 ```
 
 This doesn't work, because our main environment doesn't have `MyPackage` installed.
@@ -598,31 +615,33 @@ You can use `MyPackage` as long as you have its own environment activated, but o
 
 We can change that by using the `develop` or `dev` command of the Pkg REPL, which will install and track `MyPackage`:
 
-```julia
-(@v1.8) pkg> dev ./MyPackage/
-   Resolving package versions...
-    Updating `~/.julia/environments/v1.8/Project.toml`
-  [ac28244f] + MyPackage v0.1.0 `../../../MyPackage`
-    Updating `~/.julia/environments/v1.8/Manifest.toml`
-  [1914dd2f] + MacroTools v0.5.9
-  [ac28244f] + MyPackage v0.1.0 `../../../MyPackage`
-  [2a0f44e3] + Base64
-  [d6f4376e] + Markdown
-  [9a3f8284] + Random
-  [ea8e919c] + SHA v0.7.0
-  [9e88b42a] + Serialization
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>dev ./MyPackage/
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [025f59cc] </span><span class="sgr-fg-b3">+ MyPackage v0.1.0 `../../../MyPackage`</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b3">+ MacroTools v0.5.9</span><span>
+ </span><span class="sgr-fg-b1"> [025f59cc] </span><span class="sgr-fg-b3">+ MyPackage v0.1.0 `../../../MyPackage`</span><span>
+ </span><span class="sgr-fg-b1"> [2a0f44e3] </span><span class="sgr-fg-b3">+ Base64</span><span>
+ </span><span class="sgr-fg-b1"> [d6f4376e] </span><span class="sgr-fg-b3">+ Markdown</span><span>
+ </span><span class="sgr-fg-b1"> [9a3f8284] </span><span class="sgr-fg-b3">+ Random</span><span>
+ </span><span class="sgr-fg-b1"> [ea8e919c] </span><span class="sgr-fg-b3">+ SHA v0.7.0</span><span>
+ </span><span class="sgr-fg-b1"> [9e88b42a] </span><span class="sgr-fg-b3">+ Serialization</span><span>
+</span>
 ```
 
 Great, that worked.
 Now we can access `MyPackage` again:
 
-```julia
-julia> using MyPackage
-[ Info: Precompiling MyPackage [ac28244f-b540-4f11-9028-3fbea21f5993]
+```terminal
+<span class="sgr-bold sgr-fg-3">julia> </span><span>using MyPackage
+</span><span class="sgr-bold sgr-fg-7">[ Info: </span><span>Precompiling MyPackage [025f59cc-7e1c-467d-8f56-70157e1cbbbb]
 
-julia> MyPackage.test()
+</span><span class="sgr-bold sgr-fg-3">julia> </span><span>MyPackage.test()
 x = 1
 y = 2
+</span>
 ```
 
 Why would we want to do this, use a separate environment to access our package environment?
@@ -639,7 +658,7 @@ We can write this requirement into the `Project.toml` of `MyPackage`:
 
 ```toml
 name = "MyPackage"
-uuid = "ac28244f-b540-4f11-9028-3fbea21f5993"
+uuid = "025f59cc-7e1c-467d-8f56-70157e1cbbbb"
 authors = ["Your Name <your@email.com>"]
 version = "0.1.0"
 
@@ -653,31 +672,37 @@ MacroTools = "<0.5.9"
 But this change is not picked up automatically by the `@v1.8` environment.
 To recompute the dependency graph and throw away the old `Manifest.toml`, we can run `update` or `up`:
 
-```julia
-(@v1.8) pkg> up
-    Updating registry at `~/.julia/registries/General.toml`
-   Installed MacroTools ─ v0.5.8
-  No Changes to `~/.julia/environments/v1.8/Project.toml`
-    Updating `~/.julia/environments/v1.8/Manifest.toml`
-⌃ [1914dd2f] ↓ MacroTools v0.5.9 ⇒ v0.5.8
-        Info Packages marked with ⌃ have new versions available
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>up
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> registry at `~/.julia/registries/General.toml`
+</span><span class="sgr-bold sgr-fg-3">   Installed</span><span> MacroTools ─ v0.5.8
+</span><span class="sgr-bold sgr-fg-3">  No Changes</span><span> to `~/.julia/environments/v1.8/Project.toml`
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+</span><span class="sgr-fg-3">⌃</span><span class="sgr-fg-b1"> [1914dd2f] </span><span class="sgr-fg-b6">↓ MacroTools v0.5.9 ⇒ v0.5.8</span><span>
+</span><span class="sgr-bold sgr-fg-7">        Info</span><span> Packages marked with </span><span class="sgr-fg-3">⌃</span><span> have new versions available
+</span><span class="sgr-bold sgr-fg-3">Precompiling</span><span> project...
+</span><span class="sgr-fg-4">  ✓ </span><span class="sgr-fg-b1">MacroTools</span><span>
+</span><span class="sgr-fg-4">  ✓ </span><span>MyPackage
+  2 dependencies successfully precompiled in 2 seconds
+  </span>
 ```
 
 As you can see, the MacroTools package was correctly downgraded to `v0.5.8`.
 
 What would happen if we now tried to install `v0.5.9` into the main environment?
 
-```julia
-(@v1.8) pkg> add MacroTools@0.5.9
-   Resolving package versions...
-ERROR: Unsatisfiable requirements detected for package MacroTools [1914dd2f]:
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>add MacroTools@0.5.9
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>Unsatisfiable requirements detected for package MacroTools [1914dd2f]:
  MacroTools [1914dd2f] log:
  ├─possible versions are: 0.4.3-0.5.9 or uninstalled
- ├─restricted to versions 0.0.0-0.5.8 by MyPackage [ac28244f], leaving only versions 0.4.3-0.5.8
- │ └─MyPackage [ac28244f] log:
+ ├─restricted to versions 0.0.0-0.5.8 by MyPackage [025f59cc], leaving only versions 0.4.3-0.5.8
+ │ └─MyPackage [025f59cc] log:
  │   ├─possible versions are: 0.1.0 or uninstalled
- │   └─MyPackage [ac28244f] is fixed to version 0.1.0
+ │   └─MyPackage [025f59cc] is fixed to version 0.1.0
  └─restricted to versions 0.5.9 by an explicit requirement — no versions left
+</span>
 ```
 
 We get a version compatibility conflict.
@@ -693,35 +718,33 @@ You don't want to tangle all your projects up together, so just make separate en
 There's another behavior of environments that is potentially very confusing for beginners, and it's called "stacked environments".
 Let's restart Julia again, and add the package `Infiltrator` to the main environment:
 
-```julia
-(@v1.8) pkg> add Infiltrator
-    Updating registry at `~/.julia/registries/General.toml`
-   Resolving package versions...
-   Installed Infiltrator ─ v1.6.1
-    Updating `~/.julia/environments/v1.8/Project.toml`
-  [5903a43b] + Infiltrator v1.6.1
-    Updating `~/.julia/environments/v1.8/Manifest.toml`
-  [5903a43b] + Infiltrator v1.6.1
-  [b77e0a4c] + InteractiveUtils
-  [3fa0cd96] + REPL
-  [6462fe0b] + Sockets
-  [cf7118a7] + UUIDs
-  [4ec0a83e] + Unicode
-Precompiling project...
-  1 dependency successfully precompiled in 1 seconds. 2 already precompiled.
+```terminal
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>add Infiltrator
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> registry at `~/.julia/registries/General.toml`
+</span><span class="sgr-bold sgr-fg-3">   Resolving</span><span> package versions...
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Project.toml`
+ </span><span class="sgr-fg-b1"> [5903a43b] </span><span class="sgr-fg-b3">+ Infiltrator v1.6.1</span><span>
+</span><span class="sgr-bold sgr-fg-3">    Updating</span><span> `~/.julia/environments/v1.8/Manifest.toml`
+ </span><span class="sgr-fg-b1"> [5903a43b] </span><span class="sgr-fg-b3">+ Infiltrator v1.6.1</span><span>
+ </span><span class="sgr-fg-b1"> [b77e0a4c] </span><span class="sgr-fg-b3">+ InteractiveUtils</span><span>
+ </span><span class="sgr-fg-b1"> [3fa0cd96] </span><span class="sgr-fg-b3">+ REPL</span><span>
+ </span><span class="sgr-fg-b1"> [6462fe0b] </span><span class="sgr-fg-b3">+ Sockets</span><span>
+ </span><span class="sgr-fg-b1"> [cf7118a7] </span><span class="sgr-fg-b3">+ UUIDs</span><span>
+ </span><span class="sgr-fg-b1"> [4ec0a83e] </span><span class="sgr-fg-b3">+ Unicode</span>
 ```
 
 Now we activate the environment of `MyPackage`:
 
 ```julia
-(@v1.8) pkg> activate MyPackage
-  Activating project at `~/MyPackage`
+<span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>activate MyPackage
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/MyPackage`
+</span>
 ```
 
 Let's see what happens if we load `Infiltrator`:
 
-```julia
-julia> using Infiltrator
+```terminal
+<span class="sgr-bold sgr-fg-3">julia> </span><span>using Infiltrator</span>
 ```
 
 It worked.
@@ -732,12 +755,13 @@ The reason is that Julia can import packages from multiple environments at the s
 This depends on the `LOAD_PATH` global variable.
 Let's have a look:
 
-```julia
-julia> LOAD_PATH
+```terminal
+<span class="sgr-bold sgr-fg-3">julia> </span><span>LOAD_PATH
 3-element Vector{String}:
  "@"
  "@v#.#"
  "@stdlib"
+</span>
 ```
 
 The first entry, `"@"`, means "active environment", so the first place where Julia looked for Infiltrator was in `MyPackage`'s environment, where it didn't find it.
@@ -761,24 +785,26 @@ If you really want to make sure that only the packages from your currently activ
 
 To demonstrate this, if we empty the load path we can't load any package at all, neither `Infiltrator` from `@v1.8`, nor `MyPackage` from our active environment, nor the standard library `Statistics`:
 
-```julia
-julia> empty!(LOAD_PATH)
+```terminal
+<span class="sgr-bold sgr-fg-3">julia> </span><span>empty!(LOAD_PATH)
 String[]
 
-julia> using Infiltrator
- │ Package Infiltrator not found, but a package named Infiltrator is available from a registry.
- │ Install package?
- │   (MyPackage) pkg> add Infiltrator
- └ (y/n/o) [y]: n
-ERROR: ArgumentError: Package Infiltrator not found in current path, maybe you meant `import/using .Infiltrator`.
+</span><span class="sgr-bold sgr-fg-3">julia> </span><span>using Infiltrator
+</span><span class="sgr-fg-3"> │ </span><span>Package Infiltrator not found, but a package named Infiltrator is available
+</span><span class="sgr-fg-3"> │ </span><span>from a registry. 
+</span><span class="sgr-fg-3"> │ </span><span>Install package?
+</span><span class="sgr-fg-3"> │   </span><span class="sgr-fg-5">(MyPackage) pkg> </span><span>add Infiltrator 
+</span><span class="sgr-fg-3"> └ </span><span>(y/n/o) [y]: </span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>ArgumentError: Package Infiltrator not found in current path, maybe you meant `import/using .Infiltrator`.
+- Otherwise, run `import Pkg; Pkg.add("Infiltrator")` to install the Infiltrator package.
 
-julia> using MyPackage
-ERROR: ArgumentError: Package MyPackage not found in current path.
+<span class="sgr-bold sgr-fg-3">julia> </span><span>using MyPackage
+</span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>ArgumentError: Package MyPackage not found in current path.
 - Run `import Pkg; Pkg.add("MyPackage")` to install the MyPackage package.
 
-julia> using Statistics
-ERROR: ArgumentError: Package Statistics not found in current path.
+<span class="sgr-bold sgr-fg-3">julia> </span><span>using Statistics
+</span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>ArgumentError: Package Statistics not found in current path.
 - Run `import Pkg; Pkg.add("Statistics")` to install the Statistics package.
+</span>
 ```
 
 ## Temporary environments
@@ -786,11 +812,11 @@ ERROR: ArgumentError: Package Statistics not found in current path.
 One thing that's useful for quick tests are temporary environments.
 If you read about a new package and quickly want to try it, but don't want to mess with your main environment or clutter your working directory with environment files, you can use `activate --temp`:
 
-```julia
-(@v1.8) pkg> activate --temp
-  Activating new project at `/var/folders/z5/r5q6djwn5g10k3w279bn37700000gn/T/jl_LM4bTG`
+```terminal
+<span class="sgr-bold sgr-fg-5">(v1.8) pkg> </span><span>activate --temp
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> new project at `/var/folders/z5/r5q6djwn5g10k3w279bn37700000gn/T/jl_e4klnB`
 
-(jl_LM4bTG) pkg>
+</span><span class="sgr-bold sgr-fg-5">(jl_e4klnB) pkg> </span>
 ```
 
 This environment will only exist until the Julia process exits, so it's perfect to run something once and then forget about it.
