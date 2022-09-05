@@ -735,7 +735,7 @@ Let's restart Julia again, and add the package `Infiltrator` to the main environ
 
 Now we activate the environment of `MyPackage`:
 
-```julia
+```terminal
 <span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>activate MyPackage
 </span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/MyPackage`
 </span>
