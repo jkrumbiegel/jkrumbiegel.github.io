@@ -59,7 +59,7 @@ So we activate `@v1.8` again by typing:
 
 ```terminal
 </span><span class="sgr-bold sgr-fg-5">(MyEnvironment) pkg> </span><span>activate @v1.8
-</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/.julia/environments/v1.8`
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> new project at `~/.julia/environments/v1.8`
 
 </span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg> 
 ```
@@ -70,7 +70,7 @@ There's another shortcut to activate the main environment, which is `activate` w
 
 ```terminal
 <span class="sgr-bold sgr-fg-5">(@v1.8) pkg> </span><span>activate
-</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/.julia/environments/v1.8`
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> new project at `~/.julia/environments/v1.8`
 
 </span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg> 
 ```
