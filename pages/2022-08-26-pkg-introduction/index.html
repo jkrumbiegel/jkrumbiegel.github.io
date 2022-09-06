@@ -322,7 +322,7 @@ Markdown-&gt;Base64
 <title>
 SHA
 </title>
-<ellipse fill="#b9d3ee" stroke="black" cx="167.41" cy="-18" rx="56.82" ry="18"></ellipse> <text text-anchor="middle" x="167.41" y="-13.8" font-family="Times,serif" font-size="14.00">SHA v0.7.0</text> </g> <!-- Random&#45;&gt;SHA --> <g id="edge4" class="edge">
+<ellipse fill="tomato" stroke="black" cx="167.41" cy="-18" rx="56.82" ry="18"></ellipse> <text text-anchor="middle" x="167.41" y="-13.8" font-family="Times,serif" font-size="14.00">SHA v0.7.0</text> </g> <!-- Random&#45;&gt;SHA --> <g id="edge4" class="edge">
 <title>
 Random-&gt;SHA
 </title>
@@ -340,7 +340,7 @@ Random-&gt;Serialization
 </div>
 </div>
 </div>
-<p>The blue nodes have versions and the red ones do not, that’s because the red ones are standard libraries. Standard libraries are shipped with Julia, so they don’t have their own version. They only change with each Julia release. But as you can see, even standard libraries can depend on other, even, external packages, as SHA is not a normal standard library (it’s hosted externally) and has a version.</p>
+<p>The blue node refers to the external package <code>MacroTools</code>, which has a version. The red nodes are standard libraries. Standard libraries are shipped with Julia, so they usually don’t have their own version and only change with each Julia release. You can look at the all the standard libraries in the <a href="https://github.com/JuliaLang/julia/tree/master/stdlib">Julia repository on GitHub</a>. Standard libraries can depend on other standard libraries. SHA is an unusual standard library because it’s hosted externally and has a version. But the version is still fixed for each Julia version via a <code>.version</code> file such as <a href="https://github.com/JuliaLang/julia/blob/master/stdlib/SHA.version">the one for SHA</a>, so most users can just treat it like a normal standard library. In this example, MacroTools depends only on standard libraries, but most other packages depend on other external packages as well.</p>
 <p>You can check the versions of libraries in your <code>Project.toml</code> and <code>Manifest.toml</code> with the <code>status</code> or <code>st</code> command. With the <code>-m</code> flag you can see the <code>Manifest.toml</code> entries, which can be important for checking which dependencies were resolved.</p>
 <div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>st
 </span><span class="sgr-bold sgr-fg-3">Status</span><span> `~/.julia/environments/v1.8/Project.toml`
@@ -624,6 +624,9 @@ x = 1
 y = 2
 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>That worked!</p>
+</section>
+<section id="the-develop-command" class="level2">
+<h2 class="anchored" data-anchor-id="the-develop-command">The <code>develop</code> command</h2>
 <p>Let’s restart Julia now, which will bring us back to the main environment. Let’s try again to import our package:</p>
 <div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-3">julia&gt; </span><span>using MyPackage
 </span><span class="sgr-bold sgr-fg-b2">ERROR: </span><span>ArgumentError: Package MyPackage not found in current path.
@@ -659,11 +662,11 @@ Stacktrace:
 x = 1
 y = 2
 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Why would we want to do this, use a separate environment to access our package environment? It’s because we might want to use packages that should not be dependencies of <code>MyPackage</code> while developing it.</p>
+<p>Why would we want to do this, use a separate environment to access our package environment? It’s because we probably want to use other packages that should not be dependencies of <code>MyPackage</code> while developing it. For example, a data analysis package could be developed while using a package like <a href="https://github.com/JuliaStats/RDatasets.jl">RDatasets.jl</a> which supplies test datasets.</p>
 </section>
 <section id="compatibility-bounds" class="level2">
 <h2 class="anchored" data-anchor-id="compatibility-bounds">Compatibility bounds</h2>
-<p>Currently our package <code>MyPackage</code> does not specify the versions of <code>MacroTools</code> with which it is compatible. That is usually not a good idea, in fact, the general registry doesn’t allow packages to be registered if they don’t specify upper compatibility boundaries for each dependency. That makes sense because you don’t know if your package will be compatible with all future versions of your dependencies, so it makes sense to cap the compatibility to the point where you have tested everything works.</p>
+<p>Currently, <code>MyPackage</code> does not specify the versions of <code>MacroTools</code> with which it is compatible. That is usually not a good idea, in fact, the general registry doesn’t allow packages to be registered if they don’t specify upper compatibility boundaries for each dependency. That makes sense because you don’t know if your package will be compatible with all future versions of your dependencies, so it makes sense to cap the compatibility to the point where you have tested everything works.</p>
 <p>Let’s pretend we tested our package only up to <code>MacroTools</code> version <code>0.5.8</code>. We can write this requirement into the <code>Project.toml</code> of <code>MyPackage</code>:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">name</span> <span class="op">=</span> <span class="st">"MyPackage"</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"025f59cc-7e1c-467d-8f56-70157e1cbbbb"</span></span>
@@ -703,6 +706,15 @@ y = 2
 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>We get a version compatibility conflict. It is not possible to reconcile the requirement of adding <code>MacroTools</code> <code>0.5.9</code> with the fact that it is only allowed to reach up to <code>0.5.8</code> for <code>MyPackage</code>.</p>
 <p>Compatibility conflicts are the main reason why you should give each of your projects its own local environment instead of always using the global one. First of all, you’re more and more likely to end up with old versions or compatibility clashes, the more packages you install. Second, if you inadvertently update your main environment for project B, but later go back to project A, it could very well be that the new package versions are now incompatible with the code you wrote for A at the time. You don’t want to tangle all your projects up together, so just make separate environments for each.</p>
+</section>
+<section id="differences-between-add-and-develop" class="level2">
+<h2 class="anchored" data-anchor-id="differences-between-add-and-develop">Differences between <code>add</code> and <code>develop</code></h2>
+<p>In our examples, we have seen the <code>add</code> and <code>develop</code> commands when dealing with packages we want to install.</p>
+<p>Both <code>add</code> and <code>dev</code> can be used to include packages in your environment. Both can take a local path, or the name of a registered package, or a link to a repository as sources. So why do we have two separate but similar commands?</p>
+<p>The difference is that <code>add</code> treats packages as fixed, read-only resources. When you <code>add</code> a package, no matter if local or remote, each version is copied to an internal Julia folder where it should not be modified anymore.</p>
+<p>When you <code>dev</code> a local package, it stays where it is and can be modified by you. You just have to remember to restart Julia to load any changes you make (unless they can be auto-reloaded by <a href="https://github.com/timholy/Revise.jl">Revise.jl</a>, which you should check out if you haven’t seen it yet), and to <code>update</code> the environment in case you make changes to the <code>Project.toml</code> like new dependencies or compatibility bounds. When you use <code>dev</code>, Julia is said to “track” that package.</p>
+<p>Because you’re expected to make changes to code when you use <code>dev</code>, Julia copies packages that you <code>develop</code> for the first time by specifying its name or URL (for example <code>dev MacroTools</code> or <code>dev https://github.com/FluxML/MacroTools.jl</code>) into a special folder at <code>.julia/dev</code>. Here, you can access them with your editor of choice, make changes, and sync those back to GitHub or other version control systems.</p>
+<p>Note that if you <code>dev MacroTools</code> in one local environment, and later <code>dev MacroTools</code> in a different environment, Julia will by default re-use the same repository at <code>.julia/dev</code>. If the first environment was already quite old and you haven’t pulled the new changes in a while, you’ll probably be surprised that you get that old version when you run <code>dev</code> in the fresh environment! Therefore, it can make sense to use separate local copies of packages you want to work on, if you anticipate that you will work on them in several different contexts. To do this, you can either clone a repository into a local folder, for example with <code>git clone https://github.com/FluxML/MacroTools.jl</code> and then run <code>dev the_local_folder</code>. The other option is running <code>dev --local MacroTools</code>, which copies the developed package into the working directory, not <code>.julia/dev</code>.</p>
 </section>
 <section id="stacked-environments" class="level2">
 <h2 class="anchored" data-anchor-id="stacked-environments">Stacked environments</h2>
