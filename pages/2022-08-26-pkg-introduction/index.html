@@ -207,13 +207,13 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <p>The purpose of shared environments is that you can activate them easily from any working directory because they start with <code>@</code>, and Pkg knows to look for them in <code>.julia/environments</code>. For all other environments, you can activate them by name if you are in the directory where they were created, or you have to specify the full path.</p>
 <p>So we activate <code>@v1.8</code> again by typing:</p>
 <div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(MyEnvironment) pkg&gt; </span><span>activate @v1.8
-</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/.julia/environments/v1.8`
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> new project at `~/.julia/environments/v1.8`
 
 </span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>As you see, Pkg told us we were activating a new project (another word for environment), because as we saw before, no files did actually exist, yet.</p>
 <p>There’s another shortcut to activate the main environment, which is <code>activate</code> without an argument:</p>
 <div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>activate
-</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> project at `~/.julia/environments/v1.8`
+</span><span class="sgr-bold sgr-fg-3">  Activating</span><span> new project at `~/.julia/environments/v1.8`
 
 </span><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </section>
