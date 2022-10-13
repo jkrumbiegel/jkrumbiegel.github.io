@@ -1,6 +1,6 @@
 ---
 title: "Extracting data from Harry Potter with GPT-3"
-date: 2022-08-27
+date: 2022-10-13
 categories: ["julia"]
 ---
 
