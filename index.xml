@@ -20,6 +20,14 @@
   <pubDate>Fri, 26 Aug 2022 22:00:00 GMT</pubDate>
 </item>
 <item>
+  <title>Extracting data from Harry Potter with GPT-3</title>
+  <link>https://jkrumbiegel.com/pages/2022-10-13-gpt3-harry-potter/index.html</link>
+  <description><![CDATA[ In this blog post, I’ll show how I used Julia and a GPT-3 model (via an online API) in an attempt to analyze the monetary value of items in the Harry Potter novels, and what I learned in the process. ]]></description>
+  <category>julia</category>
+  <guid>https://jkrumbiegel.com/pages/2022-10-13-gpt3-harry-potter/index.html</guid>
+  <pubDate>Fri, 26 Aug 2022 22:00:00 GMT</pubDate>
+</item>
+<item>
   <title>Composing macros inside-out with Julia</title>
   <link>https://jkrumbiegel.com/pages/2022-08-09-composing-macros/index.html</link>
   <description><![CDATA[ Macros in Julia, denoted by the <code>@</code> prefix, are used to transform code before it is executed. They are often used to reduce boilerplate or implement domain specific languages (DSLs). ]]></description>

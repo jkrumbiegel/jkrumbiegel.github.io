@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.1.75">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2022-08-27">
+
+<title>jkrumbiegel.com - Extracting data from Harry Potter with GPT-3</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: 1;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">jkrumbiegel.com</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">About</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jkrumbiegel"><i class="bi bi-github" role="img">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Extracting data from Harry Potter with GPT-3</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">julia</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">August 27, 2022</p>
+    </div>
+  </div>
+    
+  </div>
+  
+
+</header>
+
+<p>In this blog post, I’ll show how I used Julia and a GPT-3 model (via an online API) in an attempt to analyze the monetary value of items in the Harry Potter novels, and what I learned in the process.</p>
+<section id="harry-potter-and-money" class="level2">
+<h2 class="anchored" data-anchor-id="harry-potter-and-money">Harry Potter and money</h2>
+<p>Anybody who has read the Harry Potter books has probably noticed how the monetary value of items in the wizarding world is a bit… inconsistent at times. For example, the Weasley family has only a single gold coin in their vault, while a wand costs seven Galleons, and special fireworks from the Weasley twins in the later books ten Galleons. We don’t know how much time or effort it takes to make a wand, but probably more than mass produced fireworks, and I hope the Weasleys would have been able to afford food and clothes equaling fireworks in value.</p>
+<p>I have sometimes wondered about how inconsistent the books really are in this point. So I wanted to visualize how the value of items mentioned across the books develops over time, because my hypothesis was that J.K. Rowling might have added more and more expensive things while she was writing, just to contrast them against previously introduced items. For example, something relatively expensive in the first book (the wand) looks very cheap compared to later items (the fireworks).</p>
+<p>My initial plan for this exercise was to extract all prices from the books and plot them over time (position in the books) or in a sorted bar graph on a logarithmic axis to related all the things you could buy in the wizarding world. However, I never got there because the more interesting part proved to be how to assemble the list of items of value in the first place, without manually going through all the books.</p>
+<p>(In the end, I could have just googled anyway, and would have found the table on <a href="https://harrypotter.fandom.com/wiki/Wizarding_currency">this page</a>, but that would not have been as much fun!)</p>
+</section>
+<section id="preparing-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="preparing-the-data">Preparing the data</h2>
+<p>First of all, I downloaded the Harry Potter plain text corpora from <a href="https://www.kaggle.com/datasets/balabaskar/harry-potter-books-corpora-part-1-7">kaggle.com</a> and extracted them into a folder, deleting the attached list of characters.</p>
+<p>Then, I loaded all seven of them into a string:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DataFrames</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">JSON3</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">HTTP</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">CSV</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">Chain</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DataFrameMacros</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>corpus <span class="op">=</span> <span class="pp">@chain</span> <span class="cf">begin</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    <span class="fu">readdir</span>(<span class="st">"archive"</span>, join <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">read</span>.(<span class="dt">String</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    join</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">replace</span>(<span class="st">r"</span><span class="ch">(</span><span class="sc">\n</span><span class="st"> </span><span class="sc">*</span><span class="ch">)</span><span class="st">{2,}"</span> <span class="op">=&gt;</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">replace</span>(<span class="st">r"^Page </span><span class="sc">\|.*$</span><span class="st">"</span>m<span class="st"> =&gt; "")</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The last two <code>replace</code> calls remove superfluous line breaks and page number annotations. With that, I had a reasonably clean starting point.</p>
+<p>Next, I wanted to find all the places in the books where the wizarding currency was mentioned. I achieved this by looking for Galleons, Sickles and Knuts via regular expression:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>snippet_ranges <span class="op">=</span> <span class="pp">@chain</span> <span class="cf">begin</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">findall</span>(<span class="st">r"galleon</span><span class="ch">|</span><span class="st">sickle</span><span class="ch">|</span><span class="st">knut"i</span>, corpus)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">foldl</span>(_[<span class="fl">2</span><span class="op">:</span><span class="kw">end</span>], init <span class="op">=</span> _[<span class="fl">1</span><span class="op">:</span><span class="fl">1</span>]) <span class="cf">do</span> list, rng</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="fu">abs</span>(list[<span class="kw">end</span>].stop <span class="op">-</span> rng.start) <span class="op">&lt;</span> <span class="fl">300</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>            list[<span class="kw">end</span>] <span class="op">=</span> list[<span class="kw">end</span>].start<span class="op">:</span>rng.stop</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            <span class="fu">push!</span>(list, rng)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">end</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        list</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    [x.start<span class="op">-</span><span class="fl">300</span><span class="op">:</span>x.stop<span class="op">+</span><span class="fl">300</span> for x <span class="kw">in</span> _]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <code>foldl</code> command takes the list of occurrence ranges found and merges entries less than 300 characters apart together. That’s because I assumed that often, multiple money related words would be found in a coherent paragraph. I stored the merged ranges with some additional 300 character padding before and after, for context. I found 98 snippets like this.</p>
+<p>With a helper function, I could then cut out snippets from the corpus.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">snippet</span>(corpus, range) <span class="op">=</span> corpus[<span class="fu">prevind</span>(corpus, range.start)<span class="op">:</span><span class="fu">nextind</span>(corpus, range.stop)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Note that I used the <code>prevind</code> and <code>nextind</code> functions to shift the stored indices to the next valid indices in the UTF string. I only did this after some snippets failed to extract, as I had assumed most of Harry Potter would be ASCII anyway and the naive 300 character shift would be ok (it wasn’t).</p>
+<p>Here’s one example of using the function on the corpus:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>julia<span class="op">&gt;</span> <span class="fu">snippet</span>(corpus, snippet_ranges[<span class="fl">2</span>]) <span class="op">|&gt;</span> print</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>ht more eyes. He </span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>turned his head <span class="kw">in</span> every direction as they walked up </span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>the street, trying to look at everything at once<span class="op">:</span> the </span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>shops, the things outside them, the people doing their </span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>shopping. A plump woman outside an Apothecary </span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>was shaking her head as they passed, saying, </span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>“Dragon liver, sixteen Sickles an ounce, they’re mad.” </span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>A low, soft hooting came from a dark shop with a sign </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>saying Eeylops Owl Emporium — Tawny, Screech, </span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>Barn, Brown, and Snowy. Several boys of about </span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>Harry’s age had their noses pressed against a window </span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>with broomsticks <span class="kw">in</span> it. “Look,” Harry heard one of </span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>them sa</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>An English speaker reading this should be able to extract the item of value being talked about in this paragraph: Dragon liver for sixteen Sickles.</p>
+<p>Of course I didn’t want to manually go through all 98 snippets, so I thought about ways to extract the data I needed automatically. Carefully constructed regexes are usually closer to my mode of thinking than more opaque machine learning methods, but in this case it was pretty clear that there was no generally exploitable sentence structure to extract both the price and the item. Sometimes the item is mentioned three sentences before the price, or only alluded to. Therefore, I thought, why not try one of the fancy language models that are talked about so much these days. Would I be able to automate the task with them?</p>
+</section>
+<section id="using-gpt-3" class="level2">
+<h2 class="anchored" data-anchor-id="using-gpt-3">Using GPT-3</h2>
+<p>Because I didn’t even want to attempt running models on my laptop, I looked into using a web API to feed my data to a language model. I settled on <a href="https://beta.openai.com/playground">beta.openai.com/playground</a> which offers some free credits to start with and was relatively painless to get working.</p>
+<p>I briefly played around with the user interface on the site to come up with a suitable prompt. My goal was to make the model extract a CSV table of items with their price separated by Galleons, Sickles and Knuts. After 10 minutes or so of prompt engineering, I settled on this version:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">prompt</span>(snippet)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"""</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">    The following is a text snippet from Harry Potter. One or several items are mentioned, together with their prices in galleons, sickles and knuts.</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="st">    Return a comma-separated table with the column headers Item, Galleons, Sickles, Knuts.</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="st">    </span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="st">    Example input:</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="st">    #########</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="st">    ...After visiting Diagon Alley, Harry bought a spell book for three Galleons</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="st">    and fourteen Sickles, as well as a wand made of chocolate which cost him</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="st">    two Sickles and three Knuts...</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="st">    #########</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="st">    Example output:</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="st">    Item,Galleons,Sickles,Knuts</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="st">    "Spell Book",3,14,0</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="st">    "Chocolate Wand",0,2,3</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="st">    Input:</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="st">    #########</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="st">    ...</span><span class="sc">$</span>snippet<span class="st">...</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="st">    #########</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="st">    Result:</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Here’s what the model’s output was for the snippet mentioned above:</p>
+<pre><code>Item,Galleons,Sickles,Knuts
+"Dragon Liver",0,16,0
+"Broomsticks",0,0,0</code></pre>
+<p>First of all, I was very impressed that the model managed to output valid CSV, and that “Dragon Liver” for sixteen Sickles was extracted correctly.</p>
+<p>Interestingly, this snippet also produced “Broomsticks” for zero Galleons. The relevant sentence in the snippet is “Several boys of about Harry’s age had their noses pressed against a window with broomsticks in it.”. Broomsticks are mentioned, and they clearly are something of value, being displayed in a shop’s window. But the price isn’t mentioned so of course it would be silly for a human to include the item in the list.</p>
+<p>This already foreshadowed how the overall data extraction would fare.</p>
+</section>
+<section id="using-the-gpt-3-api" class="level2">
+<h2 class="anchored" data-anchor-id="using-the-gpt-3-api">Using the GPT-3 API</h2>
+<p>To automatically run the model against every snippet in my database, I used the following function:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">function</span> <span class="fu">get_response</span>(snippet)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    p <span class="op">=</span> <span class="fu">prompt</span>(snippet)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> HTTP.<span class="fu">post</span>(</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>        <span class="st">"https://api.openai.com/v1/completions"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">Dict</span>(</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Content-Type"</span> <span class="op">=&gt;</span> <span class="st">"application/json"</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="st">"Authorization"</span> <span class="op">=&gt;</span> <span class="st">"Bearer </span><span class="sc">$</span>(<span class="fu">read</span>(<span class="st">"token.txt"</span>, <span class="dt">String</span>))<span class="st">"</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        JSON3.<span class="fu">write</span>(<span class="fu">Dict</span>(</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span>model <span class="op">=&gt;</span> <span class="st">"text-davinci-002"</span>,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span>prompt <span class="op">=&gt;</span> p,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span>temperature <span class="op">=&gt;</span> <span class="fl">0.1</span>,</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">:</span>max_tokens <span class="op">=&gt;</span> <span class="fl">50</span>,</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>        ))</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    s <span class="op">=</span> <span class="fu">String</span>(response.body)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    JSON3.<span class="fu">read</span>(s).choices[<span class="fl">1</span>].text</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>My account’s API token was stored in a separate text file, you’ll have to get your own if you want to try this out as well. I chose <code>"text-davinci-002"</code> as the model which is supposed to be the most capable. I had to set <code>temperature</code> and <code>max_tokens</code> to something lower and higher than the defaults, respectively, until the test responses looked good. If the number of tokens is too low, the full table will not print.</p>
+<p>I then ran this function for all the items in my collection, taking care not to exceed 60 requests per minute as the requests started failing due to rate limiting the first time I tried it.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> <span class="fu">map</span>(<span class="fu">enumerate</span>(snippet_ranges)) <span class="cf">do</span> (i, snippet_range)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    t <span class="op">=</span> <span class="fu">time</span>()</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    snip <span class="op">=</span> <span class="fu">snippet</span>(corpus, snippet_range)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(<span class="st">"</span><span class="sc">\n\n\n\n$</span>i<span class="st"> of </span><span class="sc">$</span>(<span class="fu">length</span>(snippet_ranges))<span class="st">"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(snip)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    response <span class="op">=</span> <span class="fu">get_response</span>(snip)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">println</span>(response)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># rate limit 60/min</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sleep</span>(<span class="fu">max</span>(<span class="fl">0</span>, <span class="fl">1</span> <span class="op">-</span> (<span class="fu">time</span>() <span class="op">-</span> t)))</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    (; snippet_range, snippet <span class="op">=</span> snip, response)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co"># turn the ranges into tuples so the json output doesn't include a zillion numbers</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>results_corrected <span class="op">=</span> <span class="fu">map</span>(results) <span class="cf">do</span> result</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    (; snippet_range <span class="op">=</span> (result.snippet_range.start, result.snippet_range.stop),</span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>        result.snippet, result.response)</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>JSON3.<span class="fu">write</span>(<span class="st">"results.json"</span>, results_corrected)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<script src="https://gist.github.com/jkrumbiegel/62b28a02a66cb57d30020ae8305ead3d.js"></script>
+<p>Finally, I parsed each response as a CSV and concatenated them all into a big DataFrame:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> <span class="pp">@chain</span> <span class="cf">begin</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">map</span>(results_corrected) <span class="cf">do</span> result</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>        CSV.<span class="fu">read</span>(<span class="fu">IOBuffer</span>(result.response), DataFrame)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">end</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">reduce</span>(vcat, _, source <span class="op">=</span> <span class="op">:</span>snippet_id, cols <span class="op">=</span> <span class="op">:</span>union)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sort!</span>([<span class="op">:</span>Galleons, <span class="op">:</span>Sickles, <span class="op">:</span>Knuts], rev <span class="op">=</span> <span class="cn">true</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@transform</span>! <span class="pp">@subset</span>(<span class="op">:</span>Knut <span class="op">!==</span> <span class="cn">missing</span>) <span class="op">:</span>Knuts <span class="op">=</span> <span class="op">:</span>Knut</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># @subset !(:Galleons == :Sickles == :Knuts == 0)</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(<span class="fu">Not</span>(<span class="op">:</span>Knut))</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>CSV.<span class="fu">write</span>(<span class="st">"result_df.csv"</span>, df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>One entry had the column <code>Knut</code> instead of <code>Knuts</code> so I fixed this, other than that the format of the table appeared to be followed correctly for each entry. I was already quite impressed by that.</p>
+<p>But let’s have a look at the results:</p>
+<script src="https://gist.github.com/jkrumbiegel/27e2d2f75a7c1c82f13574d36300e922.js"></script>
+<p>The top of the list looks good at first, the prize money for the Triwizard Cup was indeed 1000 Galleons. A few entries further down, however, we see “Goblet of Fire entry fee”. The goblet itself didn’t have an entry fee and the entry fee also wasn’t a thousand Galleons, so this is obviously wrong. We can have a look at the snippet:</p>
+<pre><code>julia&gt; print(snippet(corpus, snippet_ranges[34]))
+ me the truth,” he 
+said. “If you don’t want everyone else to know, fine, 
+but I don’t know why you’re bothering to lie, you 
+didn’t get into trouble for it, did you? That friend of 
+the Fat Lady’s, that Violet, she’s already told us all 
+
+Dumbledore’s letting you enter. A thousand Galleons 
+prize money, eh? And you don’t have to do end-of- 
+year tests either. ...” 
+“I didn’t put my name in that goblet!” said Harry, 
+starting to feel angry. 
+“Yeah, okay,” said Ron, in exactly the same sceptical 
+tone as Cedric. “Only you said this morning you’d 
+have done it last nig</code></pre>
+<p>The language here is not ambiguous for a human, even with no background knowledge, the thousand Galleons are clearly prize money and not an entry fee, even if for an uninformed reader it would not be clear what the prize money is for. One other interesting fact is that the snippet never mentions that it’s a goblet <em>of fire</em>, so this part is clearly knowledge that the model added itself.</p>
+<p>The next glaring error are the Canary Creams for a whopping 1000 Galleons. Let’s have a look at the snippet:</p>
+<pre><code>julia&gt; print(snippet(corpus, snippet_ranges[40]))
+ld do with a few laughs. We could all 
+
+Harry Potter and the Goblet of Fire - J.K. Rowling 
+do with a few laughs. I’ve got a feeling we’re going to 
+need them more than usual before long.” 
+“Harry,” said George weakly, weighing the money bag 
+in his hands, “there’s got to be a thousand Galleons 
+in here.” 
+“Yeah,” said Harry, grinning. “Think how many 
+Canary Creams that is.” 
+The twins stared at him. 
+“Just don’t tell your mum where you got it ... 
+although she might not be so keen for you to join the 
+Ministry anymore, come to think of it. ...” 
+“Harry,” Fred began, </code></pre>
+<p>This one’s interesting, because technically this passage <em>does</em> talk about 1000 Galleons worth of Canary Creams. A human would never put this in the list however, because the meaning a reader would infer from the entry is that Canary Creams cost 1000 Galleons. While the passage is “unfair” to the model to some degree, this just goes to show that extracting information from text is a delicate affair, and there are lots of ways it can go wrong.</p>
+<p>The list continues with many entries, many looking kind of correct, others obviously incorrect, some doubtful. Let’s look at just one more which jumped out to me, “Dumbledore’s arrest” for a single measly Knut. What prompted this response?</p>
+<pre><code>julia&gt; print(snippet(corpus, snippet_ranges[68]))
+re calmly. 
+“Yes, shut up, Potter!” barked Fudge, who was still 
+ogling Dumbledore with a kind of horrified delight. 
+“Well, well, well — I came here tonight expecting to 
+expel Potter and instead — ” 
+“Instead you get to arrest me,” said Dumbledore, 
+smiling. “It’s like losing a Knut and finding a Galleon, 
+isn’t it?” 
+“Weasley!” cried Fudge, now positively quivering with 
+delight, “Weasley, have you written it all down, 
+everything he’s said, his confession, have you got it?” 
+“Yes, sir, I think so, sir!” said Percy eagerly, whose 
+nose was splattered with ink from the speed of his</code></pre>
+<p>This one is kind of impressive in the peculiar way it manages to be wrong. Dumbledore is using a figure of speech here, his arrest being like losing something of small value (a Knut) and gaining something much more valuable instead (a Galleon). So, technically, if his arrest is like losing a Knut, one could translate that as his arrest having the value of 1 Knut (never mind the Galleon gained). Well done, model!</p>
+<p>The list ends with many items worth 0,0,0. These are all errors given that the prompt asks for things that have value, but some of them are less wrong than others. You can have a look at the JSON linked above if you’re interested in the prompts for each entry.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>I didn’t end up making any plots, which had been my initial goal, because it was more fun to play around with the model and try to understand its outputs. The quality of the data is, to say it bluntly, garbage – even though on first glance it’s impressive that the whole pipeline worked so smoothly at all.</p>
+<p>I did actually make attempts at engineering the prompt away from the errors I was seeing, like trying to exclude items of zero value, or returning “nothing” or other placeholder responses if the model wasn’t sufficiently “sure”. This mostly broke the outputs, though, instead of improving the responses.</p>
+<p>Humans also make mistakes, but they mostly do so in predictable or understandable ways. The model, however, sometimes returns sensible results, or complete nonsense, without a means to easily discern those. In practice, I would have to hand check each entry to see if it was correct, saving me essentially no time. The only real time saver for a human in this scenario is the automated extraction of snippets, which is a classic task that dumb computers are good at.</p>
+<p>I don’t really think the prompt left much room for interpretation (for a human), so the question is, if the prompt could be improved somehow, how do we know in which direction to go? This amounts to trial and error, essentially. Just because some test outputs look better with a changed prompt, that doesn’t mean that the model suddenly “understands” better. It just means that the pattern it outputs matches the pattern we expect more, but the reason for that is entirely opaque. You can’t ask the model to “show its work” or “explain its reasoning” (yet).</p>
+<p>To me, this little excursion proved again what many online discussions of AI language tools like GitHub Copilot already concluded. The output of such models can look convincing on first glance, and by chance, it can be indistinguishable from that of a human. But you cannot know when it will fail, and in what way. It cannot ask for clarification if it is unsure, it cannot mark passages for review or step outside the box of its prompt in any other way. It will just happily output response after response, with the human operator being fully responsible if they continue working with the result. For code generation, it might be valuable to generate “plausible-looking options” for a human to take inspiration from. For the specific task discussed here, even if it’s rather simple, there’s no benefit at all in employing the model. Therefore, I remain very sceptical what the future will bring, especially because of such language models’ ability to output plausible-looking, but completely false output. The models are great at fooling humans into thinking their output is meaningful, because its structure looks correct. But it requires going beyond the structure of the text, and into the meaning, which is the real challenge here. It remains to be seen if even larger models will suddenly cross that gap in the coming years, or if they remain what this one is, a novelty toy that inspires thought, but doesn’t replace it.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
