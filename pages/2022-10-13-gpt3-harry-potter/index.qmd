@@ -1,0 +1,360 @@
+---
+title: "Extracting data from Harry Potter with GPT-3"
+date: 2022-08-27
+categories: ["julia"]
+---
+
+In this blog post, I'll show how I used Julia and a GPT-3 model (via an online API) in an attempt to analyze the monetary value of items in the Harry Potter novels, and what I learned in the process.
+
+## Harry Potter and money
+
+Anybody who has read the Harry Potter books has probably noticed how the monetary value of items in the wizarding world is a bit... inconsistent at times.
+For example, the Weasley family has only a single gold coin in their vault, while a wand costs seven Galleons, and special fireworks from the Weasley twins in the later books ten Galleons.
+We don't know how much time or effort it takes to make a wand, but probably more than mass produced fireworks, and I hope the Weasleys would have been able to afford food and clothes equaling fireworks in value.
+
+I have sometimes wondered about how inconsistent the books really are in this point.
+So I wanted to visualize how the value of items mentioned across the books develops over time, because my hypothesis was that J.K. Rowling might have added more and more expensive things while she was writing, just to contrast them against previously introduced items.
+For example, something relatively expensive in the first book (the wand) looks very cheap compared to later items (the fireworks).
+
+My initial plan for this exercise was to extract all prices from the books and plot them over time (position in the books) or in a sorted bar graph on a logarithmic axis to related all the things you could buy in the wizarding world.
+However, I never got there because the more interesting part proved to be how to assemble the list of items of value in the first place, without manually going through all the books.
+
+(In the end, I could have just googled anyway, and would have found the table on [this page](https://harrypotter.fandom.com/wiki/Wizarding_currency), but that would not have been as much fun!)
+
+## Preparing the data
+
+First of all, I downloaded the Harry Potter plain text corpora from [kaggle.com](https://www.kaggle.com/datasets/balabaskar/harry-potter-books-corpora-part-1-7) and extracted them into a folder, deleting the attached list of characters.
+
+Then, I loaded all seven of them into a string:
+
+```julia
+using DataFrames
+using JSON3
+using HTTP
+using CSV
+using Chain
+using DataFrameMacros
+
+
+corpus = @chain begin
+    readdir("archive", join = true)
+    read.(String)
+    join
+    replace(r"(\n *){2,}" => "\n")
+    replace(r"^Page \|.*$"m => "")
+end
+```
+
+The last two `replace` calls remove superfluous line breaks and page number annotations.
+With that, I had a reasonably clean starting point.
+
+Next, I wanted to find all the places in the books where the wizarding currency was mentioned.
+I achieved this by looking for Galleons, Sickles and Knuts via regular expression:
+
+```julia
+snippet_ranges = @chain begin
+    findall(r"galleon|sickle|knut"i, corpus)
+    foldl(_[2:end], init = _[1:1]) do list, rng
+        if abs(list[end].stop - rng.start) < 300
+            list[end] = list[end].start:rng.stop
+        else
+            push!(list, rng)
+        end
+        list
+    end
+    [x.start-300:x.stop+300 for x in _]
+end
+```
+
+The `foldl` command takes the list of occurrence ranges found and merges entries less than 300 characters apart together.
+That's because I assumed that often, multiple money related words would be found in a coherent paragraph.
+I stored the merged ranges with some additional 300 character padding before and after, for context.
+I found 98 snippets like this.
+
+With a helper function, I could then cut out snippets from the corpus.
+
+```julia
+snippet(corpus, range) = corpus[prevind(corpus, range.start):nextind(corpus, range.stop)]
+```
+
+Note that I used the `prevind` and `nextind` functions to shift the stored indices to the next valid indices in the UTF string.
+I only did this after some snippets failed to extract, as I had assumed most of Harry Potter would be ASCII anyway and the naive 300 character shift would be ok (it wasn't).
+
+Here's one example of using the function on the corpus:
+
+```julia
+julia> snippet(corpus, snippet_ranges[2]) |> print
+ht more eyes. He 
+turned his head in every direction as they walked up 
+the street, trying to look at everything at once: the 
+shops, the things outside them, the people doing their 
+shopping. A plump woman outside an Apothecary 
+was shaking her head as they passed, saying, 
+“Dragon liver, sixteen Sickles an ounce, they’re mad.” 
+A low, soft hooting came from a dark shop with a sign 
+saying Eeylops Owl Emporium — Tawny, Screech, 
+Barn, Brown, and Snowy. Several boys of about 
+Harry’s age had their noses pressed against a window 
+with broomsticks in it. “Look,” Harry heard one of 
+them sa
+```
+
+An English speaker reading this should be able to extract the item of value being talked about in this paragraph: Dragon liver for sixteen Sickles.
+
+Of course I didn't want to manually go through all 98 snippets, so I thought about ways to extract the data I needed automatically.
+Carefully constructed regexes are usually closer to my mode of thinking than more opaque machine learning methods, but in this case it was pretty clear that there was no generally exploitable sentence structure to extract both the price and the item.
+Sometimes the item is mentioned three sentences before the price, or only alluded to.
+Therefore, I thought, why not try one of the fancy language models that are talked about so much these days.
+Would I be able to automate the task with them?
+
+## Using GPT-3
+
+Because I didn't even want to attempt running models on my laptop, I looked into using a web API to feed my data to a language model.
+I settled on [beta.openai.com/playground](https://beta.openai.com/playground) which offers some free credits to start with and was relatively painless to get working.
+
+I briefly played around with the user interface on the site to come up with a suitable prompt.
+My goal was to make the model extract a CSV table of items with their price separated by Galleons, Sickles and Knuts.
+After 10 minutes or so of prompt engineering, I settled on this version:
+
+```julia
+function prompt(snippet)
+    """
+    The following is a text snippet from Harry Potter. One or several items are mentioned, together with their prices in galleons, sickles and knuts.
+
+    Return a comma-separated table with the column headers Item, Galleons, Sickles, Knuts.
+    
+    Example input:
+
+    #########
+    ...After visiting Diagon Alley, Harry bought a spell book for three Galleons
+    and fourteen Sickles, as well as a wand made of chocolate which cost him
+    two Sickles and three Knuts...
+    #########
+
+    Example output:
+
+    Item,Galleons,Sickles,Knuts
+    "Spell Book",3,14,0
+    "Chocolate Wand",0,2,3
+
+    Input:
+
+    #########
+    ...$snippet...
+    #########
+
+    Result:
+
+    """
+end
+```
+
+Here's what the model's output was for the snippet mentioned above:
+
+```
+Item,Galleons,Sickles,Knuts
+"Dragon Liver",0,16,0
+"Broomsticks",0,0,0
+```
+
+First of all, I was very impressed that the model managed to output valid CSV, and that "Dragon Liver" for sixteen Sickles was extracted correctly.
+
+Interestingly, this snippet also produced "Broomsticks" for zero Galleons.
+The relevant sentence in the snippet is "Several boys of about 
+Harry’s age had their noses pressed against a window 
+with broomsticks in it.".
+Broomsticks are mentioned, and they clearly are something of value, being displayed in a shop's window.
+But the price isn't mentioned so of course it would be silly for a human to include the item in the list.
+
+This already foreshadowed how the overall data extraction would fare.
+
+## Using the GPT-3 API
+
+To automatically run the model against every snippet in my database, I used the following function:
+
+```julia
+function get_response(snippet)
+    p = prompt(snippet)
+    response = HTTP.post(
+        "https://api.openai.com/v1/completions",
+        Dict(
+            "Content-Type" => "application/json",
+            "Authorization" => "Bearer $(read("token.txt", String))"
+        ),
+        JSON3.write(Dict(
+            :model => "text-davinci-002",
+            :prompt => p,
+            :temperature => 0.1,
+            :max_tokens => 50,
+        ))
+    )
+    s = String(response.body)
+    JSON3.read(s).choices[1].text
+end
+```
+
+My account's API token was stored in a separate text file, you'll have to get your own if you want to try this out as well.
+I chose `"text-davinci-002"` as the model which is supposed to be the most capable.
+I had to set `temperature` and `max_tokens` to something lower and higher than the defaults, respectively, until the test responses looked good.
+If the number of tokens is too low, the full table will not print.
+
+I then ran this function for all the items in my collection, taking care not to exceed 60 requests per minute as the requests started failing due to rate limiting the first time I tried it.
+
+```julia
+results = map(enumerate(snippet_ranges)) do (i, snippet_range)
+    t = time()
+    snip = snippet(corpus, snippet_range)
+    println("\n\n\n\n$i of $(length(snippet_ranges))")
+    println(snip)
+    response = get_response(snip)
+    println(response)
+    # rate limit 60/min
+    sleep(max(0, 1 - (time() - t)))
+    (; snippet_range, snippet = snip, response)
+end
+
+# turn the ranges into tuples so the json output doesn't include a zillion numbers
+results_corrected = map(results) do result
+    (; snippet_range = (result.snippet_range.start, result.snippet_range.stop),
+        result.snippet, result.response)
+end
+
+JSON3.write("results.json", results_corrected)
+```
+
+<script src="https://gist.github.com/jkrumbiegel/62b28a02a66cb57d30020ae8305ead3d.js"></script>
+
+Finally, I parsed each response as a CSV and concatenated them all into a big DataFrame:
+
+```julia
+df = @chain begin
+    map(results_corrected) do result
+        CSV.read(IOBuffer(result.response), DataFrame)
+    end
+    reduce(vcat, _, source = :snippet_id, cols = :union)
+    sort!([:Galleons, :Sickles, :Knuts], rev = true)
+    @transform! @subset(:Knut !== missing) :Knuts = :Knut
+    # @subset !(:Galleons == :Sickles == :Knuts == 0)
+    select(Not(:Knut))
+end
+
+CSV.write("result_df.csv", df)
+```
+
+One entry had the column `Knut` instead of `Knuts` so I fixed this, other than that the format of the table appeared to be followed correctly for each entry.
+I was already quite impressed by that.
+
+But let's have a look at the results:
+
+<script src="https://gist.github.com/jkrumbiegel/27e2d2f75a7c1c82f13574d36300e922.js"></script>
+
+The top of the list looks good at first, the prize money for the Triwizard Cup was indeed 1000 Galleons.
+A few entries further down, however, we see "Goblet of Fire entry fee".
+The goblet itself didn't have an entry fee and the entry fee also wasn't a thousand Galleons, so this is obviously wrong.
+We can have a look at the snippet:
+
+```
+julia> print(snippet(corpus, snippet_ranges[34]))
+ me the truth,” he 
+said. “If you don’t want everyone else to know, fine, 
+but I don’t know why you’re bothering to lie, you 
+didn’t get into trouble for it, did you? That friend of 
+the Fat Lady’s, that Violet, she’s already told us all 
+
+Dumbledore’s letting you enter. A thousand Galleons 
+prize money, eh? And you don’t have to do end-of- 
+year tests either. ...” 
+“I didn’t put my name in that goblet!” said Harry, 
+starting to feel angry. 
+“Yeah, okay,” said Ron, in exactly the same sceptical 
+tone as Cedric. “Only you said this morning you’d 
+have done it last nig
+```
+
+The language here is not ambiguous for a human, even with no background knowledge, the thousand Galleons are clearly prize money and not an entry fee, even if for an uninformed reader it would not be clear what the prize money is for.
+One other interesting fact is that the snippet never mentions that it's a goblet _of fire_, so this part is clearly knowledge that the model added itself.
+
+The next glaring error are the Canary Creams for a whopping 1000 Galleons.
+Let's have a look at the snippet:
+
+```
+julia> print(snippet(corpus, snippet_ranges[40]))
+ld do with a few laughs. We could all 
+
+Harry Potter and the Goblet of Fire - J.K. Rowling 
+do with a few laughs. I’ve got a feeling we’re going to 
+need them more than usual before long.” 
+“Harry,” said George weakly, weighing the money bag 
+in his hands, “there’s got to be a thousand Galleons 
+in here.” 
+“Yeah,” said Harry, grinning. “Think how many 
+Canary Creams that is.” 
+The twins stared at him. 
+“Just don’t tell your mum where you got it ... 
+although she might not be so keen for you to join the 
+Ministry anymore, come to think of it. ...” 
+“Harry,” Fred began, 
+```
+
+This one's interesting, because technically this passage _does_ talk about 1000 Galleons worth of Canary Creams.
+A human would never put this in the list however, because the meaning a reader would infer from the entry is that Canary Creams cost 1000 Galleons.
+While the passage is "unfair" to the model to some degree, this just goes to show that extracting information from text is a delicate affair, and there are lots of ways it can go wrong.
+
+The list continues with many entries, many looking kind of correct, others obviously incorrect, some doubtful.
+Let's look at just one more which jumped out to me, "Dumbledore's arrest" for a single measly Knut.
+What prompted this response?
+
+```
+julia> print(snippet(corpus, snippet_ranges[68]))
+re calmly. 
+“Yes, shut up, Potter!” barked Fudge, who was still 
+ogling Dumbledore with a kind of horrified delight. 
+“Well, well, well — I came here tonight expecting to 
+expel Potter and instead — ” 
+“Instead you get to arrest me,” said Dumbledore, 
+smiling. “It’s like losing a Knut and finding a Galleon, 
+isn’t it?” 
+“Weasley!” cried Fudge, now positively quivering with 
+delight, “Weasley, have you written it all down, 
+everything he’s said, his confession, have you got it?” 
+“Yes, sir, I think so, sir!” said Percy eagerly, whose 
+nose was splattered with ink from the speed of his
+```
+
+This one is kind of impressive in the peculiar way it manages to be wrong.
+Dumbledore is using a figure of speech here, his arrest being like losing something of small value (a Knut) and gaining something much more valuable instead (a Galleon).
+So, technically, if his arrest is like losing a Knut, one could translate that as his arrest having the value of 1 Knut (never mind the Galleon gained). Well done, model!
+
+The list ends with many items worth 0,0,0.
+These are all errors given that the prompt asks for things that have value, but some of them are less wrong than others. You can have a look at the JSON linked above if you're interested in the prompts for each entry.
+
+## Conclusion
+
+I didn't end up making any plots, which had been my initial goal, because it was more fun to play around with the model and try to understand its outputs.
+The quality of the data is, to say it bluntly, garbage -- even though on first glance it's impressive that the whole pipeline worked so smoothly at all.
+
+I did actually make attempts at engineering the prompt away from the errors I was seeing, like trying to exclude items of zero value, or returning "nothing" or other placeholder responses if the model wasn't sufficiently "sure".
+This mostly broke the outputs, though, instead of improving the responses.
+
+Humans also make mistakes, but they mostly do so in predictable or understandable ways.
+The model, however, sometimes returns sensible results, or complete nonsense, without a means to easily discern those.
+In practice, I would have to hand check each entry to see if it was correct, saving me essentially no time.
+The only real time saver for a human in this scenario is the automated extraction of snippets, which is a classic task that dumb computers are good at.
+
+I don't really think the prompt left much room for interpretation (for a human), so the question is, if the prompt could be improved somehow, how do we know in which direction to go?
+This amounts to trial and error, essentially.
+Just because some test outputs look better with a changed prompt, that doesn't mean that the model suddenly "understands" better.
+It just means that the pattern it outputs matches the pattern we expect more, but the reason for that is entirely opaque.
+You can't ask the model to "show its work" or "explain its reasoning" (yet).
+
+To me, this little excursion proved again what many online discussions of AI language tools like GitHub Copilot already concluded.
+The output of such models can look convincing on first glance, and by chance, it can be indistinguishable from that of a human.
+But you cannot know when it will fail, and in what way.
+It cannot ask for clarification if it is unsure, it cannot mark passages for review or step outside the box of its prompt in any other way.
+It will just happily output response after response, with the human operator being fully responsible if they continue working with the result.
+For code generation, it might be valuable to generate "plausible-looking options" for a human to take inspiration from.
+For the specific task discussed here, even if it's rather simple, there's no benefit at all in employing the model.
+Therefore, I remain very sceptical what the future will bring, especially because of such language models' ability to output plausible-looking, but completely false output.
+The models are great at fooling humans into thinking their output is meaningful, because its structure looks correct.
+But it requires going beyond the structure of the text, and into the meaning, which is the real challenge here.
+It remains to be seen if even larger models will suddenly cross that gap in the coming years, or if they remain what this one is, a novelty toy that inspires thought, but doesn't replace it.
