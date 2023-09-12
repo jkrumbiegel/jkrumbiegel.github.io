@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.1.75">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,12 +12,12 @@
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: 1;}
+div.column{flex: auto; overflow-x: auto;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
 </style>
@@ -57,7 +57,8 @@ ul.task-list li input[type="checkbox"] {
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script>
@@ -70,9 +71,9 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-date','listing-title','listing-author','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
       
-      searchColumns: ["listing-date","listing-title","listing-author","listing-description","listing-categories"],
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -90,6 +91,7 @@ ul.task-list li input[type="checkbox"] {
   })
   </script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <link rel="stylesheet" href="styles.css">
@@ -101,24 +103,29 @@ ul.task-list li input[type="checkbox"] {
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
-      <a class="navbar-brand" href="./index.html">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">jkrumbiegel.com</span>
-  </a>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html">About</a>
+    <a class="nav-link" href="./about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/jkrumbiegel"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/jkrumbiegel" rel="" target=""><i class="bi bi-github" role="img">
 </i> 
- </a>
+ <span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
+            <div class="quarto-navbar-tools">
+</div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
@@ -135,6 +142,7 @@ ul.task-list li input[type="checkbox"] {
   <div class="quarto-title-meta">
 
       
+    
       
     </div>
     
@@ -144,7 +152,7 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(9)</span></div><div class="category" data-category="julia">julia <span class="quarto-category-count">(9)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(10)</span></div><div class="category" data-category="julia">julia <span class="quarto-category-count">(10)</span></div></div></div>
 <!-- main -->
 <main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
 
@@ -157,7 +165,42 @@ ul.task-list li input[type="checkbox"] {
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="julia" data-listing-date-sort="1665612000000" data-listing-file-modified-sort="1665650604036" data-listing-reading-time-sort="14.72">
+<div class="quarto-post image-right" data-index="0" data-categories="julia" data-listing-date-sort="1694469600000" data-listing-file-modified-sort="1694535340239" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="23">
+<div class="thumbnail">
+<p><a href="./pages/2023-09-12-capture-one-photos-sqlite/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+</div>
+<div class="body">
+<a href="./pages/2023-09-12-capture-one-photos-sqlite/index.html">
+<h3 class="no-anchor listing-title">
+RAW photo library automation with Julia
+</h3>
+<div class="listing-subtitle">
+
+</div>
+</a>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('julia'); return false;">
+julia
+</div>
+</div>
+<a href="./pages/2023-09-12-capture-one-photos-sqlite/index.html">
+<div class="listing-description">
+In this post I describe how I use Julia to automatically synchronize my Capture One raw photo catalog to my iCloud via Apple Photos, so that I can view and share the jpegs…
+</div>
+</a>
+</div>
+<div class="metadata">
+<a href="./pages/2023-09-12-capture-one-photos-sqlite/index.html">
+<div class="listing-date">
+Sep 12, 2023
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="julia" data-listing-date-sort="1665612000000" data-listing-file-modified-sort="1688757020068" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="15">
+<div class="thumbnail">
+<p><a href="./pages/2022-10-13-gpt3-harry-potter/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+</div>
 <div class="body">
 <a href="./pages/2022-10-13-gpt3-harry-potter/index.html">
 <h3 class="no-anchor listing-title">
@@ -174,7 +217,7 @@ julia
 </div>
 <a href="./pages/2022-10-13-gpt3-harry-potter/index.html">
 <div class="listing-description">
-In this blog post, I’ll show how I used Julia and a GPT-3 model (via an online API) in an attempt to analyze the monetary value of items in the Harry Potter novels, and what I learned in the process.
+In this blog post…
 </div>
 </a>
 </div>
@@ -186,7 +229,10 @@ Oct 13, 2022
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="1" data-categories="julia" data-listing-date-sort="1661551200000" data-listing-file-modified-sort="1662456181138" data-listing-reading-time-sort="27.605">
+<div class="quarto-post image-right" data-index="2" data-categories="julia" data-listing-date-sort="1661551200000" data-listing-file-modified-sort="1688757020068" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="28">
+<div class="thumbnail">
+<p><a href="./pages/2022-08-26-pkg-introduction/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+</div>
 <div class="body">
 <a href="./pages/2022-08-26-pkg-introduction/index.html">
 <h3 class="no-anchor listing-title">
@@ -203,7 +249,7 @@ julia
 </div>
 <a href="./pages/2022-08-26-pkg-introduction/index.html">
 <div class="listing-description">
-When you start using Julia, you will quickly come in contact with Pkg.jl, its package manager. It’s reasonably easy to install a few packages and start using Julia. But from reading questions on Slack and Discourse, many users only start understanding relatively late what commands like <code>instantiate</code> are doing. This post should teach you how you can step beyond a messy global environment and towards neatly packaged local versions that allow you to collaborate more effectively and make your results reproducible.
+When you start using Julia, you will quickly come in contact with Pkg.jl, its package manager. It’s reasonably…<code></code>
 </div>
 </a>
 </div>
@@ -215,7 +261,10 @@ Aug 27, 2022
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="julia" data-listing-date-sort="1659996000000" data-listing-file-modified-sort="1660750085029" data-listing-reading-time-sort="4.04">
+<div class="quarto-post image-right" data-index="3" data-categories="julia" data-listing-date-sort="1659996000000" data-listing-file-modified-sort="1694535137242" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5">
+<div class="thumbnail">
+<p><a href="./pages/2022-08-09-composing-macros/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+</div>
 <div class="body">
 <a href="./pages/2022-08-09-composing-macros/index.html">
 <h3 class="no-anchor listing-title">
@@ -232,7 +281,7 @@ julia
 </div>
 <a href="./pages/2022-08-09-composing-macros/index.html">
 <div class="listing-description">
-Macros in Julia, denoted by the <code>@</code> prefix, are used to transform code before it is executed. They are often used to reduce boilerplate or implement domain specific languages (DSLs).
+Macros in Julia, denoted by the <code>@</code> pre…
 </div>
 </a>
 </div>
@@ -244,7 +293,10 @@ Aug 9, 2022
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="3" data-categories="julia" data-listing-date-sort="1640646000000" data-listing-file-modified-sort="1659625487179" data-listing-reading-time-sort="6.89">
+<div class="quarto-post image-right" data-index="4" data-categories="julia" data-listing-date-sort="1640646000000" data-listing-file-modified-sort="1659892452635" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7">
+<div class="thumbnail">
+<p><a href="./pages/2021-12-28-new-features-dataframemacros/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+</div>
 <div class="body">
 <a href="./pages/2021-12-28-new-features-dataframemacros/index.html">
 <h3 class="no-anchor listing-title">
@@ -261,7 +313,7 @@ julia
 </div>
 <a href="./pages/2021-12-28-new-features-dataframemacros/index.html">
 <div class="listing-description">
-DataFrameMacros.jl is a Julia package that makes it easier to manipulate DataFrames, by rewriting code into source-function-sink expressions that conform to DataFrames.jl’s more verbose mini-language. In version v0.2 (and v0.2.1) I have added a couple new features that are powerful, but not immediately obvious. This post takes a closer look at the new functionality.
+DataFrameMacros.jl is a Julia package that makes it easier to manipulate DataFrames, by rewriting code into source-function-sink expressions that conform to DataFrames.jl’s more verbose…
 </div>
 </a>
 </div>
@@ -273,7 +325,10 @@ Dec 28, 2021
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="4" data-categories="julia" data-listing-date-sort="1624226400000" data-listing-file-modified-sort="1659439869583" data-listing-reading-time-sort="6.65">
+<div class="quarto-post image-right" data-index="5" data-categories="julia" data-listing-date-sort="1624226400000" data-listing-file-modified-sort="1659892452635" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7">
+<div class="thumbnail">
+<p><a href="./pages/2021-06-20-football-data-analysis/index.html"> <p class="card-img-top"><img src="pages/2021-06-20-football-data-analysis/index_files/figure-html/cell-4-output-1.svg"  class="thumbnail-image card-img"/></p> </a></p>
+</div>
 <div class="body">
 <a href="./pages/2021-06-20-football-data-analysis/index.html">
 <h3 class="no-anchor listing-title">
@@ -290,7 +345,7 @@ julia
 </div>
 <a href="./pages/2021-06-20-football-data-analysis/index.html">
 <div class="listing-description">
-As the UEFA Euro 202(0/1) is going on, I was inspired to check out a dataset of all international men’s football matches since the dawn of time. This post goes over some questions I had for the dataset, and how I approached the analysis with my recent macro package DataFrameMacros.jl. Plotting is done with AlgebraOfGraphics.jl, which is a super useful grammar-of-graphics style package building on Makie.jl, which I’m a co-author of and which is therefore my preferred plotting package.
+As the UEFA Euro 202(0/1) is going on, I was inspired to check out a dataset of all international men’s football matches since the dawn of time. This post goes over some…
 </div>
 </a>
 </div>
@@ -302,7 +357,10 @@ Jun 21, 2021
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="5" data-categories="julia" data-listing-date-sort="1623016800000" data-listing-file-modified-sort="1659439869582" data-listing-reading-time-sort="11.75">
+<div class="quarto-post image-right" data-index="6" data-categories="julia" data-listing-date-sort="1623016800000" data-listing-file-modified-sort="1688757020067" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="12">
+<div class="thumbnail">
+<p><a href="./pages/2021-06-07-macros-for-beginners/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+</div>
 <div class="body">
 <a href="./pages/2021-06-07-macros-for-beginners/index.html">
 <h3 class="no-anchor listing-title">
@@ -319,7 +377,7 @@ julia
 </div>
 <a href="./pages/2021-06-07-macros-for-beginners/index.html">
 <div class="listing-description">
-Macros are a powerful and interesting feature of the Julia programming language, but they can also be confusing. Users coming from Python, Matlab or R have not come in contact with similar constructs before, and they require a different way of thinking about code. This article is supposed to be a simple introduction, after which you might judge better when use of macros is appropriate and how to get around some of the most common gotchas.
+Macros are a powerful and interesting feature of the Julia programming language, but they can also be confusing. Users coming from Python, Matlab or R have not come in…
 </div>
 </a>
 </div>
@@ -331,7 +389,10 @@ Jun 7, 2021
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="6" data-categories="julia" data-listing-date-sort="1621461600000" data-listing-file-modified-sort="1659439869582" data-listing-reading-time-sort="16.38">
+<div class="quarto-post image-right" data-index="7" data-categories="julia" data-listing-date-sort="1621461600000" data-listing-file-modified-sort="1659892452633" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="17">
+<div class="thumbnail">
+<p><a href="./pages/2021-05-20-reading-data-from-web/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+</div>
 <div class="body">
 <a href="./pages/2021-05-20-reading-data-from-web/index.html">
 <h3 class="no-anchor listing-title">
@@ -348,7 +409,7 @@ julia
 </div>
 <a href="./pages/2021-05-20-reading-data-from-web/index.html">
 <div class="listing-description">
-Recently, I had to read in a dataset from Hillenbrand (1995), published as an annotated csv-like file on a website. The dataset describes formant frequencies of several vowel utterances from different speakers. I thought I ended up with a pretty slick implementation showing off some of the tools available in the Julia data science ecosystem.
+Recently, I had to read in a dataset from Hillenbrand (1995), published as an annotated csv-like file on a website. The dataset describes formant frequencies of…
 </div>
 </a>
 </div>
@@ -360,7 +421,10 @@ May 20, 2021
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="7" data-categories="julia" data-listing-date-sort="1604098800000" data-listing-file-modified-sort="1659439869581" data-listing-reading-time-sort="8.175">
+<div class="quarto-post image-right" data-index="8" data-categories="julia" data-listing-date-sort="1604098800000" data-listing-file-modified-sort="1659892452633" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9">
+<div class="thumbnail">
+<p><a href="./pages/2020-10-31-tuples-and-vectors/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+</div>
 <div class="body">
 <a href="./pages/2020-10-31-tuples-and-vectors/index.html">
 <h3 class="no-anchor listing-title">
@@ -377,7 +441,7 @@ julia
 </div>
 <a href="./pages/2020-10-31-tuples-and-vectors/index.html">
 <div class="listing-description">
-If you’re new to Julia, here is a scenario that might have tripped you up already: Let’s define two points. Both are just a collection of two floating point numbers. But one is a <code>Vector</code>, written with the <code>[]</code> syntax, and one a <code>Tuple</code>, written with the <code>()</code> syntax. Then we make vectors of both types of points and run a short computation. Let’s see what the performance difference looks like.
+If…<code></code><code></code><code></code><code></code>
 </div>
 </a>
 </div>
@@ -389,7 +453,10 @@ Oct 31, 2020
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="8" data-categories="julia" data-listing-date-sort="1603404000000" data-listing-file-modified-sort="1659439869581" data-listing-reading-time-sort="7.62">
+<div class="quarto-post image-right" data-index="9" data-categories="julia" data-listing-date-sort="1603404000000" data-listing-file-modified-sort="1659892452633" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8">
+<div class="thumbnail">
+<p><a href="./pages/2020-10-23-julia-bridge/index.html"> <div class="listing-item-img-placeholder card-img-top" >&nbsp;</div> </a></p>
+</div>
 <div class="body">
 <a href="./pages/2020-10-23-julia-bridge/index.html">
 <h3 class="no-anchor listing-title">
@@ -406,7 +473,7 @@ julia
 </div>
 <a href="./pages/2020-10-23-julia-bridge/index.html">
 <div class="listing-description">
-You might have heard about Julia, the language often praised for the C-like performance it can attain while keeping a clean syntax reminiscent of Python. In this blog post, I want to share a different opinion why I like using Julia, which is only tangentially related to its pure performance. It is about the community Julia enables and how that could have a beneficial influence on the way scientific software is written.
+You might have heard about Julia, the language often praised for the C-like performance it can attain while keeping a clean syntax reminiscent of Python. In this blog post…
 </div>
 </a>
 </div>
@@ -450,9 +517,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -464,7 +545,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
     button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
     setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');
     }, 1000);
@@ -493,31 +591,135 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     const ref = noterefs[i];
     tippyHover(ref, function() {
       // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href');
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
     });
   }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
   var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
   for (var i=0; i<bibliorefs.length; i++) {
     const ref = bibliorefs[i];
-    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
-    tippyHover(ref, function() {
-      var popup = window.document.createElement('div');
-      cites.forEach(function(cite) {
-        var citeDiv = window.document.createElement('div');
-        citeDiv.classList.add('hanging-indent');
-        citeDiv.classList.add('csl-entry');
-        var biblioDiv = window.document.getElementById('ref-' + cite);
-        if (biblioDiv) {
-          citeDiv.innerHTML = biblioDiv.innerHTML;
-        }
-        popup.appendChild(citeDiv);
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
       });
-      return popup.innerHTML;
-    });
+    }
   }
 });
 </script>

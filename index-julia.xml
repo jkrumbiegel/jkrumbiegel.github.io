@@ -9,8 +9,16 @@
 <link>https://jkrumbiegel.com/index.html#category=julia</link>
 <atom:link href="https://jkrumbiegel.com/index-julia.xml" rel="self" type="application/rss+xml"/>
 <description>Programming, data visualization and data science with Julia.</description>
-<generator>quarto-1.1.75</generator>
-<lastBuildDate>Wed, 12 Oct 2022 22:00:00 GMT</lastBuildDate>
+<generator>quarto-1.3.450</generator>
+<lastBuildDate>Mon, 11 Sep 2023 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>RAW photo library automation with Julia</title>
+  <link>https://jkrumbiegel.com/pages/2023-09-12-capture-one-photos-sqlite/index.html</link>
+  <description><![CDATA[ In this post I describe how I use Julia to automatically synchronize my Capture One raw photo catalog to my iCloud via Apple Photos, so that I can view and share the jpegs from my iPhone at any time with the same interface as my iPhone photos. The official AppleScript interfaces are not powerful enough to do what I need. My solution is accessing the SQLite databases of Capture One and Apple Photos directly and doing some simple data wrangling which Julia is perfectly suited for. ]]></description>
+  <category>julia</category>
+  <guid>https://jkrumbiegel.com/pages/2023-09-12-capture-one-photos-sqlite/index.html</guid>
+  <pubDate>Mon, 11 Sep 2023 22:00:00 GMT</pubDate>
+</item>
 <item>
   <title>Extracting data from Harry Potter with GPT-3</title>
   <link>https://jkrumbiegel.com/pages/2022-10-13-gpt3-harry-potter/index.html</link>

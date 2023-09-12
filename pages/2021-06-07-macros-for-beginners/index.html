@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.1.75">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -13,14 +13,15 @@
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: 1;}
+div.column{flex: auto; overflow-x: auto;}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
 pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
@@ -47,43 +48,13 @@ pre.numberSource code > span > a:first-child::before
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
     padding: 0 4px; width: 4em;
-    color: #aaaaaa;
   }
-pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
 div.sourceCode
   {   }
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-code span.al { color: #ff0000; font-weight: bold; } /* Alert */
-code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
-code span.at { color: #7d9029; } /* Attribute */
-code span.bn { color: #40a070; } /* BaseN */
-code span.bu { color: #008000; } /* BuiltIn */
-code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
-code span.ch { color: #4070a0; } /* Char */
-code span.cn { color: #880000; } /* Constant */
-code span.co { color: #60a0b0; font-style: italic; } /* Comment */
-code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
-code span.do { color: #ba2121; font-style: italic; } /* Documentation */
-code span.dt { color: #902000; } /* DataType */
-code span.dv { color: #40a070; } /* DecVal */
-code span.er { color: #ff0000; font-weight: bold; } /* Error */
-code span.ex { } /* Extension */
-code span.fl { color: #40a070; } /* Float */
-code span.fu { color: #06287e; } /* Function */
-code span.im { color: #008000; font-weight: bold; } /* Import */
-code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
-code span.kw { color: #007020; font-weight: bold; } /* Keyword */
-code span.op { color: #666666; } /* Operator */
-code span.ot { color: #007020; } /* Other */
-code span.pp { color: #bc7a00; } /* Preprocessor */
-code span.sc { color: #4070a0; } /* SpecialChar */
-code span.ss { color: #bb6688; } /* SpecialString */
-code span.st { color: #4070a0; } /* String */
-code span.va { color: #19177c; } /* Variable */
-code span.vs { color: #4070a0; } /* VerbatimString */
-code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
 </style>
 
 
@@ -119,7 +90,8 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 
@@ -133,24 +105,29 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg navbar-dark ">
       <div class="navbar-container container-fluid">
-      <a class="navbar-brand" href="../../index.html">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">jkrumbiegel.com</span>
-  </a>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../about.html">About</a>
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/jkrumbiegel"><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/jkrumbiegel" rel="" target=""><i class="bi bi-github" role="img">
 </i> 
- </a>
+ <span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div id="quarto-search" class="" title="Search"></div>
+            <div class="quarto-navbar-tools">
+</div>
           </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
@@ -182,6 +159,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
       <p class="date">June 7, 2021</p>
     </div>
   </div>
+  
     
   </div>
   
@@ -275,7 +253,7 @@ end</pre>
 </section>
 <section id="whats-escaping" class="level2">
 <h2 class="anchored" data-anchor-id="whats-escaping">What’s escaping?</h2>
-<p>To explain why <code>esc</code> needed, let’s look at a macro that leaves it out. In this example we define the macro in a separate module (because any macro you’d put in a package would not be in the <code>Main</code> module either):</p>
+<p>To explain why <code>esc</code> is needed, let’s look at a macro that leaves it out. In this example we define the macro in a separate module (because any macro you’d put in a package would not be in the <code>Main</code> module either):</p>
 <div class="cell" data-execution_count="6">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> SomeModule</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">export</span> <span class="pp">@show_value_no_esc</span></span>
@@ -294,7 +272,7 @@ end</pre>
 <span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sprint</span>(showerror, <span class="cn">e</span>)</span>
 <span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="7">
-<pre><code>"UndefVarError: orange not defined"</code></pre>
+<pre><code>"UndefVarError: `orange` not defined"</code></pre>
 </div>
 </div>
 <p>The code errors because there is no variable <code>orange</code>. But there should be, we interpolated it right there! Let’s look at the macro output with <code>@macroexpand</code> again:</p>
@@ -309,7 +287,7 @@ end</pre>
 </div>
 </div>
 </div>
-<p>Ok, so the variable looked up is actually <code>SomeModule.orange</code>, and of course we didn’t define a variable with that name in <code>SomeModule</code>. The reason this happens is that macros do often need to reference values from whatever module they were defined in. For example, to add a helper function that also lives in that module to the user’s code. Any variable name used in the created expression is looked up in the macro’s parent module by default.</p>
+<p>Ok, so the variable looked up is actually <code>SomeModule.orange</code>, and of course we didn’t define a variable with that name in <code>SomeModule</code>. The reason this happens is that macros do often need to reference values from whatever module they were defined in (for example, to add a helper function, that also lives in that module, to the user’s code). Any variable name used in the created expression is looked up in the macro’s parent module by default.</p>
 <p>The other reason is that it is potentially dangerous to just change or create variables in user space in a macro that knows nothing about what’s going on there.</p>
 <p>Imagine the writer of the macro and the user as two people who know nothing about each other. They only interface via the small snippet of code passed to the macro. So, obviously, the macro shouldn’t mess around with the user’s variables.</p>
 <p>In theory, a macro could insert things like <code>my_variable = nothing</code> or <code>empty!(some_array)</code> in the place where it’s used. But imagine the user already has a <code>my_variable</code> and it happens to hold the result of a computation that ran hours. As the macro writer doesn’t know anything about the variables the user has created, all macro-created variables are by default scoped to the macro’s module to avoid conflicts.</p>
@@ -339,7 +317,7 @@ end</pre>
 <p>Whoops, the <code>temp_variable</code> was overwritten by the macro, and this can happen with badly written macros.</p>
 <p>But still, in order to access the value of the user’s variable <code>orange</code>, we need to <code>escape</code> the use of that symbol in our generated expression. Escaping the variable could be summarized as saying “treat this variable like a variable the user has written themselves”.</p>
 <p>As a rule of thumb, macros should only ever escape variables that they know about because they were passed to the macro. These are the variables that the user potentially wants to have changed by the macro, or at least they are aware that they could be subject to change.</p>
-<p>Here you can see another example, where there is both a user and a module orange:</p>
+<p>Here you can see another example, where there is both a user and a module <code>orange</code>:</p>
 <div class="cell" data-execution_count="10">
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> AnotherModule</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">export</span> <span class="pp">@show_value_user_and_module</span></span>
@@ -368,16 +346,16 @@ end</pre>
 <p>Usually, you want to modify the expression you receive, or build a new one with it, to achieve some functional purpose. Sometimes, macros are used to define domain specific languages or DSLs, that allow users to specify complex things with simple, yet non-standard expressions.</p>
 <p>A good example for this are the formulas from <code>StatsModels.jl</code>, where <code>@formula(y ~ x)</code> is a nice shortcut to create a formula object that you could in principle build yourself without a macro, but with much more typing.</p>
 <p>Let’s try to write a small useful macro that transforms a real expression!</p>
-<p>An issue some Julia users face once in a while, is that the <code>fill</code> function’s argument is executed once, and then the whole vector is filled with that result. Let’s say we want a vector of 5 three-element random vectors.</p>
+<p>An issue some Julia users face once in a while is that the <code>fill</code> function’s argument is executed once, and then the whole vector is filled with that result. Let’s say we want a vector of 5 three-element random vectors.</p>
 <div class="cell" data-execution_count="11">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>rand_vec <span class="op">=</span> <span class="fu">fill</span>(<span class="fu">rand</span>(<span class="fl">3</span>), <span class="fl">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="12">
 <pre><code>5-element Vector{Vector{Float64}}:
- [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
- [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
- [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
- [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]
- [0.43332892722732175, 0.5782544597985374, 0.7018423734651809]</code></pre>
+ [0.9039841821218482, 0.3644507708511703, 0.8407975367191795]
+ [0.9039841821218482, 0.3644507708511703, 0.8407975367191795]
+ [0.9039841821218482, 0.3644507708511703, 0.8407975367191795]
+ [0.9039841821218482, 0.3644507708511703, 0.8407975367191795]
+ [0.9039841821218482, 0.3644507708511703, 0.8407975367191795]</code></pre>
 </div>
 </div>
 <p>As you can see, every vector is the same, which we don’t want. A way to get our desired result is with a list comprehension:</p>
@@ -385,11 +363,11 @@ end</pre>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>rand_vec <span class="op">=</span> [<span class="fu">rand</span>(<span class="fl">3</span>) for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="13">
 <pre><code>5-element Vector{Vector{Float64}}:
- [0.8725330212586709, 0.4795816230082033, 0.9172392083002981]
- [0.9719559431191102, 0.19043032642674818, 0.08611899155355529]
- [0.7161171606001293, 0.302776139613366, 0.7718944119034991]
- [0.2002017063644278, 0.5746728692444949, 0.8964453459163226]
- [0.7202575009260345, 0.09129552321489198, 0.2932641215021371]</code></pre>
+ [0.8957367680265885, 0.249510539903665, 0.8937505345144938]
+ [0.9314953138974689, 0.25762719951419766, 0.15016666804238443]
+ [0.27431927403854617, 0.16696200453179322, 0.18711308743600819]
+ [0.15334416897527525, 0.09403493703533272, 0.9900757734923491]
+ [0.520051568171863, 0.06984731462064464, 0.5529582754578751]</code></pre>
 </div>
 </div>
 <p>This works, but the fill syntax is so nice and short in comparison. Also it gets even worse if you are iterating multiple dimensions in nested for loops, while you can always write <code>fill(rand(3), 3, 4, 5)</code>.</p>
@@ -432,7 +410,7 @@ end</pre>
 </div>
 </div>
 <p>Aha, now we actually see some real expressions. Every <code>Expr</code> object has a <code>head</code> that stores what kind of expression it is, and a vector called <code>args</code> which contains all arguments to that expression.</p>
-<p>We can see that a list comprehension is made by making an <code>Expr</code> where the head is <code>:comprehension</code>. There’s only one argument to that expression, which is a :generator expression. This one in turn is assembled of the expression being called in each iteration, and the iteration expressions <code>_ = 1:5</code> and <code>_ = 1:3</code>.</p>
+<p>We can see that a list comprehension is made by making an <code>Expr</code> where the head is <code>:comprehension</code>. There’s only one argument to that expression, which is a <code>:generator</code> expression. This one in turn is assembled of the expression being called in each iteration, and the iteration expressions <code>_ = 1:5</code> and <code>_ = 1:3</code>.</p>
 <p>We want to use the syntax <code>@fill(rand(3), sizes...)</code>, so we need to think how we can transform those two arguments into the expression we want.</p>
 <p>Here, we’ll build the <code>Expr</code> by hand, instead of writing one big <code>quote</code>. Sometimes that is easier, it also depends on what you find more readable. Expressions with a lot of quoting and interpolating can be hard to understand. I usually prefer <code>quote ... end</code> over the equivalent <code>:(...)</code> just because I can parse words a bit better than parentheses.</p>
 <p>Here we go:</p>
@@ -464,11 +442,11 @@ end</pre>
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@fill</span>(<span class="fu">rand</span>(<span class="fl">3</span>), <span class="fl">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="16">
 <pre><code>5-element Vector{Vector{Float64}}:
- [0.02627205349464823, 0.11533423884129146, 0.2973247165009204]
- [0.297583789394681, 0.06903570913101054, 0.45629749169344835]
- [0.0692246211970835, 0.9507456085284235, 0.7833397066448377]
- [0.13731160049441005, 0.7236868931286216, 0.9473667580650219]
- [0.5264428859698403, 0.3563184005633261, 0.11675011608509278]</code></pre>
+ [0.23155776289714214, 0.16506850108672544, 0.6975576110978176]
+ [0.9321190744533363, 0.7284798945126126, 0.8736131864599121]
+ [0.36504661751333844, 0.022691708746904182, 0.5288865087865801]
+ [0.8521086358547397, 0.2895922988729154, 0.1456070184114313]
+ [0.8720484237531486, 0.21008612789745829, 0.5082683499697537]</code></pre>
 </div>
 </div>
 <p>A good check if you’ve escaped correctly is to pass expressions that reference some local variables. The call will error if you’ve forgotten to escape any of them:</p>
@@ -479,11 +457,11 @@ end</pre>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="pp">@fill</span>(<span class="fu">rand</span>(n), k)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="17">
 <pre><code>5-element Vector{Vector{Float64}}:
- [0.7039197395563538, 0.9816386989332266, 0.1694562488888508]
- [0.17571625986592, 0.9636575517806829, 0.018570143498500502]
- [0.20014539538594045, 0.11405234139579701, 0.8857689386671248]
- [0.6176150545544709, 0.05380364032724694, 0.8572089253093892]
- [0.4671904345271324, 0.05192318622037595, 0.5816153176748692]</code></pre>
+ [0.5917157732709782, 0.8755225218366083, 0.4032454673315716]
+ [0.6111142681907994, 0.06564154230386965, 0.4591276163618556]
+ [0.6521749060007972, 0.26064420556063617, 0.2085548309582519]
+ [0.64546352947466, 0.485066158128166, 0.20739815115743743]
+ [0.8058584624008102, 0.9168621696136154, 0.4280967575910163]</code></pre>
 </div>
 </div>
 <p>This works fine! It should also work with more size arguments, we’ll generate only random scalars so the printout is manageable:</p>
@@ -491,11 +469,11 @@ end</pre>
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="pp">@fill</span>(<span class="fu">rand</span>(), <span class="fl">5</span>, <span class="fl">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="18">
 <pre><code>5×3 Matrix{Float64}:
- 0.148051  0.0548755  0.0984375
- 0.953251  0.451733   0.414434
- 0.69841   0.964177   0.999719
- 0.174305  0.959451   0.459463
- 0.606962  0.571768   0.97671</code></pre>
+ 0.144371   0.952823    0.331021
+ 0.289901   0.00354794  0.822716
+ 0.233857   0.810845    0.933876
+ 0.665742   0.988701    0.133996
+ 0.0806734  0.270098    0.825293</code></pre>
 </div>
 </div>
 <p>Even though this particular example is contrived for simplicity (we could just use <code>rand(5, 3</code> of course) compare it to the alternative list comprehension syntax:</p>
@@ -503,11 +481,11 @@ end</pre>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>[<span class="fu">rand</span>() for _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, _ <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display" data-execution_count="19">
 <pre><code>5×3 Matrix{Float64}:
- 0.765228  0.772367   0.655585
- 0.374126  0.0999815  0.979332
- 0.2307    0.25978    0.304035
- 0.015909  0.595303   0.925112
- 0.502928  0.349744   0.536903</code></pre>
+ 0.603045   0.63075   0.313092
+ 0.624411   0.835403  0.194775
+ 0.924256   0.944286  0.145364
+ 0.541554   0.571108  0.120784
+ 0.0716549  0.75666   0.619488</code></pre>
 </div>
 </div>
 </section>
@@ -548,9 +526,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -562,7 +554,24 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     button.classList.add('code-copy-button-checked');
     var currentTitle = button.getAttribute("title");
     button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
     setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
       button.setAttribute("title", currentTitle);
       button.classList.remove('code-copy-button-checked');
     }, 1000);
@@ -591,31 +600,135 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     const ref = noterefs[i];
     tippyHover(ref, function() {
       // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href');
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
     });
   }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
   var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
   for (var i=0; i<bibliorefs.length; i++) {
     const ref = bibliorefs[i];
-    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
-    tippyHover(ref, function() {
-      var popup = window.document.createElement('div');
-      cites.forEach(function(cite) {
-        var citeDiv = window.document.createElement('div');
-        citeDiv.classList.add('hanging-indent');
-        citeDiv.classList.add('csl-entry');
-        var biblioDiv = window.document.getElementById('ref-' + cite);
-        if (biblioDiv) {
-          citeDiv.innerHTML = biblioDiv.innerHTML;
-        }
-        popup.appendChild(citeDiv);
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
       });
-      return popup.innerHTML;
-    });
+    }
   }
 });
 </script>

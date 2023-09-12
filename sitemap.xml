@@ -1,47 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://jkrumbiegel.com/index.html</loc>
-    <lastmod>2022-10-13T08:43:45.102Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jkrumbiegel.com/about.html</loc>
-    <lastmod>2022-10-13T08:43:45.466Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jkrumbiegel.com/pages/2021-12-28-new-features-dataframemacros/index.html</loc>
-    <lastmod>2022-10-13T08:43:46.787Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jkrumbiegel.com/pages/2021-06-07-macros-for-beginners/index.html</loc>
-    <lastmod>2022-10-13T08:43:47.599Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jkrumbiegel.com/pages/2022-08-09-composing-macros/index.html</loc>
-    <lastmod>2022-10-13T08:43:48.147Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jkrumbiegel.com/pages/2021-06-20-football-data-analysis/index.html</loc>
-    <lastmod>2022-10-13T08:43:48.945Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jkrumbiegel.com/pages/2020-10-31-tuples-and-vectors/index.html</loc>
-    <lastmod>2022-10-13T08:43:49.396Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jkrumbiegel.com/pages/2022-08-26-pkg-introduction/index.html</loc>
-    <lastmod>2022-10-13T08:43:50.498Z</lastmod>
+    <loc>https://jkrumbiegel.com/pages/2022-10-13-gpt3-harry-potter/index.html</loc>
+    <lastmod>2023-09-12T16:19:07.335Z</lastmod>
   </url>
   <url>
     <loc>https://jkrumbiegel.com/pages/2021-05-20-reading-data-from-web/index.html</loc>
-    <lastmod>2022-10-13T08:43:51.173Z</lastmod>
+    <lastmod>2023-09-12T16:19:06.151Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jkrumbiegel.com/pages/2020-10-31-tuples-and-vectors/index.html</loc>
+    <lastmod>2023-09-12T16:19:04.458Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jkrumbiegel.com/pages/2021-06-20-football-data-analysis/index.html</loc>
+    <lastmod>2023-09-12T16:19:03.183Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jkrumbiegel.com/pages/2021-06-07-macros-for-beginners/index.html</loc>
+    <lastmod>2023-09-12T16:19:01.754Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jkrumbiegel.com/about.html</loc>
+    <lastmod>2023-09-12T16:18:58.864Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jkrumbiegel.com/index.html</loc>
+    <lastmod>2023-09-12T16:18:58.580Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jkrumbiegel.com/pages/2021-12-28-new-features-dataframemacros/index.html</loc>
+    <lastmod>2023-09-12T16:19:00.861Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jkrumbiegel.com/pages/2022-08-09-composing-macros/index.html</loc>
+    <lastmod>2023-09-12T16:19:02.339Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jkrumbiegel.com/pages/2023-09-12-capture-one-photos-sqlite/index.html</loc>
+    <lastmod>2023-09-12T16:19:03.906Z</lastmod>
+  </url>
+  <url>
+    <loc>https://jkrumbiegel.com/pages/2022-08-26-pkg-introduction/index.html</loc>
+    <lastmod>2023-09-12T16:19:05.547Z</lastmod>
   </url>
   <url>
     <loc>https://jkrumbiegel.com/pages/2020-10-23-julia-bridge/index.html</loc>
-    <lastmod>2022-10-13T08:43:51.552Z</lastmod>
-  </url>
-  <url>
-    <loc>https://jkrumbiegel.com/pages/2022-10-13-gpt3-harry-potter/index.html</loc>
-    <lastmod>2022-10-13T08:43:52.179Z</lastmod>
+    <lastmod>2023-09-12T16:19:06.648Z</lastmod>
   </url>
 </urlset>

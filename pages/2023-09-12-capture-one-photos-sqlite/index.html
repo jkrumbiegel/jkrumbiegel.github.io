@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2023-09-12">
+
+<title>jkrumbiegel.com - RAW photo library automation with Julia</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="nav-fixed fullcontent">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">jkrumbiegel.com</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/jkrumbiegel" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+            <div class="quarto-navbar-tools">
+</div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">RAW photo library automation with Julia</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">julia</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">September 12, 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="summary" class="level2">
+<h2 class="anchored" data-anchor-id="summary">Summary</h2>
+<p>In this post I describe how I use Julia to automatically synchronize my Capture One raw photo catalog to my iCloud via Apple Photos, so that I can view and share the jpegs from my iPhone at any time with the same interface as my iPhone photos. The official AppleScript interfaces are not powerful enough to do what I need. My solution is accessing the SQLite databases of Capture One and Apple Photos directly and doing some simple data wrangling which Julia is perfectly suited for.</p>
+</section>
+<section id="the-problem" class="level2">
+<h2 class="anchored" data-anchor-id="the-problem">The problem</h2>
+<p>I take a lot of RAW photos with my mirrorless camera whenever there’s any sort of event in my life, for all other situations I usually use my iPhone. For a while I’ve been annoyed that I can’t view and share my high-quality photos as easily as the ones from the phone, because they have to roundtrip through my editing software Capture One first before I export them as jpegs. There is software to host your own photo library somewhere, but that’s too much organizational overhead for me.</p>
+<p>Ideally, I wanted to just have the mirrorless photos appear side-by-side with my iPhone photos in my iPhone’s camera roll. I do have enough space in my iCloud plan to host all the exported jpegs, but I did not want to have them all in a huge pile and I did not want to upload them all manually either. For many years, I have sorted all RAW photos in Capture One and on my hard drive into folders because I wanted this structure to persist across editing software changes (I’ve switched from Lightroom to Capture One before and might switch again at some point). The structure is simple, photos are grouped into folders like <code>2023/2023-02-03-2023-02-05 Weekend in the mountains</code>. All I wanted was automation with these characteristics:</p>
+<ul>
+<li>There’s no configuration, I only have to run a script or press a button somewhere and all RAW photos not yet in my iCloud collection are exported and uploaded.</li>
+<li>As Apple Photos doesn’t have physical folders, my folder structure should be mirrored by albums.</li>
+<li>Already uploaded photos are detected and only exported again if they have been edited again since.</li>
+</ul>
+</section>
+<section id="the-non-solution-applescript" class="level2">
+<h2 class="anchored" data-anchor-id="the-non-solution-applescript">The non-solution: AppleScript</h2>
+<p>Both Capture One and Apple Photos have AppleScript interfaces for automation. So I spent quite a lot of time trying to get things to work this way, however, I was ultimately not successful or happy with my solutions for these reasons:</p>
+<ul>
+<li><strong>AppleScript is weird</strong>: I encountered a lot of friction with the unusual syntax and object model. The objects you get back from applications do not behave like those in other object-oriented languages I know. They’re usually lazy queries and a bit hard to predict when storing them over the lifetime of a program. Also, a lot of basic things are more difficult in AppleScript than in Julia, for example mapping over lists or dictionaries. Because I found AppleScript so unwieldy, I actually made two attempts to supplant it with Julia libraries, one for accessing AppleScript via the Objective C Scripting Bridge, and one other, sending apple events directly. Both were doomed to fail due to weirdnesses in implementation that only became visible hours into each project. (JavaScript for automation or JXA is a bit better in terms of programming primitives, but some commands I needed could not be run at all through this interface).</li>
+<li><strong>AppleScript is slow</strong>: My Capture One library has about 45,000 images, and I have about 30,000 other images in ApplePhotos. Looping over all of those with AppleScript easily accumulates minutes or even hours of run time just for the bookkeeping.</li>
+<li><strong>Missing things in AppleScript APIs</strong>: I need to know when a Capture One image was most recently edited so that I know whether I have to update that image in Apple Photos. But Capture One’s AppleScript interface doesn’t expose editing time. It does expose a lot of useless other tags, I have no idea how such a basic thing slipped past them, or why they decided it was not useful enough to include. It’s the same on the Apple Photos side. I need to know when an image was added to the library, so I can compare that to the edit time on the Capture One side. Again, this information is not exposed via AppleScript. Overwriting all existing photos each time is completely infeasible, that would waste hours or days of rendering time.</li>
+</ul>
+</section>
+<section id="the-solution-direct-database-access" class="level2">
+<h2 class="anchored" data-anchor-id="the-solution-direct-database-access">The solution: Direct database access</h2>
+<p>I had given up hope multiple times to ever solve this issue, only to return again, try, and fail. My photos seemed doomed to reside on my NAS at home where nobody can ever see them (my upload speed is way too slow to serve anything from there). In a moment of frustration I thought “why can’t I just access my freaking photo database like the database that it is”, which was followed by “wait a minute, it probably really <em>is</em> just a database”. After two seconds of googling, I discovered that both Apple Photos and Capture One (and Lightroom, for my older photos) use SQLite databases, just slightly hidden in their own files. This sparked hope that these databases would hold the timestamp information I needed. Naturally, I started a Julia project to find out.</p>
+<p>In a new environment, I installed <code>SQLite</code> and <code>DataFrames</code>. The Capture One SQLite file is <code>Capture One Catalog.cocatalog/Capture One Catalog.cocatalogdb</code> and that of Apple Photos is <code>Fotos-Mediathek.photoslibrary/database/Photos.sqlite</code>. Before doing any operations, I copied both those files to a <code>mktempdir()</code>, just to be sure I don’t accidentally destroy years of editing work. I then defined</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">dfexec</span>(db, sql) <span class="op">=</span> <span class="fu">DataFrame</span>(DBInterface.<span class="fu">execute</span>(db, sql))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>where <code>db</code> should be the output of <code>SQLite.DB(path_to_sqlite_copy)</code>. This way I get a <code>DataFrame</code> out from my queries, which I’m more familiar with.</p>
+<p>After these first steps, most of the time went into finding out where and how the data I needed was stored. Here’s an example of what the SQL command <code>PRAGMA table_list</code> returns for Capture One:</p>
+<pre><code>22×6 DataFrame
+ Row │ schema  name                          type    ncol   wr     strict 
+     │ String  String                        String  Int64  Int64  Int64  
+─────┼────────────────────────────────────────────────────────────────────
+   1 │ main    sqlite_stat1                  table       3      0       0
+   2 │ main    ZCOLLECTION                   table      46      0       0
+   3 │ main    ZIMAGEINCOLLECTION            table       4      0       0
+   4 │ main    ZDOCUMENTSETTING              table       4      0       0
+   5 │ main    ZVARIANTLAYER                 table     139      0       0
+   6 │ main    ZSIDECAR                      table       6      0       0
+   7 │ main    ZSELECTEDVARIANTS             table       4      0       0
+   8 │ main    ZPROCESSHISTORY               table       5      0       0
+   9 │ main    ZVARIANTMETADATA              table      41      0       0
+  10 │ main    ZDOCUMENTCONTENT              table      15      0       0
+  11 │ main    ZVERSIONINFO                  table       7      0       0
+  12 │ main    ZENTITIES                     table       2      0       0
+  13 │ main    ZCAPTUREPILOT                 table      17      0       0
+  14 │ main    ZVARIANTINCOLLECTION          table       4      0       0
+  15 │ main    ZENABLEDOUTPUTRECIPE          table       4      0       0
+  16 │ main    ZVARIANT                      table      20      0       0
+  17 │ main    ZKEYWORD                      table       8      0       0
+  18 │ main    ZIMAGEINCOLLECTIONPROPERTIES  table       6      0       0
+  19 │ main    sqlite_schema                 table       5      0       0
+  20 │ main    ZIMAGE                        table      56      0       0
+  21 │ main    ZPATHLOCATION                 table       8      0       0
+  22 │ temp    sqlite_temp_schema            table       5      0       0</code></pre>
+<p>I had a look through most of these and pieced together the data structures I needed. As it turns out, Capture One discriminates between “images” and “variants”. Variants are the descriptions of edits that have been done with a given source image. Every image has at least one variant but can have more. It turned out that almost none of my photos have more than the primary variant, so I decided only to export that one, because a process including secondary variants would have become more complicated for little gain. That’s why I only needed the table <code>ZIMAGEINCOLLECTION</code> to find the collections that the primary variants were in, and not <code>ZVARIANTINCOLLECTION</code> which stores that info for the additional variants.</p>
+<p>The data I needed had to be pieced together from multiple tables. For example, to get the collections with their source paths on disk:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    ZCOLLECTION.Z_PK <span class="kw">as</span> id_coll,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    ZCOLLECTION.ZNAME <span class="kw">as</span> cname,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    ZENTITIES.ZNAME <span class="kw">as</span> ctype,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    ZMACROOT <span class="kw">as</span> cvolume,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    ZRELATIVEPATH <span class="kw">as</span> cpath</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> ZCOLLECTION</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> ZENTITIES <span class="kw">ON</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    ZCOLLECTION.Z_ENT <span class="op">=</span> ZENTITIES.Z_ENT</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> ZPATHLOCATION <span class="kw">ON</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    ZCOLLECTION.ZFOLDERLOCATION <span class="op">=</span> ZPATHLOCATION.Z_PK</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To get the variants with correct zero-based variant index:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    Z_PK <span class="kw">as</span> id_var,</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    ZLASTMETADATAMODIFICATIONDATE <span class="kw">as</span> t_modified,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    ZIMAGE <span class="kw">as</span> id_img,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    ZINDEX <span class="op">&gt;&gt;</span> <span class="dv">7</span> <span class="kw">as</span> var_index <span class="co">-- bit shifting needed for unknown reasons</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> ZVARIANT</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To get raw image information:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    Z_PK <span class="kw">as</span> id_img,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    ZDISPLAYNAME <span class="kw">as</span> imgname,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    ZIMAGELOCATION <span class="kw">as</span> id_imglocation,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    ZIMAGEFILENAME <span class="kw">as</span> filename</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> ZIMAGE</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Timestamps had to be converted from floats via <code>Dates.unix2datetime</code>. I identified all the collections with my year-name pattern by filtering for <code>endswith(:cpath, r"\d{4}[^/]+")</code>.</p>
+<p>The data coming out of this process looks a bit like the following:</p>
+<pre><code>23×9 DataFrame
+ Row │ id_coll  id_img  id_var  t_modified               var_index  filename      album                  folder     jpgname      
+     │ Int64    Int64   Int64   DateTime?                Int64      String        String                 SubStrin…  String       
+─────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │     674   56442   56465  2020-03-04T18:52:55.723          0  DSC08284.ARW  2020-03-04 Some Event  2020       DSC08284.jpg
+   2 │     674   56443   56466  2020-03-04T18:52:57.075          0  DSC08285.ARW  2020-03-04 Some Event  2020       DSC08285.jpg
+   3 │     674   56444   56467  2020-03-04T18:52:58.381          0  DSC08286.ARW  2020-03-04 Some Event  2020       DSC08286.jpg
+   4 │     674   56445   56468  2020-03-04T18:52:59.684          0  DSC08287.ARW  2020-03-04 Some Event  2020       DSC08287.jpg
+   5 │     674   56446   56469  2020-03-04T18:53:00.997          0  DSC08288.ARW  2020-03-04 Some Event  2020       DSC08288.jpg
+   6 │     674   56447   56470  2020-03-04T18:53:02.296          0  DSC08289.ARW  2020-03-04 Some Event  2020       DSC08289.jpg
+   7 │     674   56448   56471  2020-03-04T18:53:03.637          0  DSC08290.ARW  2020-03-04 Some Event  2020       DSC08290.jpg</code></pre>
+<p>On the Apple Photos side I used this statement:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode sql code-with-copy"><code class="sourceCode sql"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">SELECT</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    alb.Z_PK <span class="kw">as</span> id_album,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    alb.ZPARENTFOLDER <span class="kw">as</span> parentfolder_id,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    parentalb.ZTITLE <span class="kw">as</span> folder,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    alb.ZTITLE <span class="kw">as</span> album,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    alb.ZTRASHEDSTATE <span class="kw">as</span> album_deleted,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    pk.Z_NAME <span class="kw">as</span> albumkind,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    Z_3ASSETS <span class="kw">as</span> id_asset,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    assattr.ZORIGINALFILENAME <span class="kw">as</span> jpgname,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    ZASSET.ZADDEDDATE <span class="kw">as</span> t_added,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    ZASSET.ZDATECREATED <span class="kw">as</span> t_created</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="kw">FROM</span> ZGENERICALBUM <span class="kw">as</span> alb</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> Z_PRIMARYKEY <span class="kw">as</span> pk <span class="kw">ON</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    alb.Z_ENT <span class="op">=</span> pk.Z_ENT</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a><span class="kw">INNER</span> <span class="kw">JOIN</span> Z_27ASSETS <span class="kw">ON</span>    <span class="co">-- Z_XXASSETS, where XX is the id of the Album entity</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>    id_album <span class="op">==</span> Z_27ALBUMS</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> ZASSET <span class="kw">ON</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    id_asset <span class="op">==</span> ZASSET.Z_PK</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> ZADDITIONALASSETATTRIBUTES <span class="kw">as</span> assattr <span class="kw">ON</span></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    id_asset <span class="op">==</span> assattr.ZASSET</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a><span class="kw">LEFT</span> <span class="kw">JOIN</span> ZGENERICALBUM <span class="kw">as</span> parentalb <span class="kw">ON</span></span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>    alb.ZPARENTFOLDER <span class="op">==</span> parentalb.Z_PK</span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a><span class="kw">WHERE</span> (album <span class="kw">IS</span> <span class="kw">NOT</span> <span class="kw">NULL</span> <span class="kw">OR</span> id_album <span class="op">==</span> <span class="dv">1</span>) <span class="kw">AND</span> album_deleted <span class="op">==</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This is kind of specific to my own machine, the <code>Z_27ALBUMS</code> table for example can be called something else depending on the id of the <code>Album</code> entity in the entities table. In this case, the time stamps needed to be transformed using <code>DateTime(2001, 1, 1) + Second(round(Int, :t_added))</code> as I found out after a bit of googling.</p>
+<p>I wrote some data wrangling logic to extract three fields for each photo in both dataframes, <code>:folder</code>, <code>:album</code>, <code>:jpgname</code>. I could not use the photo timestamp as a unique ID to match photos because it has only a resolution of seconds, so there are many photos from bursts sharing the same timestamp. I relied on the folder structure plus original filename for matching, as I always just keep filenames when exporting, so <code>DSC1234.ARW</code> becomes <code>DSC1234.jpg</code> which can be read out on the Apple Photos side as <code>ZORIGINALFILENAME</code>.</p>
+<p>Now that I had these two dataframes, my queries became simple join statements. To find all photos that are already exported to Apple Photos:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>in_photos <span class="op">=</span> <span class="fu">innerjoin</span>(dfco, dfphotos, on <span class="op">=</span> [<span class="op">:</span>folder, <span class="op">:</span>album, <span class="op">:</span>jpgname])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To find all photos in this dataframe that have since been edited in Capture One and should be updated:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">using</span> <span class="bu">DataFrameMacros</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="pp">@subset</span> in_photos (<span class="op">:</span>t_modified <span class="op">&gt;</span> <span class="op">:</span>t_added) <span class="op">===</span> <span class="cn">true</span> <span class="co"># === because of missings</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To find all photos that are not yet in Apple Photos:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>not_in_photos <span class="op">=</span> <span class="fu">antijoin</span>(dfco, dfphotos, on <span class="op">=</span> [<span class="op">:</span>folder, <span class="op">:</span>album, <span class="op">:</span>jpgname])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This was the core of the solution of my problem. It was beautiful to be able to write simple DataFrames queries against the data, while having to reimplement something like <code>antijoin</code> in AppleScript would have been quite horrible I’m sure. Having the Julia REPL for interactively exploring the data that I don’t yet understand is much nicer than doing the same in AppleScript, which doesn’t even have obvious inbuilt print logging…</p>
+<p>The last part of the post spells out a bit more how I could actually get the photos exported from Capture One and imported into Apple Photos after they had been identified. Here I did use some AppleScript after all.</p>
+</section>
+<section id="exporting-and-importing-applescript-is-back" class="level2">
+<h2 class="anchored" data-anchor-id="exporting-and-importing-applescript-is-back">Exporting and importing: AppleScript is back</h2>
+<p>For making Capture One and Apple Photos <em>do</em> anything, you sadly can’t avoid AppleScript. But I wanted to spend as little time as possible there, so I decided to stay in Julia and only execute snippets of AppleScript via the <code>osascript</code> executable. This is thankfully pretty easy with Julia’s <code>Cmd</code>s.</p>
+<p>In principle the logic is simple, choose a batch of photos from the dataframe of unexported photos, tell Capture One to export them somewhere, and tell Apple Photos to import them into the correct album.</p>
+<p>There’s some more complication to this (of course there is, there always is). The first one is that I always want to use temporary folders so that my workflows don’t depend on the directory structure I had at the time of writing them. But Capture One doesn’t allow you to just process to some folder, you can only process recipes. So I set the path on a specific recipe I only use for this purpose, each time I process a new batch.</p>
+<p>This looks something like:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mktempdir</span>() <span class="cf">do</span> dir</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    scr <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="st">    tell application "Capture One 23"</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="st">        set d to current document</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="st">        set r to recipe "icloud jpg export" of d</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="st">        set root folder location of r to "</span><span class="sc">$</span>dir<span class="st">"</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="st">        set v to {</span><span class="sc">$</span>variantstring<span class="st">}</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="st">        process v recipe "icloud jpg export"</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="st">        return</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="st">    end tell</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="st">    """</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="pp">@info</span> <span class="st">"Waiting for processing..."</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">run</span>(<span class="ss">`osascript -e $scr`</span>)</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># other logic before cleaning up</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a><span class="cf">end</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The variable <code>variantstring</code> is a pre-made string of AppleScript expressions that accesses the correct variants in Capture One. In this snippet <code>sdf</code> is the sub-dataframe containing the rows I want to export in a batch.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>variantstring <span class="op">=</span> <span class="fu">join</span>([<span class="st">"(variant id </span><span class="sc">\"$</span>i<span class="sc">\"</span><span class="st"> of collection id </span><span class="sc">\"$</span>coll<span class="sc">\"</span><span class="st"> of d)"</span> for (i, coll) <span class="kw">in</span> <span class="fu">zip</span>(sdf.id_var, sdf.id_coll)], <span class="st">", "</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="getting-capture-one-to-call-back" class="level2">
+<h2 class="anchored" data-anchor-id="getting-capture-one-to-call-back">Getting Capture One to call back</h2>
+<p>Ok, so now I could process images to a temporary folder. The next complication was that <code>osascript</code> returns before the exported images are ready. There’s no simple “callback” from Capture One that tells me when I can start importing to Apple Photos. There’s only a <code>batch done script</code> property I can set via AppleScript, where Capture One will call that script when it has finished a batch. This is in principle prone to errors, were I to interact with Capture One at the same time my script runs, but I don’t have to make things more complicated than they need to be and just refrain from doing that.</p>
+<p>My little workaround to make the <code>osascript</code> more callback-y was:</p>
+<ul>
+<li>Create a temporary AppleScript file.</li>
+<li>This file contains logic to write a new random UUID to another empty file next to it.</li>
+<li>Set this script file as Capture One’s <code>batch done script</code>.</li>
+<li>Start Capture One’s processing.</li>
+<li>Start watching the empty file with Julia’s <code>FileWatching</code>.</li>
+<li>Once Capture One is done, and the file is being written to, <code>FileWatching.watch_file</code> returns.</li>
+<li>Read the sentinel file, check that the UUID matches the generated one, otherwise some mixup may have happened an error is thrown.</li>
+<li>Finally set Capture One’s <code>batch done script</code> to an empty string to disable the functionality.</li>
+</ul>
+<p>This actually worked pretty well and made the whole process much more pleasant. I had tried out watching the folder for the known number of exported files, but this was problematic if the Capture One processing failed half-way for some reason. Then the required number would never be reached without me knowing why (AppleScript doesn’t return processing errors). But if the <code>batch done script</code> fires and the number of images is not right, I know something is incorrect (usually something with a raw file being unavailable temporarily due to network issues).</p>
+</section>
+<section id="final-hickups-importing-into-apple-photos" class="level2">
+<h2 class="anchored" data-anchor-id="final-hickups-importing-into-apple-photos">Final hickups: Importing into Apple Photos</h2>
+<p>Once a batch of photos is done, I use this code to import them into Apple Photos:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>filesstring <span class="op">=</span> <span class="fu">join</span>([<span class="st">"(POSIX file </span><span class="sc">\"$</span>f<span class="sc">\"</span><span class="st">)"</span> for f <span class="kw">in</span> filepaths], <span class="st">", "</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>scr2 <span class="op">=</span> <span class="st">"""</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="st">with timeout of 86400 seconds</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="st">    tell application "Photos"</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="st">        if not (exists folder "</span><span class="sc">$</span>folder<span class="st">" of folder "Kamera")</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="st">            make new folder named "</span><span class="sc">$</span>folder<span class="st">" at folder "Kamera"</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="st">        end if</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="st">        set fol to folder "</span><span class="sc">$</span>folder<span class="st">" of folder "Kamera"</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="st">        if not (exists album "</span><span class="sc">$</span>album<span class="st">" of fol)</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="st">            make new album named "</span><span class="sc">$</span>album<span class="st">" at fol</span></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a><span class="st">        end</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="st">        set alb to album "</span><span class="sc">$</span>album<span class="st">" of fol</span></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="st">        set imagefiles to {</span><span class="sc">$</span>filesstring<span class="st">}</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a><span class="st">        import imagefiles into alb skip check duplicates true</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="st">        return</span></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="st">    end tell</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a><span class="st">end</span></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="fu">run</span>(<span class="ss">`osascript -e $scr2`</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This is again specific to my folder structure with a parent folder <code>Kamera</code> that all albums go in. This works well, the only problem is that it sometimes doesn’t. I run in batches of 30 photos because it’s annoying if something goes wrong in a super-large batch, which loses all the progress made. Sometimes, though, Apple Photos will show a popup window saying that some files couldn’t be imported. I haven’t yet been able to determine why this happens, but this is not detectable from my side. Apple Photos will have to be restarted when that happens, or all following imports will be executed without effect. This means I wouldn’t let this run overnight, I do it once in a while when I can keep an eye on Apple Photos. If I see the problem, I quickly restart it. That does put a small dent in an otherwise convenient workflow, but it’s still much better than anything I had.</p>
+<p>The other small annoyance is that I cannot delete photos in Apple Photos via AppleScript when I want to replace an existing image with a newer version. I guess they don’t offer this functionality because people who delete their photos irrecoverably by mistake cause customer service too much trouble. But it does feel a bit patronizing, I guess people coding are used to shooting themselves in the foot and there are still plenty of ways left to do it, even without this option.</p>
+<p>What I can do is to add the photos I want to delete to another album called “To delete” or something, where I can then select them and delete them via the GUI. That’s also not too terrible, just another small dent.</p>
+</section>
+<section id="conclusion" class="level2">
+<h2 class="anchored" data-anchor-id="conclusion">Conclusion</h2>
+<p>Overall I’m pretty happy with the workflow. It means that I get to scroll through all my photos on my iPhone, with Apple’s nice and responsive servers backing all of this, and not my snail-like home internet uplink or some other third-party. I’m left wondering why Capture One and Apple Photos have the AppleScript API gaps and odd behaviors that they have, but I guess my photographer-programmer niche is so small that there are not enough people to voice complaints. Thanks to the makers of Julia, SQLite.jl, DataFrames.jl and other open source softwares that make hacky workarounds like this possible.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
