@@ -1,0 +1,340 @@
+---
+title: "RAW photo library automation with Julia"
+date: 2023-09-12
+categories: ["julia"]
+---
+
+## Summary
+
+In this post I describe how I use Julia to automatically synchronize my Capture One raw photo catalog to my iCloud via Apple Photos, so that I can view and share the jpegs from my iPhone at any time with the same interface as my iPhone photos.
+The official AppleScript interfaces are not powerful enough to do what I need.
+My solution is accessing the SQLite databases of Capture One and Apple Photos directly and doing some simple data wrangling which Julia is perfectly suited for.
+
+## The problem
+
+I take a lot of RAW photos with my mirrorless camera whenever there's any sort of event in my life, for all other situations I usually use my iPhone.
+For a while I've been annoyed that I can't view and share my high-quality photos as easily as the ones from the phone, because they have to roundtrip through my editing software Capture One first before I export them as jpegs.
+There is software to host your own photo library somewhere, but that's too much organizational overhead for me.
+
+Ideally, I wanted to just have the mirrorless photos appear side-by-side with my iPhone photos in my iPhone's camera roll.
+I do have enough space in my iCloud plan to host all the exported jpegs, but I did not want to have them all in a huge pile and I did not want to upload them all manually either.
+For many years, I have sorted all RAW photos in Capture One and on my hard drive into folders because I wanted this structure to persist across editing software changes (I've switched from Lightroom to Capture One before and might switch again at some point).
+The structure is simple, photos are grouped into folders like `2023/2023-02-03-2023-02-05 Weekend in the mountains`.
+All I wanted was automation with these characteristics:
+
+- There's no configuration, I only have to run a script or press a button somewhere and all RAW photos not yet in my iCloud collection are exported and uploaded.
+- As Apple Photos doesn't have physical folders, my folder structure should be mirrored by albums.
+- Already uploaded photos are detected and only exported again if they have been edited again since.
+
+## The non-solution: AppleScript
+
+Both Capture One and Apple Photos have AppleScript interfaces for automation.
+So I spent quite a lot of time trying to get things to work this way, however, I was ultimately not successful or happy with my solutions for these reasons:
+
+- **AppleScript is weird**: I encountered a lot of friction with the unusual syntax and object model. The objects you get back from applications do not behave like those in other object-oriented languages I know. They're usually lazy queries and a bit hard to predict when storing them over the lifetime of a program. Also, a lot of basic things are more difficult in AppleScript than in Julia, for example mapping over lists or dictionaries. Because I found AppleScript so unwieldy, I actually made two attempts to supplant it with Julia libraries, one for accessing AppleScript via the Objective C Scripting Bridge, and one other, sending apple events directly. Both were doomed to fail due to weirdnesses in implementation that only became visible hours into each project. (JavaScript for automation or JXA is a bit better in terms of programming primitives, but some commands I needed could not be run at all through this interface).
+- **AppleScript is slow**: My Capture One library has about 45,000 images, and I have about 30,000 other images in ApplePhotos. Looping over all of those with AppleScript easily accumulates minutes or even hours of run time just for the bookkeeping.
+- **Missing things in AppleScript APIs**: I need to know when a Capture One image was most recently edited so that I know whether I have to update that image in Apple Photos. But Capture One's AppleScript interface doesn't expose editing time. It does expose a lot of useless other tags, I have no idea how such a basic thing slipped past them, or why they decided it was not useful enough to include. It's the same on the Apple Photos side. I need to know when an image was added to the library, so I can compare that to the edit time on the Capture One side. Again, this information is not exposed via AppleScript. Overwriting all existing photos each time is completely infeasible, that would waste hours or days of rendering time.
+
+## The solution: Direct database access
+
+I had given up hope multiple times to ever solve this issue, only to return again, try, and fail.
+My photos seemed doomed to reside on my NAS at home where nobody can ever see them (my upload speed is way too slow to serve anything from there).
+In a moment of frustration I thought "why can't I just access my freaking photo database like the database that it is", which was followed by "wait a minute, it probably really _is_ just a database".
+After two seconds of googling, I discovered that both Apple Photos and Capture One (and Lightroom, for my older photos) use SQLite databases, just slightly hidden in their own files.
+This sparked hope that these databases would hold the timestamp information I needed.
+Naturally, I started a Julia project to find out.
+
+In a new environment, I installed `SQLite` and `DataFrames`.
+The Capture One SQLite file is `Capture One Catalog.cocatalog/Capture One Catalog.cocatalogdb` and that of Apple Photos is `Fotos-Mediathek.photoslibrary/database/Photos.sqlite`.
+Before doing any operations, I copied both those files to a `mktempdir()`, just to be sure I don't accidentally destroy years of editing work.
+I then defined
+
+```julia
+dfexec(db, sql) = DataFrame(DBInterface.execute(db, sql))
+```
+
+where `db` should be the output of `SQLite.DB(path_to_sqlite_copy)`.
+This way I get a `DataFrame` out from my queries, which I'm more familiar with.
+
+After these first steps, most of the time went into finding out where and how the data I needed was stored.
+Here's an example of what the SQL command `PRAGMA table_list` returns for Capture One:
+
+```
+22×6 DataFrame
+ Row │ schema  name                          type    ncol   wr     strict 
+     │ String  String                        String  Int64  Int64  Int64  
+─────┼────────────────────────────────────────────────────────────────────
+   1 │ main    sqlite_stat1                  table       3      0       0
+   2 │ main    ZCOLLECTION                   table      46      0       0
+   3 │ main    ZIMAGEINCOLLECTION            table       4      0       0
+   4 │ main    ZDOCUMENTSETTING              table       4      0       0
+   5 │ main    ZVARIANTLAYER                 table     139      0       0
+   6 │ main    ZSIDECAR                      table       6      0       0
+   7 │ main    ZSELECTEDVARIANTS             table       4      0       0
+   8 │ main    ZPROCESSHISTORY               table       5      0       0
+   9 │ main    ZVARIANTMETADATA              table      41      0       0
+  10 │ main    ZDOCUMENTCONTENT              table      15      0       0
+  11 │ main    ZVERSIONINFO                  table       7      0       0
+  12 │ main    ZENTITIES                     table       2      0       0
+  13 │ main    ZCAPTUREPILOT                 table      17      0       0
+  14 │ main    ZVARIANTINCOLLECTION          table       4      0       0
+  15 │ main    ZENABLEDOUTPUTRECIPE          table       4      0       0
+  16 │ main    ZVARIANT                      table      20      0       0
+  17 │ main    ZKEYWORD                      table       8      0       0
+  18 │ main    ZIMAGEINCOLLECTIONPROPERTIES  table       6      0       0
+  19 │ main    sqlite_schema                 table       5      0       0
+  20 │ main    ZIMAGE                        table      56      0       0
+  21 │ main    ZPATHLOCATION                 table       8      0       0
+  22 │ temp    sqlite_temp_schema            table       5      0       0
+```
+
+I had a look through most of these and pieced together the data structures I needed.
+As it turns out, Capture One discriminates between "images" and "variants".
+Variants are the descriptions of edits that have been done with a given source image.
+Every image has at least one variant but can have more.
+It turned out that almost none of my photos have more than the primary variant, so I decided only to export that one, because a process including secondary variants would have become more complicated for little gain.
+That's why I only needed the table `ZIMAGEINCOLLECTION` to find the collections that the primary variants were in, and not `ZVARIANTINCOLLECTION` which stores that info for the additional variants.
+
+The data I needed had to be pieced together from multiple tables.
+For example, to get the collections with their source paths on disk:
+
+```sql
+SELECT
+    ZCOLLECTION.Z_PK as id_coll,
+    ZCOLLECTION.ZNAME as cname,
+    ZENTITIES.ZNAME as ctype,
+    ZMACROOT as cvolume,
+    ZRELATIVEPATH as cpath
+FROM ZCOLLECTION
+LEFT JOIN ZENTITIES ON
+    ZCOLLECTION.Z_ENT = ZENTITIES.Z_ENT
+LEFT JOIN ZPATHLOCATION ON
+    ZCOLLECTION.ZFOLDERLOCATION = ZPATHLOCATION.Z_PK
+```
+
+To get the variants with correct zero-based variant index:
+
+```sql
+SELECT
+    Z_PK as id_var,
+    ZLASTMETADATAMODIFICATIONDATE as t_modified,
+    ZIMAGE as id_img,
+    ZINDEX >> 7 as var_index -- bit shifting needed for unknown reasons
+FROM ZVARIANT
+```
+
+To get raw image information:
+
+```sql
+SELECT
+    Z_PK as id_img,
+    ZDISPLAYNAME as imgname,
+    ZIMAGELOCATION as id_imglocation,
+    ZIMAGEFILENAME as filename
+FROM ZIMAGE
+```
+
+Timestamps had to be converted from floats via `Dates.unix2datetime`.
+I identified all the collections with my year-name pattern by filtering for `endswith(:cpath, r"\d{4}[^/]+")`.
+
+The data coming out of this process looks a bit like the following:
+
+```
+23×9 DataFrame
+ Row │ id_coll  id_img  id_var  t_modified               var_index  filename      album                  folder     jpgname      
+     │ Int64    Int64   Int64   DateTime?                Int64      String        String                 SubStrin…  String       
+─────┼───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+   1 │     674   56442   56465  2020-03-04T18:52:55.723          0  DSC08284.ARW  2020-03-04 Some Event  2020       DSC08284.jpg
+   2 │     674   56443   56466  2020-03-04T18:52:57.075          0  DSC08285.ARW  2020-03-04 Some Event  2020       DSC08285.jpg
+   3 │     674   56444   56467  2020-03-04T18:52:58.381          0  DSC08286.ARW  2020-03-04 Some Event  2020       DSC08286.jpg
+   4 │     674   56445   56468  2020-03-04T18:52:59.684          0  DSC08287.ARW  2020-03-04 Some Event  2020       DSC08287.jpg
+   5 │     674   56446   56469  2020-03-04T18:53:00.997          0  DSC08288.ARW  2020-03-04 Some Event  2020       DSC08288.jpg
+   6 │     674   56447   56470  2020-03-04T18:53:02.296          0  DSC08289.ARW  2020-03-04 Some Event  2020       DSC08289.jpg
+   7 │     674   56448   56471  2020-03-04T18:53:03.637          0  DSC08290.ARW  2020-03-04 Some Event  2020       DSC08290.jpg
+```
+
+On the Apple Photos side I used this statement:
+
+```sql
+SELECT
+    alb.Z_PK as id_album,
+    alb.ZPARENTFOLDER as parentfolder_id,
+    parentalb.ZTITLE as folder,
+    alb.ZTITLE as album,
+    alb.ZTRASHEDSTATE as album_deleted,
+    pk.Z_NAME as albumkind,
+    Z_3ASSETS as id_asset,
+    assattr.ZORIGINALFILENAME as jpgname,
+    ZASSET.ZADDEDDATE as t_added,
+    ZASSET.ZDATECREATED as t_created
+FROM ZGENERICALBUM as alb
+LEFT JOIN Z_PRIMARYKEY as pk ON
+    alb.Z_ENT = pk.Z_ENT
+INNER JOIN Z_27ASSETS ON    -- Z_XXASSETS, where XX is the id of the Album entity
+    id_album == Z_27ALBUMS
+LEFT JOIN ZASSET ON
+    id_asset == ZASSET.Z_PK
+LEFT JOIN ZADDITIONALASSETATTRIBUTES as assattr ON
+    id_asset == assattr.ZASSET
+LEFT JOIN ZGENERICALBUM as parentalb ON
+    alb.ZPARENTFOLDER == parentalb.Z_PK
+WHERE (album IS NOT NULL OR id_album == 1) AND album_deleted == 0
+```
+
+This is kind of specific to my own machine, the `Z_27ALBUMS` table for example can be called something else depending on the id of the `Album` entity in the entities table.
+In this case, the time stamps needed to be transformed using `DateTime(2001, 1, 1) + Second(round(Int, :t_added))` as I found out after a bit of googling.
+
+I wrote some data wrangling logic to extract three fields for each photo in both dataframes, `:folder`, `:album`, `:jpgname`.
+I could not use the photo timestamp as a unique ID to match photos because it has only a resolution of seconds, so there are many photos from bursts sharing the same timestamp.
+I relied on the folder structure plus original filename for matching, as I always just keep filenames when exporting, so `DSC1234.ARW` becomes `DSC1234.jpg` which can be read out on the Apple Photos side as `ZORIGINALFILENAME`.
+
+Now that I had these two dataframes, my queries became simple join statements.
+To find all photos that are already exported to Apple Photos:
+
+```julia
+in_photos = innerjoin(dfco, dfphotos, on = [:folder, :album, :jpgname])
+```
+
+To find all photos in this dataframe that have since been edited in Capture One and should be updated:
+
+```julia
+using DataFrameMacros
+@subset in_photos (:t_modified > :t_added) === true # === because of missings
+```
+
+To find all photos that are not yet in Apple Photos:
+
+```julia
+not_in_photos = antijoin(dfco, dfphotos, on = [:folder, :album, :jpgname])
+```
+
+This was the core of the solution of my problem.
+It was beautiful to be able to write simple DataFrames queries against the data, while having to reimplement something like `antijoin` in AppleScript would have been quite horrible I'm sure.
+Having the Julia REPL for interactively exploring the data that I don't yet understand is much nicer than doing the same in AppleScript, which doesn't even have obvious inbuilt print logging...
+
+The last part of the post spells out a bit more how I could actually get the photos exported from Capture One and imported into Apple Photos after they had been identified.
+Here I did use some AppleScript after all.
+
+## Exporting and importing: AppleScript is back
+
+For making Capture One and Apple Photos _do_ anything, you sadly can't avoid AppleScript.
+But I wanted to spend as little time as possible there, so I decided to stay in Julia and only execute snippets of AppleScript via the `osascript` executable.
+This is thankfully pretty easy with Julia's `Cmd`s.
+
+In principle the logic is simple, choose a batch of photos from the dataframe of unexported photos, tell Capture One to export them somewhere, and tell Apple Photos to import them into the correct album.
+
+There's some more complication to this (of course there is, there always is).
+The first one is that I always want to use temporary folders so that my workflows don't depend on the directory structure I had at the time of writing them.
+But Capture One doesn't allow you to just process to some folder, you can only process recipes.
+So I set the path on a specific recipe I only use for this purpose, each time I process a new batch.
+
+This looks something like:
+
+```julia
+mktempdir() do dir
+    scr = """
+    tell application "Capture One 23"
+        set d to current document
+        set r to recipe "icloud jpg export" of d
+        set root folder location of r to "$dir"
+        set v to {$variantstring}
+        process v recipe "icloud jpg export"
+        return
+    end tell
+    """
+    @info "Waiting for processing..."
+    run(`osascript -e $scr`)
+
+    # other logic before cleaning up
+end
+```
+
+The variable `variantstring` is a pre-made string of AppleScript expressions that accesses the correct variants in Capture One.
+In this snippet `sdf` is the sub-dataframe containing the rows I want to export in a batch.
+
+```julia
+variantstring = join(["(variant id \"$i\" of collection id \"$coll\" of d)" for (i, coll) in zip(sdf.id_var, sdf.id_coll)], ", ")
+```
+
+## Getting Capture One to call back
+
+Ok, so now I could process images to a temporary folder.
+The next complication was that `osascript` returns before the exported images are ready.
+There's no simple "callback" from Capture One that tells me when I can start importing to Apple Photos.
+There's only a `batch done script` property I can set via AppleScript, where Capture One will call that script when it has finished a batch.
+This is in principle prone to errors, were I to interact with Capture One at the same time my script runs, but I don't have to make things more complicated than they need to be and just refrain from doing that.
+
+My little workaround to make the `osascript` more callback-y was:
+
+- Create a temporary AppleScript file.
+- This file contains logic to write a new random UUID to another empty file next to it.
+- Set this script file as Capture One's `batch done script`.
+- Start Capture One's processing.
+- Start watching the empty file with Julia's `FileWatching`.
+- Once Capture One is done, and the file is being written to, `FileWatching.watch_file` returns.
+- Read the sentinel file, check that the UUID matches the generated one, otherwise some mixup may have happened an error is thrown.
+- Finally set Capture One's `batch done script` to an empty string to disable the functionality.
+
+This actually worked pretty well and made the whole process much more pleasant.
+I had tried out watching the folder for the known number of exported files, but this was problematic if the Capture One processing failed half-way for some reason.
+Then the required number would never be reached without me knowing why (AppleScript doesn't return processing errors).
+But if the `batch done script` fires and the number of images is not right, I know something is incorrect (usually something with a raw file being unavailable temporarily due to network issues).
+
+## Final hickups: Importing into Apple Photos
+
+Once a batch of photos is done, I use this code to import them into Apple Photos:
+
+```julia
+filesstring = join(["(POSIX file \"$f\")" for f in filepaths], ", ")
+
+scr2 = """
+with timeout of 86400 seconds
+    tell application "Photos"
+
+        if not (exists folder "$folder" of folder "Kamera")
+            make new folder named "$folder" at folder "Kamera"
+        end if
+
+        set fol to folder "$folder" of folder "Kamera"
+
+        if not (exists album "$album" of fol)
+            make new album named "$album" at fol
+        end
+
+        set alb to album "$album" of fol
+
+        set imagefiles to {$filesstring}
+
+        import imagefiles into alb skip check duplicates true
+
+        return
+    end tell
+end
+"""
+
+run(`osascript -e $scr2`)
+```
+
+This is again specific to my folder structure with a parent folder `Kamera` that all albums go in.
+This works well, the only problem is that it sometimes doesn't.
+I run in batches of 30 photos because it's annoying if something goes wrong in a super-large batch, which loses all the progress made.
+Sometimes, though, Apple Photos will show a popup window saying that some files couldn't be imported.
+I haven't yet been able to determine why this happens, but this is not detectable from my side.
+Apple Photos will have to be restarted when that happens, or all following imports will be executed without effect.
+This means I wouldn't let this run overnight, I do it once in a while when I can keep an eye on Apple Photos.
+If I see the problem, I quickly restart it.
+That does put a small dent in an otherwise convenient workflow, but it's still much better than anything I had.
+
+The other small annoyance is that I cannot delete photos in Apple Photos via AppleScript when I want to replace an existing image with a newer version.
+I guess they don't offer this functionality because people who delete their photos irrecoverably by mistake cause customer service too much trouble.
+But it does feel a bit patronizing, I guess people coding are used to shooting themselves in the foot and there are still plenty of ways left to do it, even without this option.
+
+What I can do is to add the photos I want to delete to another album called "To delete" or something, where I can then select them and delete them via the GUI.
+That's also not too terrible, just another small dent.
+
+## Conclusion
+
+Overall I'm pretty happy with the workflow.
+It means that I get to scroll through all my photos on my iPhone, with Apple's nice and responsive servers backing all of this, and not my snail-like home internet uplink or some other third-party.
+I'm left wondering why Capture One and Apple Photos have the AppleScript API gaps and odd behaviors that they have, but I guess my photographer-programmer niche is so small that there are not enough people to voice complaints.
+Thanks to the makers of Julia, SQLite.jl, DataFrames.jl and other open source softwares that make hacky workarounds like this possible.
