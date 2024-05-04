@@ -6,89 +6,97 @@
       version="2.0">
 <channel>
 <title>jkrumbiegel.com</title>
-<link>https://jkrumbiegel.com/index.html#category=julia</link>
+<link>https://jkrumbiegel.com/#category=julia</link>
 <atom:link href="https://jkrumbiegel.com/index-julia.xml" rel="self" type="application/rss+xml"/>
 <description>Programming, data visualization and data science with Julia.</description>
-<generator>quarto-1.3.450</generator>
-<lastBuildDate>Mon, 11 Sep 2023 22:00:00 GMT</lastBuildDate>
+<generator>quarto-1.5.31</generator>
+<lastBuildDate>Fri, 03 May 2024 22:00:00 GMT</lastBuildDate>
+<item>
+  <title>Recreating the Makie logo with Luxor.jl</title>
+  <link>https://jkrumbiegel.com/pages/2024-05-03-makie-logo/</link>
+  <description><![CDATA[ This is the logo of Makie.jl: ]]></description>
+  <category>julia</category>
+  <guid>https://jkrumbiegel.com/pages/2024-05-03-makie-logo/</guid>
+  <pubDate>Fri, 03 May 2024 22:00:00 GMT</pubDate>
+</item>
 <item>
   <title>RAW photo library automation with Julia</title>
-  <link>https://jkrumbiegel.com/pages/2023-09-12-capture-one-photos-sqlite/index.html</link>
+  <link>https://jkrumbiegel.com/pages/2023-09-12-capture-one-photos-sqlite/</link>
   <description><![CDATA[ In this post I describe how I use Julia to automatically synchronize my Capture One raw photo catalog to my iCloud via Apple Photos, so that I can view and share the jpegs from my iPhone at any time with the same interface as my iPhone photos. The official AppleScript interfaces are not powerful enough to do what I need. My solution is accessing the SQLite databases of Capture One and Apple Photos directly and doing some simple data wrangling which Julia is perfectly suited for. ]]></description>
   <category>julia</category>
-  <guid>https://jkrumbiegel.com/pages/2023-09-12-capture-one-photos-sqlite/index.html</guid>
+  <guid>https://jkrumbiegel.com/pages/2023-09-12-capture-one-photos-sqlite/</guid>
   <pubDate>Mon, 11 Sep 2023 22:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Extracting data from Harry Potter with GPT-3</title>
-  <link>https://jkrumbiegel.com/pages/2022-10-13-gpt3-harry-potter/index.html</link>
+  <link>https://jkrumbiegel.com/pages/2022-10-13-gpt3-harry-potter/</link>
   <description><![CDATA[ In this blog post, I’ll show how I used Julia and a GPT-3 model (via an online API) in an attempt to analyze the monetary value of items in the Harry Potter novels, and what I learned in the process. ]]></description>
   <category>julia</category>
-  <guid>https://jkrumbiegel.com/pages/2022-10-13-gpt3-harry-potter/index.html</guid>
+  <guid>https://jkrumbiegel.com/pages/2022-10-13-gpt3-harry-potter/</guid>
   <pubDate>Wed, 12 Oct 2022 22:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Pkg.jl and Julia Environments for Beginners</title>
-  <link>https://jkrumbiegel.com/pages/2022-08-26-pkg-introduction/index.html</link>
+  <link>https://jkrumbiegel.com/pages/2022-08-26-pkg-introduction/</link>
   <description><![CDATA[ When you start using Julia, you will quickly come in contact with Pkg.jl, its package manager. It’s reasonably easy to install a few packages and start using Julia. But from reading questions on Slack and Discourse, many users only start understanding relatively late what commands like <code>instantiate</code> are doing. This post should teach you how you can step beyond a messy global environment and towards neatly packaged local versions that allow you to collaborate more effectively and make your results reproducible. ]]></description>
   <category>julia</category>
-  <guid>https://jkrumbiegel.com/pages/2022-08-26-pkg-introduction/index.html</guid>
+  <guid>https://jkrumbiegel.com/pages/2022-08-26-pkg-introduction/</guid>
   <pubDate>Fri, 26 Aug 2022 22:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Composing macros inside-out with Julia</title>
-  <link>https://jkrumbiegel.com/pages/2022-08-09-composing-macros/index.html</link>
+  <link>https://jkrumbiegel.com/pages/2022-08-09-composing-macros/</link>
   <description><![CDATA[ Macros in Julia, denoted by the <code>@</code> prefix, are used to transform code before it is executed. They are often used to reduce boilerplate or implement domain specific languages (DSLs). ]]></description>
   <category>julia</category>
-  <guid>https://jkrumbiegel.com/pages/2022-08-09-composing-macros/index.html</guid>
+  <guid>https://jkrumbiegel.com/pages/2022-08-09-composing-macros/</guid>
   <pubDate>Mon, 08 Aug 2022 22:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Multi-columns, shortcut strings and subset transformations in DataFrameMacros.jl v0.2</title>
-  <link>https://jkrumbiegel.com/pages/2021-12-28-new-features-dataframemacros/index.html</link>
+  <link>https://jkrumbiegel.com/pages/2021-12-28-new-features-dataframemacros/</link>
   <description><![CDATA[ <a href="https://github.com/jkrumbiegel/DataFrameMacros.jl">DataFrameMacros.jl</a> is a Julia package that makes it easier to manipulate DataFrames, by rewriting code into source-function-sink expressions that conform to DataFrames.jl’s more verbose mini-language. In version v0.2 (and v0.2.1) I have added a couple new features that are powerful, but not immediately obvious. This post takes a closer look at the new functionality. ]]></description>
   <category>julia</category>
-  <guid>https://jkrumbiegel.com/pages/2021-12-28-new-features-dataframemacros/index.html</guid>
+  <guid>https://jkrumbiegel.com/pages/2021-12-28-new-features-dataframemacros/</guid>
   <pubDate>Mon, 27 Dec 2021 23:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Analyzing international football results with Julia</title>
-  <link>https://jkrumbiegel.com/pages/2021-06-20-football-data-analysis/index.html</link>
+  <link>https://jkrumbiegel.com/pages/2021-06-20-football-data-analysis/</link>
   <description><![CDATA[ As the UEFA Euro 202(0/1) is going on, I was inspired to check out a dataset of all international men’s football matches since the dawn of time. This post goes over some questions I had for the dataset, and how I approached the analysis with my recent macro package DataFrameMacros.jl. Plotting is done with AlgebraOfGraphics.jl, which is a super useful grammar-of-graphics style package building on Makie.jl, which I’m a co-author of and which is therefore my preferred plotting package. ]]></description>
   <category>julia</category>
-  <guid>https://jkrumbiegel.com/pages/2021-06-20-football-data-analysis/index.html</guid>
+  <guid>https://jkrumbiegel.com/pages/2021-06-20-football-data-analysis/</guid>
   <pubDate>Sun, 20 Jun 2021 22:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Julia macros for beginners</title>
-  <link>https://jkrumbiegel.com/pages/2021-06-07-macros-for-beginners/index.html</link>
+  <link>https://jkrumbiegel.com/pages/2021-06-07-macros-for-beginners/</link>
   <description><![CDATA[ Macros are a powerful and interesting feature of the Julia programming language, but they can also be confusing. Users coming from Python, Matlab or R have not come in contact with similar constructs before, and they require a different way of thinking about code. This article is supposed to be a simple introduction, after which you might judge better when use of macros is appropriate and how to get around some of the most common gotchas. ]]></description>
   <category>julia</category>
-  <guid>https://jkrumbiegel.com/pages/2021-06-07-macros-for-beginners/index.html</guid>
+  <guid>https://jkrumbiegel.com/pages/2021-06-07-macros-for-beginners/</guid>
   <pubDate>Sun, 06 Jun 2021 22:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Reading data from the web with CSV.jl, DataFrames.jl and Chain.jl</title>
-  <link>https://jkrumbiegel.com/pages/2021-05-20-reading-data-from-web/index.html</link>
+  <link>https://jkrumbiegel.com/pages/2021-05-20-reading-data-from-web/</link>
   <description><![CDATA[ Recently, I had to read in a dataset from Hillenbrand (1995), published as an annotated csv-like file on a website. The dataset describes formant frequencies of several vowel utterances from different speakers. I thought I ended up with a pretty slick implementation showing off some of the tools available in the Julia data science ecosystem. ]]></description>
   <category>julia</category>
-  <guid>https://jkrumbiegel.com/pages/2021-05-20-reading-data-from-web/index.html</guid>
+  <guid>https://jkrumbiegel.com/pages/2021-05-20-reading-data-from-web/</guid>
   <pubDate>Wed, 19 May 2021 22:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Tuples and Vectors, Allocations and Performance for Beginners</title>
-  <link>https://jkrumbiegel.com/pages/2020-10-31-tuples-and-vectors/index.html</link>
+  <link>https://jkrumbiegel.com/pages/2020-10-31-tuples-and-vectors/</link>
   <description><![CDATA[ If you’re new to Julia, here is a scenario that might have tripped you up already: Let’s define two points. Both are just a collection of two floating point numbers. But one is a <code>Vector</code>, written with the <code>[]</code> syntax, and one a <code>Tuple</code>, written with the <code>()</code> syntax. Then we make vectors of both types of points and run a short computation. Let’s see what the performance difference looks like. ]]></description>
   <category>julia</category>
-  <guid>https://jkrumbiegel.com/pages/2020-10-31-tuples-and-vectors/index.html</guid>
+  <guid>https://jkrumbiegel.com/pages/2020-10-31-tuples-and-vectors/</guid>
   <pubDate>Fri, 30 Oct 2020 23:00:00 GMT</pubDate>
 </item>
 <item>
   <title>Julia Helps To Bridge The Gap Between User and Creator</title>
-  <link>https://jkrumbiegel.com/pages/2020-10-23-julia-bridge/index.html</link>
+  <link>https://jkrumbiegel.com/pages/2020-10-23-julia-bridge/</link>
   <description><![CDATA[ You might have heard about Julia, the language often praised for the C-like performance it can attain while keeping a clean syntax reminiscent of Python. In this blog post, I want to share a different opinion why I like using Julia, which is only tangentially related to its pure performance. It is about the community Julia enables and how that could have a beneficial influence on the way scientific software is written. ]]></description>
   <category>julia</category>
-  <guid>https://jkrumbiegel.com/pages/2020-10-23-julia-bridge/index.html</guid>
+  <guid>https://jkrumbiegel.com/pages/2020-10-23-julia-bridge/</guid>
   <pubDate>Thu, 22 Oct 2020 22:00:00 GMT</pubDate>
 </item>
 </channel>

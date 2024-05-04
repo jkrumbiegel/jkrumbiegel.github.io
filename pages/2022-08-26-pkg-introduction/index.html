@@ -2,13 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.5.31">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2022-08-27">
 
-<title>jkrumbiegel.com - Pkg.jl and Julia Environments for Beginners</title>
+<title>jkrumbiegel.com – Pkg.jl and Julia Environments for Beginners</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -23,7 +23,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -34,7 +34,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -80,7 +80,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -89,6 +95,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -103,9 +110,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../../index.html">
     <span class="navbar-title">jkrumbiegel.com</span>
     </a>
@@ -117,18 +124,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../../about.html" rel="" target="">
- <span class="menu-text">About</span></a>
+    <a class="nav-link" href="../../about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/jkrumbiegel" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/jkrumbiegel"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
+          </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
 </div>
-          </div> <!-- /navcollapse -->
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -164,7 +171,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   
 
+
 </header>
+
 
 <p>When you start using Julia, you will quickly come in contact with Pkg.jl, its package manager. It’s reasonably easy to install a few packages and start using Julia. But from reading questions on Slack and Discourse, many users only start understanding relatively late what commands like <code>instantiate</code> are doing. This post should teach you how you can step beyond a messy global environment and towards neatly packaged local versions that allow you to collaborate more effectively and make your results reproducible.</p>
 <section id="getting-started" class="level2">
@@ -218,7 +227,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Pkg has first updated this list on our computer when we ran <code>add MacroTools</code> so that it knows about the most recent versions of all packages in the ecosystem. You can have a look at it in <code>.julia/registries/</code> if you want.</p>
 <p>After updating the registry, Pkg is <code>Resolving package versions</code>. First, <code>MacroTools</code> latest version at the time of writing, <code>v0.5.9</code>, was added to <code>~/.julia/environments/v1.8/Project.toml</code>. So at this point in time, finally the environment file I was talking about earlier is being created.</p>
 <p>We can look at the content of <code>Project.toml</code>:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">deps</span><span class="kw">]</span></span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[deps]</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>So this just says that our environment has one dependency declared, which is <code>MacroTools.jl</code>. The UUID string <code>1914dd2f-81c6...</code> is there because that’s the “real” unique identifier of the package because, e.g., if another hypothetical registry had a different <code>MacroTools</code>, then at least you could specify the one you really want via the UUID.</p>
 <p>Pkg also updated the file <code>~/.julia/environments/v1.8/Manifest.toml</code>. Let’s have a look at this one:</p>
@@ -228,28 +237,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">manifest_format</span> <span class="op">=</span> <span class="st">"2.0"</span></span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="dt">project_hash</span> <span class="op">=</span> <span class="st">"e39ab6d265da4acedccb7411db33219b8d7db4fc"</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Base64</span><span class="kw">]]</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">[[deps.Base64]]</span></span>
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"</span></span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">MacroTools</span><span class="kw">]]</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="kw">[[deps.MacroTools]]</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Markdown"</span><span class="op">,</span> <span class="st">"Random"</span><span class="op">]</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="dt">git-tree-sha1</span> <span class="op">=</span> <span class="st">"3d3e902b31198a27340d0bf00d6ac452866021cf"</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.5.9"</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Markdown</span><span class="kw">]]</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="kw">[[deps.Markdown]]</span></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Base64"</span><span class="op">]</span></span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"d6f4376e-aef5-505a-96c1-9c027394607a"</span></span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Random</span><span class="kw">]]</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="kw">[[deps.Random]]</span></span>
 <span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"SHA"</span><span class="op">,</span> <span class="st">"Serialization"</span><span class="op">]</span></span>
 <span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"9a3f8284-a2c9-5f02-9a11-845980a1fd5c"</span></span>
 <span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">SHA</span><span class="kw">]]</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="kw">[[deps.SHA]]</span></span>
 <span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"ea8e919c-243c-51af-8825-aaa63cd721ce"</span></span>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.7.0"</span></span>
 <span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">Serialization</span><span class="kw">]]</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="kw">[[deps.Serialization]]</span></span>
 <span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"9e88b42a-f829-5b0c-bbe9-9e923198166b"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The <code>Manifest.toml</code> lists all the packages that were actually installed for you, while the <code>Project.toml</code> only lists the <code>MacroTools</code> dependency.</p>
 <p>You can think of the two files this way:</p>
@@ -259,62 +268,85 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p>The <code>Project.toml</code> is always the first file being edited when you make environment changes, if that is through the Pkg REPL or manually. The <code>Manifest.toml</code> is then the result of a computation that tries to find compatible versions of all packages specified in the <code>Project.toml</code> and their dependencies. Note that <code>Project.toml</code> can in principle specify impossible demands, like two packages that require incompatible dependencies. A <code>Manifest.toml</code> however should always be in a valid state, if no valid configuration of package dependencies can be resolved, you will just get an error.</p>
 <p>We can see the dependency graph that Pkg resolved in the <code>Manifest.toml</code>, if we look at the <code>deps</code> fields:</p>
-<div class="cell">
+<div class="cell" data-layout-align="default">
 <div class="cell-output-display">
 <div>
+<p></p><figure class="figure"><p></p>
 <div>
 <svg width="672" height="480" viewbox="0.00 0.00 370.25 188.00" xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" style="; max-width: none; max-height: none">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 184)">
-<title>
-G
-</title>
-<polygon fill="white" stroke="transparent" points="-4,4 -4,-184 366.25,-184 366.25,4 -4,4"></polygon> <!-- MacroTools --> <g id="node1" class="node">
-<title>
-MacroTools
-</title>
-<ellipse fill="#b9d3ee" stroke="black" cx="110.41" cy="-162" rx="84.59" ry="18"></ellipse> <text text-anchor="middle" x="110.41" y="-157.8" font-family="Times,serif" font-size="14.00">MacroTools v0.5.9</text> </g> <!-- Markdown --> <g id="node2" class="node">
-<title>
-Markdown
-</title>
-<ellipse fill="tomato" stroke="black" cx="53.41" cy="-90" rx="53.33" ry="18"></ellipse> <text text-anchor="middle" x="53.41" y="-85.8" font-family="Times,serif" font-size="14.00">Markdown</text> </g> <!-- MacroTools&#45;&gt;Markdown --> <g id="edge1" class="edge">
-<title>
-MacroTools-&gt;Markdown
-</title>
-<path fill="none" stroke="black" d="M96.61,-144.05C89.68,-135.54 81.15,-125.07 73.51,-115.68"></path> <polygon fill="black" stroke="black" points="76.11,-113.33 67.08,-107.79 70.68,-117.75 76.11,-113.33"></polygon> </g> <!-- Random --> <g id="node3" class="node">
-<title>
-Random
-</title>
-<ellipse fill="tomato" stroke="black" cx="168.41" cy="-90" rx="43.52" ry="18"></ellipse> <text text-anchor="middle" x="168.41" y="-85.8" font-family="Times,serif" font-size="14.00">Random</text> </g> <!-- MacroTools&#45;&gt;Random --> <g id="edge2" class="edge">
-<title>
-MacroTools-&gt;Random
-</title>
-<path fill="none" stroke="black" d="M124.45,-144.05C131.61,-135.42 140.44,-124.76 148.31,-115.27"></path> <polygon fill="black" stroke="black" points="151.22,-117.24 154.9,-107.31 145.83,-112.77 151.22,-117.24"></polygon> </g> <!-- Base64 --> <g id="node4" class="node">
-<title>
-Base64
-</title>
-<ellipse fill="tomato" stroke="black" cx="53.41" cy="-18" rx="39.43" ry="18"></ellipse> <text text-anchor="middle" x="53.41" y="-13.8" font-family="Times,serif" font-size="14.00">Base64</text> </g> <!-- Markdown&#45;&gt;Base64 --> <g id="edge3" class="edge">
-<title>
-Markdown-&gt;Base64
-</title>
-<path fill="none" stroke="black" d="M53.41,-71.7C53.41,-63.98 53.41,-54.71 53.41,-46.11"></path> <polygon fill="black" stroke="black" points="56.91,-46.1 53.41,-36.1 49.91,-46.1 56.91,-46.1"></polygon> </g> <!-- SHA --> <g id="node5" class="node">
-<title>
-SHA
-</title>
-<ellipse fill="tomato" stroke="black" cx="167.41" cy="-18" rx="56.82" ry="18"></ellipse> <text text-anchor="middle" x="167.41" y="-13.8" font-family="Times,serif" font-size="14.00">SHA v0.7.0</text> </g> <!-- Random&#45;&gt;SHA --> <g id="edge4" class="edge">
-<title>
-Random-&gt;SHA
-</title>
-<path fill="none" stroke="black" d="M168.17,-71.7C168.06,-63.98 167.92,-54.71 167.8,-46.11"></path> <polygon fill="black" stroke="black" points="171.3,-46.05 167.66,-36.1 164.3,-46.15 171.3,-46.05"></polygon> </g> <!-- Serialization --> <g id="node6" class="node">
-<title>
-Serialization
-</title>
-<ellipse fill="tomato" stroke="black" cx="302.41" cy="-18" rx="59.68" ry="18"></ellipse> <text text-anchor="middle" x="302.41" y="-13.8" font-family="Times,serif" font-size="14.00">Serialization</text> </g> <!-- Random&#45;&gt;Serialization --> <g id="edge5" class="edge">
-<title>
-Random-&gt;Serialization
-</title>
-<path fill="none" stroke="black" d="M194.57,-75.34C214.52,-64.92 242.28,-50.41 264.64,-38.73"></path> <polygon fill="black" stroke="black" points="266.29,-41.82 273.54,-34.08 263.05,-35.61 266.29,-41.82"></polygon> </g> </g>
+<title>G</title>
+<polygon fill="white" stroke="transparent" points="-4,4 -4,-184 366.25,-184 366.25,4 -4,4"></polygon>
+<!-- MacroTools -->
+<g id="node1" class="node">
+<title>MacroTools</title>
+<ellipse fill="#b9d3ee" stroke="black" cx="110.41" cy="-162" rx="84.59" ry="18"></ellipse>
+<text text-anchor="middle" x="110.41" y="-157.8" font-family="Times,serif" font-size="14.00">MacroTools v0.5.9</text>
+</g>
+<!-- Markdown -->
+<g id="node2" class="node">
+<title>Markdown</title>
+<ellipse fill="tomato" stroke="black" cx="53.41" cy="-90" rx="53.33" ry="18"></ellipse>
+<text text-anchor="middle" x="53.41" y="-85.8" font-family="Times,serif" font-size="14.00">Markdown</text>
+</g>
+<!-- MacroTools&#45;&gt;Markdown -->
+<g id="edge1" class="edge">
+<title>MacroTools-&gt;Markdown</title>
+<path fill="none" stroke="black" d="M96.61,-144.05C89.68,-135.54 81.15,-125.07 73.51,-115.68"></path>
+<polygon fill="black" stroke="black" points="76.11,-113.33 67.08,-107.79 70.68,-117.75 76.11,-113.33"></polygon>
+</g>
+<!-- Random -->
+<g id="node3" class="node">
+<title>Random</title>
+<ellipse fill="tomato" stroke="black" cx="168.41" cy="-90" rx="43.52" ry="18"></ellipse>
+<text text-anchor="middle" x="168.41" y="-85.8" font-family="Times,serif" font-size="14.00">Random</text>
+</g>
+<!-- MacroTools&#45;&gt;Random -->
+<g id="edge2" class="edge">
+<title>MacroTools-&gt;Random</title>
+<path fill="none" stroke="black" d="M124.45,-144.05C131.61,-135.42 140.44,-124.76 148.31,-115.27"></path>
+<polygon fill="black" stroke="black" points="151.22,-117.24 154.9,-107.31 145.83,-112.77 151.22,-117.24"></polygon>
+</g>
+<!-- Base64 -->
+<g id="node4" class="node">
+<title>Base64</title>
+<ellipse fill="tomato" stroke="black" cx="53.41" cy="-18" rx="39.43" ry="18"></ellipse>
+<text text-anchor="middle" x="53.41" y="-13.8" font-family="Times,serif" font-size="14.00">Base64</text>
+</g>
+<!-- Markdown&#45;&gt;Base64 -->
+<g id="edge3" class="edge">
+<title>Markdown-&gt;Base64</title>
+<path fill="none" stroke="black" d="M53.41,-71.7C53.41,-63.98 53.41,-54.71 53.41,-46.11"></path>
+<polygon fill="black" stroke="black" points="56.91,-46.1 53.41,-36.1 49.91,-46.1 56.91,-46.1"></polygon>
+</g>
+<!-- SHA -->
+<g id="node5" class="node">
+<title>SHA</title>
+<ellipse fill="tomato" stroke="black" cx="167.41" cy="-18" rx="56.82" ry="18"></ellipse>
+<text text-anchor="middle" x="167.41" y="-13.8" font-family="Times,serif" font-size="14.00">SHA v0.7.0</text>
+</g>
+<!-- Random&#45;&gt;SHA -->
+<g id="edge4" class="edge">
+<title>Random-&gt;SHA</title>
+<path fill="none" stroke="black" d="M168.17,-71.7C168.06,-63.98 167.92,-54.71 167.8,-46.11"></path>
+<polygon fill="black" stroke="black" points="171.3,-46.05 167.66,-36.1 164.3,-46.15 171.3,-46.05"></polygon>
+</g>
+<!-- Serialization -->
+<g id="node6" class="node">
+<title>Serialization</title>
+<ellipse fill="tomato" stroke="black" cx="302.41" cy="-18" rx="59.68" ry="18"></ellipse>
+<text text-anchor="middle" x="302.41" y="-13.8" font-family="Times,serif" font-size="14.00">Serialization</text>
+</g>
+<!-- Random&#45;&gt;Serialization -->
+<g id="edge5" class="edge">
+<title>Random-&gt;Serialization</title>
+<path fill="none" stroke="black" d="M194.57,-75.34C214.52,-64.92 242.28,-50.41 264.64,-38.73"></path>
+<polygon fill="black" stroke="black" points="266.29,-41.82 273.54,-34.08 263.05,-35.61 266.29,-41.82"></polygon>
+</g>
+</g>
 </svg>
 </div>
+<p></p></figure><p></p>
 </div>
 </div>
 </div>
@@ -398,7 +430,7 @@ Random-&gt;Serialization
 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>You can see that we got a ton of new dependencies. This happened because <code>MacroTools</code> managed to cut the number of packages it depends on a lot over time, so the older version pulls in much more.</p>
 <p>If we take a look at the new <code>Manifest.toml</code> entry for <code>MacroTools</code>, we see:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">MacroTools</span><span class="kw">]]</span></span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[deps.MacroTools]]</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"CSTParser"</span><span class="op">,</span> <span class="st">"Compat"</span><span class="op">,</span> <span class="st">"DataStructures"</span><span class="op">,</span> <span class="st">"Test"</span><span class="op">,</span> <span class="st">"Tokenize"</span><span class="op">]</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">git-tree-sha1</span> <span class="op">=</span> <span class="st">"d6e9dedb8c92c3465575442da456aec15a89ff76"</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">uuid</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span>
@@ -456,7 +488,7 @@ Random-&gt;Serialization
  </span><span class="sgr-fg-b1"> [3f19e933] </span><span class="sgr-fg-b2">- p7zip_jll v17.4.0+0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Note that even though the version printed for MacroTools is again <code>0.5.9</code>, this doesn’t necessarily mean that we are on the same commit as the one pointed to by the version <code>0.5.9</code> in the registry. It just means that Pkg cloned the repository, checked out the commit with hash <code>639d1a6</code> and found the version specifier <code>0.5.9</code> in MacroTools’s own <code>Project.toml</code> file. Therefore, infinitely many code versions of a package can be treated as version <code>X.Y.Z</code> by Pkg, but <code>X.Y.Z</code> itself refers only to exactly one version. This distinction is important to remember when developing and editing a package, but more about that later.</p>
 <p>If we take another look at our <code>Manifest.toml</code>, we can see the following entry for MacroTools:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[</span><span class="dt">deps</span><span class="kw">.</span><span class="dt">MacroTools</span><span class="kw">]]</span></span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode toml code-with-copy"><code class="sourceCode toml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">[[deps.MacroTools]]</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="dt">deps</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Markdown"</span><span class="op">,</span> <span class="st">"Random"</span><span class="op">]</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="dt">git-tree-sha1</span> <span class="op">=</span> <span class="st">"465a4803356bcb11f6eb97df992680f13a9ba776"</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="dt">repo-rev</span> <span class="op">=</span> <span class="st">"639d1a6"</span></span>
@@ -579,7 +611,7 @@ Stacktrace:
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Your Name &lt;your@email.com&gt;"</span><span class="op">]</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">deps</span><span class="kw">]</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[deps]</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>In the file <code>MyPackage/src/MyPackage.jl</code>, we can now import <code>MacroTools</code> and work with it. Let’s change the content of that file to:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode julia code-with-copy"><code class="sourceCode julia"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">module</span> MyPackage</span>
@@ -651,10 +683,10 @@ y = 2
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">authors</span> <span class="op">=</span> <span class="op">[</span><span class="st">"Your Name &lt;your@email.com&gt;"</span><span class="op">]</span></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="dt">version</span> <span class="op">=</span> <span class="st">"0.1.0"</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">deps</span><span class="kw">]</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">[deps]</span></span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"1914dd2f-81c6-5fcd-8719-6d5c9610ff09"</span></span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="kw">[</span><span class="dt">compat</span><span class="kw">]</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="kw">[compat]</span></span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="dt">MacroTools</span> <span class="op">=</span> <span class="st">"&lt;0.5.9"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>But this change is not picked up automatically by the <code>@v1.8</code> environment. To recompute the dependency graph and throw away the old <code>Manifest.toml</code>, we can run <code>update</code> or <code>up</code>:</p>
 <div class="ansiterminal sourceCode"><pre class="sourceCode code-with-copy"><code><span class="sgr-bold sgr-fg-5">(@v1.8) pkg&gt; </span><span>up
@@ -810,18 +842,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -853,11 +874,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/jkrumbiegel\.com");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -867,8 +927,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -880,7 +949,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -924,6 +1116,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -949,6 +1142,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1009,6 +1228,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 
