@@ -1,0 +1,702 @@
+---
+title: Recreating the Makie logo with Luxor.jl
+date: 2024-05-04
+engine: julia
+categories: ["julia"]
+---
+
+This is the logo of Makie.jl:
+
+![](makie_icon.svg){width="40%"}
+
+I designed it by hand in a vector graphics editor a couple years ago, however, I always wanted to have a programmatic version of it.
+
+First of all, because with a program it's easier to make variations of it or play with it, for example to make animations.
+The other reason was that the original vector graphics file always seemed a bit large for what it was, at 118KB.
+The gradient mesh from the editor is flattened to a relatively large inline image for SVG, because SVG doesn't support meshes.
+I wanted to have a programmatic version where I could make this image as small as possible while still looking good.
+
+I decided to make it with [Luxor.jl](https://github.com/JuliaGraphics/Luxor.jl) because it's a relatively thin wrapper around Cairo and nicely documented.
+
+```{julia}
+using Luxor
+using Colors
+using LinearAlgebra
+```
+
+The basic structure of the logo is a simple cube consisting of three diamonds because Makie is a 3D visualization package.
+
+```{julia}
+@drawsvg begin
+    scale(150, -150)
+    for i in 1:3
+        p1 = Point(1, 0)
+        p3 = Point(0, 0)
+        p2 = Point(0.5, sqrt(3) / 2)
+        p4 = Point(0.5, -sqrt(3) / 2)
+
+        (p1, p2, p3, p4) = rotatepoint.((p1, p2, p3, p4), i * 2pi / 3 + 2pi / 12)
+
+        move(p1)
+        line(p2)
+        line(p3)
+        line(p4)
+        closepath()
+        strokepath()
+    end
+end 400 400
+```
+
+Next, we move each diamond outwards, which gives the cube an "exploded" look.
+
+```{julia}
+@drawsvg begin
+    inner_gap = 0.045 / cosd(30)
+
+    scale(150, -150)
+    for i in 1:3
+        p1 = Point(1, 0)
+        p3 = Point(0, 0)
+        p2 = Point(0.5, sqrt(3) / 2)
+        p4 = Point(0.5, -sqrt(3) / 2)
+
+        (p1, p2, p3, p4) = rotatepoint.(Point(inner_gap, 0) .+ (p1, p2, p3, p4), i * 2pi / 3 + 2pi / 12)
+
+        move(p1)
+        line(p2)
+        line(p3)
+        line(p4)
+        closepath()
+        strokepath()
+    end
+end 400 400
+```
+
+Now we have to round the corners of the diamonds to make them more petal-like (the petals are a reference to the floral patterns sometimes seen with the Maki-e painting technique).
+
+To get rounded corners, we need a function which takes in three points that form the sharp corner plus a radius, and calculates where the circular arc with that radius is connected to the adjacent line segments.
+
+```{julia}
+function rounded_corner(p1, p2, p3, radius)
+    d1 = p2 - p1
+    d1_ortho = normalize(Point(-d1.y, d1.x))
+    d2 = p3 - p2
+    d2_ortho = normalize(Point(-d2.y, d2.x))
+
+    _, circle_center = Luxor.intersectionlines(
+        p1 + radius * d1_ortho,
+        p2 + radius * d1_ortho,
+        p2 + radius * d2_ortho,
+        p3 + radius * d2_ortho,
+    )
+
+    circle_center
+    start = circle_center - radius * d1_ortho
+    stop = circle_center - radius * d2_ortho
+
+    circle_center, start, stop
+    arc2r(circle_center, start, stop)
+end
+```
+
+Here's an example of such a rounded corner, the dotted lines show the original sharp corner.
+
+```{julia}
+@drawsvg begin
+    scale(150, -150)
+
+    p1 = Point(-0.3, -0.6)
+    p2 = Point(0.5, 0.8)
+    p3 = Point(-0.5, 0.3)
+    r = 0.1
+
+    move(p1)
+    rounded_corner(p1, p2, p3, r)
+    line(p3)
+    sethue("black")
+    setopacity(0.5)
+    strokepath()
+
+    setdash("dot")
+
+    move(p1)
+    line(p2)
+    strokepath()
+    move(p2)
+    line(p3)
+    strokepath()
+
+    sethue("red")
+    circle(p1, 0.03, :fill)
+    circle(p2, 0.03, :fill)
+    circle(p3, 0.03, :fill)
+
+end 400 400
+```
+
+Now, we can apply different corner radii to the diamonds and turn them into petals.
+
+```{julia}
+@drawsvg begin
+
+    inner_gap = 0.045 / cosd(30)
+
+    scale(150, -150)
+
+    for i in 1:3
+        p1 = Point(1, 0)
+        p3 = Point(0, 0)
+        p2 = Point(0.5, sqrt(3) / 2)
+        p4 = Point(0.5, -sqrt(3) / 2)
+
+        (p1, p2, p3, p4) = rotatepoint.(Point(inner_gap, 0) .+ (p1, p2, p3, p4), i * 2pi / 3 + 2pi / 12)
+
+        move(p1)
+        rounded_corner(p1, p2, p3, 0.17)
+        rounded_corner(p2, p3, p4, 0.06)
+        rounded_corner(p3, p4, p1, 0.17)
+        closepath()
+
+        strokepath()
+    end
+
+end 400 400
+```
+
+There are three negative-space circles cut out of the petals.
+They resemble scatter plot markers and are a nod to the three circle logo of the Julia language.
+
+We can first visualize their location by drawing them on top of what we already have.
+
+```{julia}
+@drawsvg begin
+
+    inner_gap = 0.045 / cosd(30)
+
+    scale(150, -150)
+
+    cornerpoints = []
+
+    cs = [
+        Point(0, 0.45),
+        rotatepoint(Point(0, 0.45), 2pi / 3),
+        rotatepoint(Point(0, 0.45), 2 * 2pi / 3),
+    ]
+    rs = [0.15, 0.235, 0.195]
+
+    for i in 1:3
+        p1 = Point(1, 0)
+        p3 = Point(0, 0)
+        p2 = Point(0.5, sqrt(3) / 2)
+        p4 = Point(0.5, -sqrt(3) / 2)
+
+        (p1, p2, p3, p4) = rotatepoint.(Point(inner_gap, 0) .+ (p1, p2, p3, p4), i * 2pi / 3 + 2pi / 12)
+
+
+        move(p1)
+        rounded_corner(p1, p2, p3, 0.17)
+        rounded_corner(p2, p3, p4, 0.06)
+        rounded_corner(p3, p4, p1, 0.17)
+        closepath()
+
+        strokepath()
+
+        circle(cs[i], rs[i], :stroke)
+    end
+end 400 400
+```
+
+We can now intersect each petal with its two adjacent circles and draw the corresponding circular arcs.
+With that, we are done with the shape of the logo.
+
+```{julia}
+@drawsvg begin
+
+    inner_gap = 0.045 / cosd(30)
+
+    scale(150, -150)
+
+    cs = [
+        Point(0, 0.45),
+        rotatepoint(Point(0, 0.45), 2pi / 3),
+        rotatepoint(Point(0, 0.45), 2 * 2pi / 3),
+    ]
+    rs = [0.15, 0.235, 0.195]
+
+    for i in 1:3
+        p1 = Point(1, 0)
+        p3 = Point(0, 0)
+        p2 = Point(0.5, sqrt(3) / 2)
+        p4 = Point(0.5, -sqrt(3) / 2)
+
+        (p1, p2, p3, p4) = rotatepoint.(Point(inner_gap, 0) .+ (p1, p2, p3, p4), i * 2pi / 3 + 2pi / 12)
+
+        c1 = cs[mod1(i + 1, 3)]
+        c2 = cs[mod1(i + 0, 3)]
+
+        n, ip1, ip2 = intersectionlinecircle(p2, p3, c1, rs[mod1(i + 1, 3)])
+        if n != 2
+            error()
+        end
+        n, ip3, ip4 = intersectionlinecircle(p3, p4, c2, rs[mod1(i + 0, 3)])
+        if n != 2
+            error()
+        end
+
+
+        move(p1)
+        rounded_corner(p1, p2, p3, 0.17)
+        line(ip2)
+        carc2r(c1, ip2, ip1)
+
+        rounded_corner(p2, p3, p4, 0.06)
+        line(ip4)
+        carc2r(c2, ip4, ip3)
+
+        rounded_corner(p3, p4, p1, 0.17)
+        closepath()
+
+        strokepath()
+    end
+end 400 400
+```
+
+The coloring actually needed a bit more thought, because in the original this was done in a messy, freehand way with a four-cornered mesh gradient, two corners of which I overlaid to simulate a triangular shape.
+First I didn't have an idea how to transform the three Makie colors into a similar gradient programmatically, linear and radial gradients which are inbuilt into SVG do not work.
+
+```{julia}
+makieyellow = colorant"#e8cb26"
+makieblue = colorant"#3182bb"
+makiered = colorant"#dd3366"
+
+[makieyellow, makieblue, makiered]
+```
+
+Then I realized that there's a pretty obvious way to compute the mixture of the colors, just use the same math that shaders use to combine vertex colors of triangles in a mesh, which is what Makie itself does.
+This is called [barycentric interpolation](https://en.wikipedia.org/wiki/Barycentric_coordinate_system).
+
+This function computes barycentric weights for three vertices given some point `p`:
+
+```{julia}
+function bary_weights(p, v1, v2, v3)
+    den = ((v2[2] - v3[2]) * (v1[1] - v3[1]) + (v3[1] - v2[1]) * (v1[2] - v3[2]))
+    w1 = ((v2[2] - v3[2]) * (p[1] - v3[1]) + (v3[1] - v2[1]) * (p[2] - v3[2])) / den
+    w2 = ((v3[2] - v1[2]) * (p[1] - v3[1]) + (v1[1] - v3[1]) * (p[2] - v3[2])) / den
+    w3 = 1 - w1 - w2
+    (w1, w2, w3)
+end
+```
+
+We also need some function to mix three rgb colors together, I only found `weighted_color_mean` in Colors.jl which could only handle two colors, so I wrote some separate function which I don't remember why it ended up looking this complex.
+
+```{julia}
+#| code-fold: true
+_tuple(l::Lab) = (l.l, l.a, l.b)
+_tuple(r::RGB) = (r.r, r.g, r.b)
+_tuple(l::LCHuv) = (l.l, l.c, l.h)
+
+# could reduce weighted_color_mean with 1/i
+function mix(cfs...)
+    T = typeof(first(first(cfs)))
+    isempty(cfs) && return T(RGBf(1, 1, 1))
+    if any(cf -> cf[2] == 0, cfs)
+        mix(filter(cf -> cf[2] != 0, cfs)...)
+    else
+        if length(cfs) == 1
+            return cfs[1][1]
+        else
+            scaled = map(cfs) do (c, f)
+                f .* _tuple(c)
+            end
+            _sum = foldl((a, b) -> a .+ b, scaled)
+            _sum_scaled = _sum ./ sum(last.(cfs))
+            return T(_sum_scaled...)
+        end
+    end
+end
+```
+
+So with that, we can give it a first try, we determine the bounding box of the outline and compute barycentrically weighted mixtures of the three Makie colors with vertices placed at the petal corners.
+
+Below, I just clip that grid to the petal corner triangle so it is easier to see the barycentric mixture.
+
+```{julia}
+@drawsvg begin
+
+    inner_gap = 0.045 / cosd(30)
+
+    scale(150, -150)
+
+    cornerpoints = []
+
+    cs = [
+        Point(0, 0.45),
+        rotatepoint(Point(0, 0.45), 2pi / 3),
+        rotatepoint(Point(0, 0.45), 2 * 2pi / 3),
+    ]
+    rs = [0.15, 0.235, 0.195]
+
+    for i in 1:3
+        p1 = Point(1, 0)
+        p3 = Point(0, 0)
+        p2 = Point(0.5, sqrt(3) / 2)
+        p4 = Point(0.5, -sqrt(3) / 2)
+
+        (p1, p2, p3, p4) = rotatepoint.(Point(inner_gap, 0) .+ (p1, p2, p3, p4), i * 2pi / 3 + 2pi / 12)
+
+        push!(cornerpoints, p1)
+    end
+
+    xrange = range(-1, 1, length=10)
+    yrange = range(-1.2, 0.8, length=10)
+
+    pixels = broadcast(xrange, yrange') do i, j
+        p = Point(i, j)
+        f_yellow, f_blue, f_red = clamp.(bary_weights(p, cornerpoints...), 0, 1)
+        mix(((makieyellow), f_yellow), ((makieblue), f_blue), ((makiered), f_red))
+    end
+
+    move(cornerpoints[1])
+    line.(cornerpoints[2:3])
+    closepath()
+    clip()
+
+    @layer begin
+        translate(first(xrange), first(yrange))
+        scale(1 / length(xrange) * (last(xrange) - first(xrange)), 1 / length(yrange) * (last(yrange) - first(yrange)))
+
+        midx = 0.5 * (first(xrange) + last(xrange))
+        midy = 0.5 * (first(yrange) + last(yrange))
+        placeimage(pixels', O, centered=false)
+    end
+
+end 400 400
+```
+
+If you compare that gradient to the original logo:
+
+![](makie_icon.svg){width="40%"}
+
+You notice that three Makie colors take more space there, each petal is mostly one color but fades into the neighboring petal at the edges.
+
+I could solve this by exponentiating the barycentric weights.
+I experimented with different numbers and arrived at 2.1 as a pretty good fit.
+
+```{julia}
+#| code-fold: true
+@drawsvg begin
+
+    inner_gap = 0.045 / cosd(30)
+
+    scale(150, -150)
+
+    cornerpoints = []
+
+    cs = [
+        Point(0, 0.45),
+        rotatepoint(Point(0, 0.45), 2pi / 3),
+        rotatepoint(Point(0, 0.45), 2 * 2pi / 3),
+    ]
+    rs = [0.15, 0.235, 0.195]
+
+    for i in 1:3
+        p1 = Point(1, 0)
+        p3 = Point(0, 0)
+        p2 = Point(0.5, sqrt(3) / 2)
+        p4 = Point(0.5, -sqrt(3) / 2)
+
+        (p1, p2, p3, p4) = rotatepoint.(Point(inner_gap, 0) .+ (p1, p2, p3, p4), i * 2pi / 3 + 2pi / 12)
+
+        push!(cornerpoints, p1)
+    end
+
+    xrange = range(-1, 1, length=10)
+    yrange = range(-1.2, 0.8, length=10)
+
+    pixels = broadcast(xrange, yrange') do i, j
+        p = Point(i, j)
+        f_yellow, f_blue, f_red = clamp.(bary_weights(p, cornerpoints...), 0, 1) .^ 2.1
+        mix(((makieyellow), f_yellow), ((makieblue), f_blue), ((makiered), f_red))
+    end
+
+    move(cornerpoints[1])
+    line.(cornerpoints[2:3])
+    closepath()
+    clip()
+
+    @layer begin
+        translate(first(xrange), first(yrange))
+        scale(1 / length(xrange) * (last(xrange) - first(xrange)), 1 / length(yrange) * (last(yrange) - first(yrange)))
+
+        midx = 0.5 * (first(xrange) + last(xrange))
+        midy = 0.5 * (first(yrange) + last(yrange))
+        placeimage(pixels', O, centered=false)
+    end
+
+end 400 400
+```
+
+And this is how that triangle looks overlaid on the logo outline:
+
+```{julia}
+#| code-fold: true
+@drawsvg begin
+
+    inner_gap = 0.045 / cosd(30)
+
+    scale(150, -150)
+
+    cornerpoints = []
+
+    cs = [
+        Point(0, 0.45),
+        rotatepoint(Point(0, 0.45), 2pi / 3),
+        rotatepoint(Point(0, 0.45), 2 * 2pi / 3),
+    ]
+    rs = [0.15, 0.235, 0.195]
+
+    for i in 1:3
+        p1 = Point(1, 0)
+        p3 = Point(0, 0)
+        p2 = Point(0.5, sqrt(3) / 2)
+        p4 = Point(0.5, -sqrt(3) / 2)
+
+        (p1, p2, p3, p4) = rotatepoint.(Point(inner_gap, 0) .+ (p1, p2, p3, p4), i * 2pi / 3 + 2pi / 12)
+
+        c1 = cs[mod1(i + 1, 3)]
+        c2 = cs[mod1(i + 0, 3)]
+
+        n, ip1, ip2 = intersectionlinecircle(p2, p3, c1, rs[mod1(i + 1, 3)])
+        if n != 2
+            error()
+        end
+        n, ip3, ip4 = intersectionlinecircle(p3, p4, c2, rs[mod1(i + 0, 3)])
+        if n != 2
+            error()
+        end
+
+        push!(cornerpoints, p1)
+
+
+        move(p1)
+        rounded_corner(p1, p2, p3, 0.17)
+        line(ip2)
+        carc2r(c1, ip2, ip1)
+
+        rounded_corner(p2, p3, p4, 0.06)
+        line(ip4)
+        carc2r(c2, ip4, ip3)
+
+        rounded_corner(p3, p4, p1, 0.17)
+        closepath()
+
+
+    end
+
+    path = pathtopoly()
+
+    strokepath()
+
+    move(cornerpoints[1])
+    line.(cornerpoints[2:3])
+    closepath()
+    clip()
+
+    xrange = range(extrema(x -> x.x, Iterators.flatten(path))..., length=10)
+    yrange = range(extrema(x -> x.y, Iterators.flatten(path))..., length=10)
+
+    pixels = broadcast(xrange, yrange') do i, j
+        p = Point(i, j)
+        f_yellow, f_blue, f_red = clamp.(bary_weights(p, cornerpoints...), 0, 1) .^ 2.1
+        mix(((makieyellow), f_yellow), ((makieblue), f_blue), ((makiered), f_red))
+    end
+
+    translate(first(xrange), first(yrange))
+    scale(1 / length(xrange) * (last(xrange) - first(xrange)), 1 / length(yrange) * (last(yrange) - first(yrange)))
+
+    midx = 0.5 * (first(xrange) + last(xrange))
+    midy = 0.5 * (first(yrange) + last(yrange))
+    placeimage(pixels', O, centered=false)
+
+end 400 400
+```
+
+To arrive at the final result, I simply remove the triangle and switch the logo shape from a stroked outline to a clipping mask for the full gradient mesh.
+Outside of the triangle negative barycentric weights are simply clipped to zero.
+
+```{julia}
+@drawsvg begin
+
+    inner_gap = 0.045 / cosd(30)
+
+    scale(150, -150)
+
+    cornerpoints = []
+
+    cs = [
+        Point(0, 0.45),
+        rotatepoint(Point(0, 0.45), 2pi / 3),
+        rotatepoint(Point(0, 0.45), 2 * 2pi / 3),
+    ]
+    rs = [0.15, 0.235, 0.195]
+
+    for i in 1:3
+        p1 = Point(1, 0)
+        p3 = Point(0, 0)
+        p2 = Point(0.5, sqrt(3) / 2)
+        p4 = Point(0.5, -sqrt(3) / 2)
+
+        (p1, p2, p3, p4) = rotatepoint.(Point(inner_gap, 0) .+ (p1, p2, p3, p4), i * 2pi / 3 + 2pi / 12)
+
+        c1 = cs[mod1(i + 1, 3)]
+        c2 = cs[mod1(i + 0, 3)]
+
+        n, ip1, ip2 = intersectionlinecircle(p2, p3, c1, rs[mod1(i + 1, 3)])
+        if n != 2
+            error()
+        end
+        n, ip3, ip4 = intersectionlinecircle(p3, p4, c2, rs[mod1(i + 0, 3)])
+        if n != 2
+            error()
+        end
+
+        push!(cornerpoints, p1)
+
+
+        move(p1)
+        rounded_corner(p1, p2, p3, 0.17)
+        line(ip2)
+        carc2r(c1, ip2, ip1)
+
+        rounded_corner(p2, p3, p4, 0.06)
+        line(ip4)
+        carc2r(c2, ip4, ip3)
+
+        rounded_corner(p3, p4, p1, 0.17)
+        closepath()
+
+
+    end
+
+    path = pathtopoly()
+
+    clip()
+
+    xrange = range(extrema(x -> x.x, Iterators.flatten(path))..., length=10)
+    yrange = range(extrema(x -> x.y, Iterators.flatten(path))..., length=10)
+
+    pixels = broadcast(xrange, yrange') do i, j
+        p = Point(i, j)
+        f_yellow, f_blue, f_red = clamp.(bary_weights(p, cornerpoints...), 0, 1) .^ 2.1
+        mix(((makieyellow), f_yellow), ((makieblue), f_blue), ((makiered), f_red))
+    end
+
+    translate(first(xrange), first(yrange))
+    scale(1 / length(xrange) * (last(xrange) - first(xrange)), 1 / length(yrange) * (last(yrange) - first(yrange)))
+
+    midx = 0.5 * (first(xrange) + last(xrange))
+    midy = 0.5 * (first(yrange) + last(yrange))
+    placeimage(pixels', O, centered=false)
+
+end 400 400
+```
+
+And that's it!
+We can compare once more to the original:
+
+![](makie_icon.svg){width="40%"}
+
+I think that's a pretty good match, and the size of the new version is just 3KB with a 10x10 pixel gradient.
+
+Finally, I have to do one animation, just because I can do it now!
+
+```{julia}
+#| code-fold: true
+#| output: false
+
+function frame(scene, framenumber)
+
+    background("white")
+
+    inner_gap = 0.045 / cosd(30)
+
+    scale(250, -250)
+
+    cornerpoints = []
+
+    cs = [
+        Point(0, 0.45),
+        rotatepoint(Point(0, 0.45), 2pi / 3),
+        rotatepoint(Point(0, 0.45), 2 * 2pi / 3),
+    ]
+    rs = [0.15, 0.235, 0.195]
+
+    for i in 1:3
+        p1 = Point(1, 0)
+        p3 = Point(0, 0)
+        p2 = Point(0.5, sqrt(3) / 2)
+        p4 = Point(0.5, -sqrt(3) / 2)
+
+        (p1, p2, p3, p4) = rotatepoint.(Point(inner_gap, 0) .+ (p1, p2, p3, p4), i * 2pi / 3 + 2pi / 12)
+
+        c1 = cs[mod1(i + 1, 3)]
+        c2 = cs[mod1(i + 0, 3)]
+
+        n, ip1, ip2 = intersectionlinecircle(p2, p3, c1, rs[mod1(i + 1, 3)])
+        if n != 2
+            error()
+        end
+        n, ip3, ip4 = intersectionlinecircle(p3, p4, c2, rs[mod1(i + 0, 3)])
+        if n != 2
+            error()
+        end
+
+        push!(cornerpoints, rotatepoint(p1, (framenumber - 1) / 99 * 2pi))
+
+
+        move(p1)
+        rounded_corner(p1, p2, p3, 0.17)
+        line(ip2)
+        carc2r(c1, ip2, ip1)
+
+        rounded_corner(p2, p3, p4, 0.06)
+        line(ip4)
+        carc2r(c2, ip4, ip3)
+
+        rounded_corner(p3, p4, p1, 0.17)
+        closepath()
+
+
+    end
+
+    path = pathtopoly()
+
+    clip()
+
+    xrange = range(extrema(x -> x.x, Iterators.flatten(path))..., length=50)
+    yrange = range(extrema(x -> x.y, Iterators.flatten(path))..., length=50)
+
+    pixels = broadcast(xrange, yrange') do i, j
+        p = Point(i, j)
+        f_yellow, f_blue, f_red = clamp.(bary_weights(p, cornerpoints...), 0, 1) .^ 2.1
+        mix(((makieyellow), f_yellow), ((makieblue), f_blue), ((makiered), f_red))
+    end
+
+    translate(first(xrange), first(yrange))
+    scale(1 / length(xrange) * (last(xrange) - first(xrange)), 1 / length(yrange) * (last(yrange) - first(yrange)))
+
+    midx = 0.5 * (first(xrange) + last(xrange))
+    midy = 0.5 * (first(yrange) + last(yrange))
+    placeimage(pixels', O, centered=false)
+
+end
+
+movie = Movie(600, 600, "makielogo")
+
+mktempdir() do dir
+    animate(movie, [Scene(movie, frame, 0:100)]; tempdirectory = dir)
+    run(`ffmpeg -i $(dir)/%10d.png -y -pix_fmt yuv420p -c:v libx264 -movflags +faststart -filter:v crop='floor(in_w/2)*2:floor(in_h/2)*2' makie.mp4`)
+end
+```
+
+{{< video makie.mp4 width="300" height="300" >}}

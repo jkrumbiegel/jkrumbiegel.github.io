@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="400" height="400" viewBox="0 0 400 400">
+<defs>
+<clipPath id="clip-0">
+<path clip-rule="nonzero" d="M 63 121 L 337 121 L 337 358 L 63 358 Z M 63 121 "/>
+</clipPath>
+<clipPath id="clip-1">
+<path clip-rule="nonzero" d="M 63.347656 121.101562 L 200 357.792969 L 336.652344 121.101562 Z M 63.347656 121.101562 "/>
+</clipPath>
+<image id="source-4003" x="0" y="0" width="10" height="10" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAIAAAACUFjqAAAABmJLR0QA/wD/AP+gvaeTAAAA60lEQVQYlQXBCU7DMBAF0O/xpM3S0hBKQQhxKg7GDbgeqoSUlDRx7Fl4L3x+fd9yd5dm0506AYjuO5WulGPOfKgWcVKP6mRaAWCzWrQtpSuZL81vRRLhDrgHF2qknHJ6TKlPid+7a8tpTzmSRnNP1WndntflvC59Svxx+Dnt5ofq3nI6ls1z0/+Vl/syrOsxb/zWXof9dK7HC4/TPOr20I3Uz+VQci3CT/WkFofd9KrjFm8qQ1zaaiYWYzduYkIMDrIgCqgHM4HsUQIApuBwd6MgHswCibE4RQfDQQBgARJQCBoQHZWBHeQA/gFmQJXsNxtwYAAAAABJRU5ErkJggg=="/>
+</defs>
+<g clip-path="url(#clip-0)">
+<g clip-path="url(#clip-1)">
+<use xlink:href="#source-4003" transform="matrix(30, 0, 0, -30, 50, 380)"/>
+</g>
+</g>
+</svg>
